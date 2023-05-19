@@ -182,7 +182,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
         \item[BSS] Backward State Space
         \item[FSS] Forward State Space
         \item[FF] Fast-Forward
-        \item[GBFS] Greedy-Best First Search
+        \item[GBFS] Greedy Best-First Search
         \item[NN]  Neural Network
         \item[PDDL] Planning Domain Definition Language
         \item[SD] Standard Deviation
@@ -215,7 +215,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 %
 \chapter{Introduction}
 
-This work represents the first step towards learning preferred operators with neural networks. Preferred operatos are used in conjunction with heuristic functions and assist the search by reducing the number of expanded states when solving a planning task.
+This work represents the first step towards learning preferred operators with neural networks. Preferred operators are used in conjunction with heuristic functions and assist the search by reducing the number of expanded states when solving a planning task.
 
 \section{Planning}
 Planning involves determining a series of operators (or actions) that transitions a given initial state to a desired goal state~\cite{Lipovetsky/2014}.
@@ -244,7 +244,7 @@ For example, in a Blocks World task, consider the initial state (left) and the g
 Planning tasks are solved by planners, which are software systems designed to find plans for given planning problems. Planners employ various algorithms and techniques to explore the search space of possible operators and states in order to find an optimal or satisfactory plan. Planners typically take as input a formal representation of the planning problem, including the initial state, goal condition, and a set of available operators. The formal representation of a planning task can be specified using planning languages such as PDDL (Planning Domain Definition Language).
 
 \section{Heuristic Search}
-To solve planning tasks, planners commonly use a best-first search algorithm, which use a function~$f$ to guide the search. The function $f$ combines the current cost $g(s)$ of a partial sequence of operations initiated from the initial state and reaching state $s$, along with a heuristic function $h(s)$ that provides an estimate of the cost-to-goal (also known as heuristic value or $h$-value) from state $s$. For example, \astar search is guided by $f(s)=g(s)+h(s)$~\cite{hart-et-al-ieeessc1968}, and greedy best-first search (\gbfs) is guided only by $f(s)=h(s)$~\cite{doran-michie-rsl1966}. In general, best-first search algorithms prove more effective when the heuristic function~$h$ better approximates the optimal heuristic function~\hstar.
+To solve planning tasks, planners commonly use a best-first search algorithm, which uses a function~$f$ to guide the search. The function $f$ combines the current cost $g(s)$ of a partial sequence of operations initiated from the initial state and reaching state $s$, along with a heuristic function $h(s)$ that provides an estimate of the cost-to-goal (also known as heuristic value or $h$-value) from state $s$. For example, \astar search is guided by $f(s)=g(s)+h(s)$~\cite{hart-et-al-ieeessc1968}, and greedy best-first search (\gbfs) is guided only by $f(s)=h(s)$~\cite{doran-michie-rsl1966}. In general, best-first search algorithms prove more effective when the heuristic function~$h$ better approximates the optimal heuristic function~\hstar.
 
 %In particular, GBFS organizes states in a priority queue ordered by their cost-to-goal estimate, which is provided by the heuristic function. By expanding states with the lowest cost-to-goal estimate, GBFS finds a solution.
 Various domain-independent heuristics efficiently calculate the cost-to-goal estimate of a state using domain logic, which includes specific information that aids in reasoning about operators and rules, such as mutexes indicating impossible states. Examples include delete relaxation~\cite{Hoffmann.Nebel/2001}, landmarks~\cite{hoffmann-et-al-jair2004,Karpas.Domshlak/2009}, critical paths~\cite{haslum-geffner-aips2000}, and state equation~\cite{bonet-ijcai2013}.
@@ -276,18 +276,22 @@ This study represents the first attempt to discover preferred operators from a s
 % these are all things that exist already
 % and that the reader needs to know before
 %
-\chapter{Background}
+\chapter{Background and Related Work}
+This chapter serves as a foundation, providing essential information for comprehending the subsequent chapters of this work. In particular, we present the notation employed in this work along with the essential concepts required for a comprehensive understanding of the subject matter.
 
 \section{Classical Planning Notation}
 
-\section{Greedy-Best First Search}
-
 \section{Heuristic Functions}
 
+\section{Greedy Best-First Search}
+
 \section{Preferred Operators}
+\ppi{Don't forget to explain the dual queue approach.}
 
 \section{Residual Neural Networks}
 \ppi{Needed?}
+
+\section{Related Work}
 
 %
 % - - - - - - - - - - - - - - - -- - - - - -
@@ -296,6 +300,10 @@ This study represents the first attempt to discover preferred operators from a s
 % now we talk about the stuff we're doing
 %
 \chapter{Sample Generation}
+
+\section{Sampling for Learning Heuristic Functions}
+
+\section{Sampling for Learning Preferred Operators}
 
 \section{Ideal Preferred Operators}
 
@@ -310,6 +318,8 @@ This study represents the first attempt to discover preferred operators from a s
 \chapter{Experiments}
 
 \section{Configuration}
+
+\chapter{Limitations}
 
 \chapter{Conclusion}
 
