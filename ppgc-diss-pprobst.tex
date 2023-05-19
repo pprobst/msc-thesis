@@ -32,7 +32,7 @@
 \usepackage{tikz}
 
 \usepackage{times}              % pacote para usar fonte Adobe Times
-% \usepackage{palatino}
+%\usepackage{palatino}
 % \usepackage{mathptmx}          % p/ usar fonte Adobe Times nas fórmulas
 
 \usepackage[alf,abnt-emphasize=bf]{abntex2cite}	% pacote para usar citações abnt
@@ -62,7 +62,7 @@
 %
 % Informações gerais
 %
-\title{Learning Preferred Operators \\ for Classical Planning}
+\title{Discovering and Learning Preferred Operators for Classical Planning with Neural Networks}
 \translatedtitle{Aprendizado de Operadores Preferidos em Planejamento Clássico}
 
 \author{Minini}{Pedro Probst}
@@ -162,14 +162,14 @@ TODO.
 
 % abstract in english
 \begin{abstract}
-In a planning task, an agent must choose the most appropriate action from a potentially large set of actions at each step. Symbolic-based (or logic-based) planners employ preferred operators to reduce the number of actions significantly. This work presents a method for sampling and learning preferred operators, ensuring their applicability across the entire state space of a planning task. We demonstrate that these learned preferred operators outperform the current best symbolic-based approach.
+In a planning task, an agent must choose the most appropriate action from a potentially large set of actions at each step. Symbolic-based planners employ preferred operators to reduce the number of actions significantly. This work presents a method for sampling and learning preferred operators, ensuring their applicability across the entire state space of a planning task. We demonstrate that these learned preferred operators outperform the current best symbolic-based approach.
 We aim to identify ideal preferred operators, which are situated along the shortest paths leading to some goal. However, due to the huge size of search state spaces, we introduce a novel sampling strategy tailored for extracting preferred operators. Our research shows that high-quality preferred operators can be obtained from a sample set covering only a fraction of the state space. Furthermore, a small neural network trained on these samples can effectively approximate ideal preferred operators for tasks involving numerous states.
 To gain insights into this new category of preferred operators, we conduct controlled experiments: we systematically compare them to baselines, evaluate the effectiveness of preferred operators learned from various sample sizes, and assess their performance when combined with different heuristic functions.
 \end{abstract}
 
 % abstract in portuguese
 \begin{translatedabstract}
-Em uma tarefa de planejamento, um agente deve escolher a ação mais adequada de um conjunto potencialmente grande de ações em cada etapa. Planejadores simbólicos (ou baseados em lógica) empregam operadores preferidos para reduzir significativamente o número de ações. Este trabalho apresenta um método para amostragem e aprendizagem de operadores prefereridos, garantindo sua aplicabilidade em todo o espaço de estado de uma tarefa de planejamento. Demonstramos que esses operadores preferidos aprendidos superam a melhor abordagem simbólica atual.
+Em uma tarefa de planejamento, um agente deve escolher a ação mais adequada de um conjunto potencialmente grande de ações em cada passo. Planejadores simbólicos empregam operadores preferidos para reduzir significativamente o número de ações. Este trabalho apresenta um método para amostragem e aprendizagem de operadores prefereridos, garantindo sua aplicabilidade em todo o espaço de estado de uma tarefa de planejamento. Demonstramos que esses operadores preferidos aprendidos superam a melhor abordagem simbólica atual.
 Nosso objetivo é identificar os operadores preferidos ideais, que estão situados ao longo dos caminhos mais curtos que levam a algum objetivo. No entanto, devido ao enorme tamanho dos espaços de estado, apresentamos uma nova estratégia de amostragem adaptada para extrair operadores preferidos. Nossa pesquisa mostra que operadores preferidos de alta qualidade podem ser obtidos de um conjunto de amostras que abrange apenas uma fração do espaço de estados. Além disso, uma pequena rede neural treinada nessas amostras pode aproximar com eficácia os operadores preferidos ideais para tarefas que envolvem vários estados.
 Para obter uma compreensão mais aprofundada sobre essa nova categoria de operadores preferidos, realizamos experimentos controlados: nós os comparamos sistematicamente com \textit{baselines}, avaliamos a eficácia dos operadores preferidos aprendidos com vários tamanhos de amostra e avaliamos seu desempenho quando combinados com diferentes funções heurísticas.
 \end{translatedabstract}
@@ -181,19 +181,20 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 \begin{listofabbrv}{SPMD}
         \item[BSS] Backward State Space
         \item[FSS] Forward State Space
+        \item[FF] Fast-Forward
         \item[GBFS] Greedy-Best First Search
+        \item[NN]  Neural Network
         \item[PDDL] Planning Domain Definition Language
         \item[SD] Standard Deviation
 \end{listofabbrv}
 
 \begin{listofsymbols}{$\alpha\beta\pi\omega$}
-       \item[FF] Fast-Forward
        \item[\h] Heuristic
+       \item[\hstar] Optimal heuristic
        \item[\hnn] Learned heuristic
        \item[\hadd] Add heuristic
        \item[\hff] FF heuristic
        \item[\hgc] Goal-count heuristic
-       \item[NN]  Neural network
        \item[\poff] FF preferred operator
        \item[\pog] Learned preferred operator
 \end{listofsymbols}
@@ -214,13 +215,17 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 %
 \chapter{Introduction}
 
-In a classical planning task, the initial state serves as the starting point for an agent. The agent acts in a fully-observable environment, i.e., with access to all relevant information of the current state of the world, such as the positions of objects and the values of variables. The objective of the agent is to fulfill a specific goal condition. This is achieved by using deterministic operators (or actions) to modify the current state of the world. A solution plan for the planning task can be defined as a sequence of operators that, when applied to the initial state, successfully satisfy the goal condition. The process of state expansion involves the application of all relevant operators to a given state, thereby generating its successor states.
+This work represents the first step towards learning preferred operators with neural networks. Preferred operatos are used in conjunction with heuristic functions and assist the search by reducing the number of expanded states when solving a planning task.
+
+\section{Planning}
+Planning involves determining a series of operators (or actions) that transitions a given initial state to a desired goal state~\cite{Lipovetsky/2014}.
+In a classical planning task, the initial state serves as the starting point for an agent. The agent acts in a fully-observable environment, i.e., with access to all relevant information of the current state of the world, such as the positions of objects and the values of variables. The objective of the agent is to fulfill a specific goal condition. This is achieved by using deterministic operators to modify the current state of the world. A solution plan for the planning task can be defined as a sequence of operators that, when applied to the initial state, successfully satisfy the goal condition. The process of state expansion involves the application of all relevant operators to a given state, thereby generating its successor states.
 
 For example, in a Blocks World task, consider the initial state (left) and the goal state (right) shown in Figure \ref{fig:intro-blocks}. The agent needs to apply a sequence of operators to reach the goal state from the initial state. We can define operators such as ``pick up block X'', ``put block X on block Y'', and ``put block X on the table.'' In this example, the agent can find one of the possible plans by applying the following operators: pick up block C, put block C on the table, pick up block B, put block B on block C, and put block A on block B.
 
 \begin{figure}[ht]
-\captionsetup{skip=5pt} % the original spacing looks ugly as fuck so I adjusted it a little bit
-\caption{Initial state (left) and goal state (right) of a small Blocks World task.}
+\captionsetup{skip=5pt} % the original spacing looks ugly as f* so I adjusted it a little bit
+\caption{Initial state (left) and goal state (right) of a Blocks World task.}
 \centering
 \begin{tikzpicture}[scale=0.8]
   % Initial configuration
@@ -238,13 +243,32 @@ For example, in a Blocks World task, consider the initial state (left) and the g
 
 Planning tasks are solved by planners, which are software systems designed to find plans for given planning problems. Planners employ various algorithms and techniques to explore the search space of possible operators and states in order to find an optimal or satisfactory plan. Planners typically take as input a formal representation of the planning problem, including the initial state, goal condition, and a set of available operators. The formal representation of a planning task can be specified using planning languages such as PDDL (Planning Domain Definition Language).
 
-\ppi{Continue...}
+\section{Heuristic Search}
+To solve planning tasks, planners commonly use a best-first search algorithm, which use a function~$f$ to guide the search. The function $f$ combines the current cost $g(s)$ of a partial sequence of operations initiated from the initial state and reaching state $s$, along with a heuristic function $h(s)$ that provides an estimate of the cost-to-goal (also known as heuristic value or $h$-value) from state $s$. For example, \astar search is guided by $f(s)=g(s)+h(s)$~\cite{hart-et-al-ieeessc1968}, and greedy best-first search (\gbfs) is guided only by $f(s)=h(s)$~\cite{doran-michie-rsl1966}. In general, best-first search algorithms prove more effective when the heuristic function~$h$ better approximates the optimal heuristic function~\hstar.
 
-%Most planners use a best-first search algorithm such as greedy best-first search (GBFS)~\cite{doran-michie-rsl1966} to solve tasks. GBFS maintains states in a priority queue ordered by their cost-to-goal estimate, provided by the \emph{heuristic function}. GFBS finds a solution by first expanding states with the lowest cost-to-goal estimate. Several domain-independent heuristics efficiently compute the cost-to-goal estimate or heuristic value ($h$-value) of a state using the domain logic, i.e., specific information that enables reasoning about operators and other rules, such as mutexes that indicate impossible states. These heuristics are based mainly on techniques such as abstractions, delete relaxation, and landmarks~\cite{culberson1998pattern,haslum-geffner-aips2000,hoffmann-et-al-jair2004,Helmert.Domshlak/2009}. The heuristic function is the most important component of a planner since it guides the search.
+%In particular, GBFS organizes states in a priority queue ordered by their cost-to-goal estimate, which is provided by the heuristic function. By expanding states with the lowest cost-to-goal estimate, GBFS finds a solution.
+Various domain-independent heuristics efficiently calculate the cost-to-goal estimate of a state using domain logic, which includes specific information that aids in reasoning about operators and rules, such as mutexes indicating impossible states. Examples include delete relaxation~\cite{Hoffmann.Nebel/2001}, landmarks~\cite{hoffmann-et-al-jair2004,Karpas.Domshlak/2009}, critical paths~\cite{haslum-geffner-aips2000}, and state equation~\cite{bonet-ijcai2013}.
 
-%Using heuristic functions in conjunction with preferred operators can aid planners in reducing the number of expanded states during a search process~\cite{Richter.Helmert/2009}. By prioritizing the expansion of states generated by preferred operators, these planners benefit from additional guidance, often resulting in a higher success rate for solving tasks compared to modifying the heuristic function alone. The existing approaches for identifying preferred operators are limited to symbolic-based methods, and the current best is to use the preferred operators computed alongside the Fast-Forward (FF) heuristic~\cite{Hoffmann.Nebel/2001}, as implemented in the Fast Downward~\cite{Helmert/2006} planning system. Preferred operators are especially helpful in competitive settings to maximize the number of solved tasks: planners using preferred operators were the winners of the satisficing track of the \textit{International Planning Competition} (IPC) in the years 2004, 2008, 2011, and 2018~\cite{Helmert/2006,Richter.lama.etal/2011,Richter.lama.etal/2011,Seipp-fast.etal/2018}.
+\section{Preferred Operators}
+Preferred operators are used in conjunction with heuristic functions and can aid planners in reducing the number of expanded states during a search process~\cite{Helmert/2006,Richter.Helmert/2009}. Intuitively, preferred operators generate successor states that are closer to the goal. By prioritizing the expansion of states generated by preferred operators, planners benefit from additional guidance, often resulting in a higher success rate for solving tasks compared to only relying on the heuristic function. Learning preferred operators shares similarities with learning policies, as both involve the selection of actions that are more likely to result in desirable outcomes. The existing methods for identifying preferred operators are currently limited to symbolic-based (also called as logic-based) approaches. The most effective approach utilized at present involves using the preferred operators calculated alongside the Fast-Forward (FF) heuristic~\cite{Hoffmann.Nebel/2001}, as implemented in the Fast Downward planning system~\cite{Helmert/2006}. Preferred operators are particularly beneficial in competitive scenarios, as they maximize the number of solved tasks (coverage). Planners incorporating preferred operators emerged as winners in the satisficing track of the International Planning Competition (IPC) in 2004, 2008, 2011, and 2018~\cite{Helmert/2006,Richter.lama.etal/2011,Richter.lama.etal/2011,Seipp-fast.etal/2018}.
 
+\section{Deep Learning}
+Deep learning, as described by~\citet{Goodfellow.etal/2016}, is a subfield of machine learning that focuses on the design and training of neural networks (NNs) with multiple layers. It revolves around the concept of learning hierarchical representations of data, where each layer in the network progressively extracts more complex and abstract features. Through the use of deep neural networks, deep learning algorithms can automatically discover and capture intricate patterns from large-scale datasets in a varity of tasks, including image classification, speech recognition, natural language processing, and more.
 
+Deep learning models can learn in different ways. This study focuses on supervised learning, which involves using labeled datasets to classify or make predictions. In this case, a dataset used to train an NN can be represented as multiple pairs in the format $(y, x)$. Here, the target $y$ refers to the desired output or label associated with a specific input instance $x$. Deep learning models can effectively learn and generalize from the provided labeled data to make accurate predictions or classify new, unseen inputs.
+
+\section{Learning in Planning}
+In recent years, interest in using NNs to learn heuristic functions~\cite{Ferber.etal/2020a,Yu.etal/2020,Shen.etal/2020,Ferber.etal/2022,OToole/2022} or policies~\cite{Toyer.etal/2018,Toyer.etal/2020,Stahlberg.etal/2022} to solve planning tasks has increased. For supervised methods, the general approach is to generate a set of samples as pairs of states and cost-to-goal values and use them to train a neural network. However, it is challenging to learn effective heuristic functions, since (a) state spaces tend to grow exponentially in size as the amount of information needed to describe them increases, but the portion of the state space that we can actually sample is relatively small, (b) symbolic-based heuristics can be applied to any domain, while learned heuristics are hard to transfer, and (c) learned heuristics are generally slow to compute, thus they need to be for informed, i.e., expand fewer states when compared to symbolic-based heuristics to reach the goal. These challenges also apply to learning preferred operators.
+
+\section{Contributions}
+This study represents the first attempt to discover preferred operators from a sample set and use an NN to learn them. We present a new sampling method and sample-based technique for identifying preferred operators. The technique involves backward search from the goal (also known as regression), constructing a graph with sampled states representing their successor-predecessor relationships, and determining for each state the set of operators used to reach the goal as preferred operators. This study reveals that a neural network can learn the preferred operators from a subset of the state space and effectively extend this learning to the entire state space across diverse planning domains. The proposed approach outperforms the current best symbolic-based preferred operator method in the benchmark tasks. In particular, this work presents:
+
+\begin{itemize}
+\item A systematic study of preferred operators.
+\item A new sampling method tailored for discovering preferred operators.
+\item A novel method based on shortest path graphs to discover preferred operators in an existing sample set.
+\item An analysis of the quality of the learned preferred operators and a comparison to existing symbolic-based methods.
+\end{itemize}
 %
 % - - - - - - - - - - - - - - - -- - - - - -
 % background
@@ -254,7 +278,7 @@ Planning tasks are solved by planners, which are software systems designed to fi
 %
 \chapter{Background}
 
-\section{Classical Planning}
+\section{Classical Planning Notation}
 
 \section{Greedy-Best First Search}
 
