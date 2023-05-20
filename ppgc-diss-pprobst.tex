@@ -41,11 +41,8 @@
 \usepackage{algpseudocode}
 
 % \usepackage{times}              % pacote para usar fonte Adobe Times
-\usepackage{palatino}
+ \usepackage{palatino}
 % \usepackage{mathptmx}          % p/ usar fonte Adobe Times nas fórmulas
-
-%\usepackage[sfdefault]{newpxtext}
-%\usepackage[euler-digits]{eulervm}
 
 \usepackage[alf,abnt-emphasize=bf]{abntex2cite}	% pacote para usar citações abnt
 
@@ -222,7 +219,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 %
 \chapter{Introduction}
 
-This work represents the first step towards learning preferred operators with neural networks. Preferred operators are used in conjunction with heuristic functions and assist the search by reducing the number of expanded states when solving a planning task.
+This work represents the first step on learning preferred operators with neural networks. Preferred operators are used in conjunction with heuristic functions and assist the search by reducing the number of expanded states when solving a planning task.
 
 \section{Planning}
 Planning involves determining a series of operators (or actions) that transitions a given initial state to a desired goal state~\cite{Lipovetsky/2014}.
@@ -248,7 +245,7 @@ For example, in a Blocks World task, consider the initial state (left) and the g
 \label{fig:intro-blocks}
 \end{figure}
 
-Planning tasks are solved by planners, which are software systems designed to find plans for given planning problems. Planners employ various algorithms and techniques to explore the search space of possible operators and states in order to find an optimal or satisfactory plan. Planners typically take as input a formal representation of the planning problem, including the initial state, goal condition, and a set of available operators. The formal representation of a planning task can be specified using planning languages such as PDDL (Planning Domain Definition Language).
+Planning tasks are solved by planners, which are software systems designed to find plans for given planning problems. Planners employ various algorithms and techniques to explore the search space of possible operators and states in order to find an optimal or satisfactory plan. Planners typically take as input a formal representation of the planning problem, including the initial state, goal condition, and a set of available operators. The formal representation of a planning task can be specified using planning languages such as PDDL (Planning Domain Definition Language), which is based on predicate logic and is easily readable by humans.
 
 \section{Heuristic Search}
 To solve planning tasks, planners commonly use a best-first search algorithm, which uses a function~$f$ to guide the search. The function $f$ combines the current cost $g(s)$ of a partial sequence of operations initiated from the initial state and reaching state $s$, along with a heuristic function $h(s)$ that provides an estimate of the cost-to-goal (also known as heuristic value or $h$-value) from state $s$. For example, \astar search is guided by $f(s)=g(s)+h(s)$~\cite{hart-et-al-ieeessc1968}, and greedy best-first search (\gbfs) is guided only by $f(s)=h(s)$~\cite{doran-michie-rsl1966}. In general, best-first search algorithms prove more effective when the heuristic function~$h$ better approximates the optimal heuristic function~\hstar.
@@ -287,7 +284,16 @@ This study represents the first attempt to discover preferred operators from a s
 This chapter serves as a foundation, providing essential information for comprehending the subsequent chapters of this work. In particular, we present the notation employed in this work along with the essential concepts required for a comprehensive understanding of the subject matter.
 
 \section{Classical Planning Notation}
-We use the \sas representation to describe classical planning tasks independent of any particular domain. A \sas planning task~\cite{Backstrom.Nebel/1995} is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined, otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A \emph{complete} state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition, where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states.
+In this section we present two ways to represent a planning task. The first one, STRIPS~\cite{Fikes.Nilsson/1971}, represents a planning problem using propositional facts (Boolean variables), while the second one, \sas~\cite{Backstrom.Nebel/1995}, represents them using multi-valued state variables. The \sas representation is more commonly used among current planners.
+
+\subsection{STRIPS}
+% A planning task in STRIPS is defined as $\Pi = \langle F, O, I, G\rangle$ where $F$ is a set of facts (Boolean variables), $O$ is a set of operators or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$, $I \subseteq F$ is the initial state, and $G \subseteq F$ is a a set of goal facts that must be satisfied. We say that operators $O(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$. We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false. Finally, a sequence of operators $\pi=(o_1,\ldots,o_k)$ applicable to the initial state is called a plan.
+A planning task in STRIPS representation~\cite{Fikes.Nilsson/1971} is defined by a tuple~$\Pi=\langle\mathcal{F},\mathcal{O},\mathcal{I},\mathcal{G}\rangle$. Here, $\mathcal{F}$~is a set of propositions, $\mathcal{O}$~is a set of operators, $\mathcal{I} \subseteq \mathcal{F}$~is an initial state, and $\mathcal{G}$~is a set of goal states. Each assignment $s \subseteq \mathcal{F}$ represents a state, and the set~$\mathcal{S}$ of all states over $\mathcal{F}$ is the state space.
+An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its preconditions, add-effects and delete-effects, respectively. We say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and it produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $add(o)$ to true and in $del(o)$ to false. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
+A sequence of operators~$\pi=o_1,\ldots,o_k$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ for $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$\mathcal{I}$ is called a plan if $s_k \in \mathcal{G}$, and its cost is given by $\pi = k$ since we are considering only unitary costs. The plan with minimum length is an optimal plan.
+
+\subsection{\sas}
+In this study, we use the \sas representation to describe classical planning tasks independent of any particular domain. A \sas planning task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined, otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A \emph{complete} state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition, where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
 %the expression $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$ means that the domain of $\mathcal{D}$ is the union of the domains of all the elements in $\mathcal{V}$. That is, the set of values that $\mathcal{D}$ can take is the combination of all the values that each element in $\mathcal{V}$ can take.
 An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its preconditions are fulfilled by $s$, denoted by $\pre(o) \subseteq s$, and it generates a successor state $s'=\sucs(s,o):=\eff(o)\circ s$. Here, $s'=t\circ s$ is defined as $s'(v)=t(v)$ for all $v$ such that $t(v)$ is defined, and for all other cases, $s'(v)=s(v)$. The set of all successor states resulting from state $s$ is denoted by $\sucs(s)=\{{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s}\}$. A sequence of operators $\pi=(o_1,\ldots,o_k)$, where $o_i\in \mathcal{O}$, is considered valid for the initial state $s_0$ if, for $i\in[k]$, operator $o_i$ can be applied to $s_{i-1}$, and it produces $s_i=\sucs(s_{i-1},o_i)$. A plan refers to a valid sequence $\pi$ for $s_0$ such that $s^* \subseteq s_k$. In this work, all operators have unit costs, so the plan length is $|\pi| = k$.
 
@@ -298,7 +304,16 @@ If a valid regression sequence $\rho=(o_1,\ldots,o_k)$ is generated, a sequence 
 The backward state space (BSS) refers to the set of partial states that can be reached from the goal state $s^*$ by applying backward applicable operators. The BSS is explored during regression. Conversely, the forward state space (FSS) pertains to the set of states that can be reached from the initial state $s_0$ by applying a sequence of operators. The FSS is explored when solving a task.
 
 \section{Heuristic Functions}
-A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}$ estimates the optimal plan length from a state $s$ to the goal $s^*$, where the optimal heuristic function is defined as $\hstar(s) = |\pi_{s}^{*}|$, i.e., the length of the true plan from $s$ to $s^{*}$. Heuristic functions are used to guide search algorithms, optimization techniques, or decision-making processes by providing informed estimates or approximations based on available information or problem-specific knowledge. The goal of a heuristic function is to efficiently guide the search or decision-making process towards more promising paths or solutions, even in the absence of complete or perfect information. Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map a state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
+A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}$ estimates the optimal plan length from a state $s$ to the goal $s^*$, where the optimal heuristic function is defined as $\hstar(s) = |\pi_{s}^{*}|$, i.e., the length of the true plan from $s$ to $s^{*}$. Heuristic functions are used to guide search algorithms, optimization techniques, or decision-making processes by providing informed estimates or approximations based on available information or problem-specific knowledge. The goal of a heuristic function is to efficiently guide the search or decision-making process towards more promising paths or solutions, even in the absence of complete or perfect information. A heuristic function can have several properties that indicate its quality, such as:
+
+\begin{itemize}
+        \item Admissibility: $h(s) \le \hstar{(s)}$, i.e., the heuristic never overestimates the true cost-to-goal.
+        \item Consistency (or monotonicity): $h(s) + cost(o) \ge h(s')$ for all $s \xrightarrow{o} s'$.
+        \item Goal-awareness: $h(s) = 0$ for all goal states.
+        \item Safeness: all states have $h(s) = \infty$ if $\hstar (s) = \infty$, for example in dead-ends.
+\end{itemize}
+
+Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map a state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
 
 A propositional representation of a state is more suitable for learning functions over states. For this purpose, consider a planning task denoted as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$. Here, $\mathcal{V}=\{v_1,\ldots,v_n\}$ represents a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ represents the domains of variable $v_i$, with $i\in[n]$. To represent any state $s$, we use a sequence of facts denoted as
 % The domain consists of possible values that $v_i$ can take. The values are represented as $d_{i1}$ to $d_{i,s_i}$, where $s_i$ indicates the number of possible values for $v_i$.
@@ -337,12 +352,28 @@ Greedy Best-First Search (GBFS, Algorithm~\ref{alg:gbfs}) is a best-first search
 \end{algorithm}
 
 \section{Preferred Operators}
+Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
+
+The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, where the preferred operators from FF are the current best.
+
 \ppi{Don't forget to explain the dual queue approach.}
 
 \section{Residual Neural Networks}
 \ppi{Needed?}
 
-\section{Related Work}
+\chapter{Related Work}
+In this chapter, we review and discuss the previous research conducted on topics related to the subject matter of this study.
+
+\section{Obtaining Preferred Operators}
+%The most effective approach for identifying preferred operators uses the computation of the FF heuristic~\cite{Hoffmann.Nebel/2001}. The FF heuristic applies two simplifications to the planning task. The first is the delete relaxation which ignores the negative effects of operators. In the \sas representation, the consequence of this simplification is that operators accumulate values to variables instead of replacing them. The second simplification is that the effects of the application of operators are accumulated in a so-called single world state~\cite{Helmert/2006} instead of considering the effects of each intermediate state separately. Then, to compute the heuristic value for a state~$s$, the FF heuristic efficiently finds a relaxed plan for the simplified planning task using~$s$ as the initial world state. The number of operators part of the relaxed plan is used as a heuristic estimate. In this case, the set of preferred operators of a state $s$ is all the operators that are part of the relaxed plan and are applicable to $s$. Intuitively, because these preferred operators contribute to solving the simplified version of the task, they could contribute to solving the original task.
+
+%Richter et al.~\cite{Richter.Helmert/2009} performed a systematic study on how best to use preferred operators and showed that a dual-queue approach works best. In this method, there is the ``default queue'', which receives \emph{all} generated states (default behavior without preferred operators), and the ``preferred queue'', which accepts \emph{only} states generated by preferred operators.  Additionally, they found that using boosting is effective. With a boost value $n$, whenever the search expands a state with an $h$-value less than all previous states, i.e., the search advances, the preferred queue is used for the next $n$ expansions as long as it is not empty.
+
+\section{Learning Heuristic Functions}
+%Although no prior research has focused on learning preferred operators, there are many studies on using learning heuristic functions for classical planning, which can be classified into two main approaches. The first approach uses ``structured'' neural networks that heavily depend on the domain logic of a specific planning task for instantiation, i.e., the architecture is specifically designed to align with the characteristics and requirements of the given input task. Examples include learning domain-independent heuristic functions with hypergraph neural networks~\cite{Shen.etal/2020}, and learning policies with action schema networks~\cite{Toyer.etal/2018,Toyer.etal/2020} and graph neural networks~\cite{Stahlberg.etal/2022}. While this first set of approaches has more expressive power and can be used independently of state spaces, a disadvantage is a heavy dependency on domain logic. Also, the major limitation of this set of approaches is that they can not be used to solve planning tasks of the size typically solved by planners since they require too much memory to be instantiated or are too slow to expand the required number of states.
+
+%This work follows a second approach, employing supervised learning to train a feed-forward neural network with pairs of states and cost-to-goal estimates~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022}. Samples can be generated with forward search from the initial state~\cite{Ferber.etal/2020a}, backward search from the goal~\cite{Yu.etal/2020,OToole/2022}, or a combination of both~\cite{Ferber.etal/2022}. This second set of approaches offers the advantage of requiring few computational resources. However, a limitation is that the trained models are typically applied only within the specific state space they were trained on. These approaches rely on domain logic to a minimal extent, primarily during the generation of samples, such as determining applicable operators. Also, if the predecessor and successor states can be generated by a black-box simulator (which could also be learned), these approaches may not require any domain logic.
+
 
 %
 % - - - - - - - - - - - - - - - -- - - - - -
