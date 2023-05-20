@@ -2,11 +2,11 @@
 # see http://www.ctan.org/tex-archive/support/latexmk/example_rcfiles
 
 $ENV{'TEXINPUTS'}='./tex/latex/iiufrgs/:' . $ENV{'TEXINPUTS'};
-$ENV{'BIBINPUTS'}='./tex/latex/iiufrgs/:' . $ENV{'BIBINPUTS'};
-$ENV{'BSTINPUTS'}='./tex/latex/iiufrgs/:' . $ENV{'BSTINPUTS'};
+$ENV{'BIBINPUTS'}='./:./tex/latex/iiufrgs/:' . $ENV{'BIBINPUTS'};
+$ENV{'BSTINPUTS'}='./:./tex/latex/iiufrgs/:' . $ENV{'BSTINPUTS'};
 
-# $pdflatex = 'pdflatex --shell-escape %O %S';
-$pdflatex = 'xelatex --shell-escape %O %S';
+$pdflatex = 'pdflatex --shell-escape %O %S';
+# $pdflatex = 'xelatex --shell-escape %O %S';
 $pdf_mode=1;
 $postscript_mode = $dvi_mode = 0;
 
