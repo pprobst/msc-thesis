@@ -280,7 +280,7 @@ This study represents the first attempt to discover preferred operators from a s
 % these are all things that exist already
 % and that the reader needs to know before
 %
-\chapter{Background and Related Work}
+\chapter{Background}
 This chapter serves as a foundation, providing essential information for comprehending the subsequent chapters of this work. In particular, we present the notation employed in this work along with the essential concepts required for a comprehensive understanding of the subject matter.
 
 \section{Classical Planning Notation}
@@ -288,7 +288,7 @@ In this section we present two ways to represent a planning task. The first one,
 
 \subsection{STRIPS}
 % A planning task in STRIPS is defined as $\Pi = \langle F, O, I, G\rangle$ where $F$ is a set of facts (Boolean variables), $O$ is a set of operators or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$, $I \subseteq F$ is the initial state, and $G \subseteq F$ is a a set of goal facts that must be satisfied. We say that operators $O(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$. We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false. Finally, a sequence of operators $\pi=(o_1,\ldots,o_k)$ applicable to the initial state is called a plan.
-A planning task in STRIPS representation~\cite{Fikes.Nilsson/1971} is defined by a tuple~$\Pi=\langle\mathcal{F},\mathcal{O},\mathcal{I},\mathcal{G}\rangle$. Here, $\mathcal{F}$~is a set of propositions, $\mathcal{O}$~is a set of operators, $\mathcal{I} \subseteq \mathcal{F}$~is an initial state, and $\mathcal{G}$~is a set of goal states. Each assignment $s \subseteq \mathcal{F}$ represents a state, and the set~$\mathcal{S}$ of all states over $\mathcal{F}$ is the state space.
+A planning task in STRIPS representation is defined by a tuple~$\Pi=\langle\mathcal{F},\mathcal{O},\mathcal{I},\mathcal{G}\rangle$. Here, $\mathcal{F}$~is a set of propositions, $\mathcal{O}$~is a set of operators, $\mathcal{I} \subseteq \mathcal{F}$~is an initial state, and $\mathcal{G}$~is a set of goal states. Each assignment $s \subseteq \mathcal{F}$ represents a state, and the set~$\mathcal{S}$ of all states over $\mathcal{F}$ is the state space.
 An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its preconditions, add-effects and delete-effects, respectively. We say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and it produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $add(o)$ to true and in $del(o)$ to false. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
 A sequence of operators~$\pi=o_1,\ldots,o_k$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ for $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$\mathcal{I}$ is called a plan if $s_k \in \mathcal{G}$, and its cost is given by $\pi = k$ since we are considering only unitary costs. The plan with minimum length is an optimal plan.
 
