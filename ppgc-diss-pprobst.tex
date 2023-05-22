@@ -202,12 +202,14 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 % A NBR 14724:2011 estipula que a ordem das abreviações
 % na lista deve ser alfabética (como no exemplo abaixo).
 \begin{listofabbrv}{SPMD}
+        \item[BCE] Binary Cross-Entropy
         \item[BSS] Backward State Space
         \item[DTG] Domain Transition Graph
         \item[FSS] Forward State Space
         \item[FF] Fast-Forward
         \item[GBFS] Greedy Best-First Search
         \item[IPC] International Planning Competition
+        \item[MSE] Mean Squared Error
         \item[NN]  Neural Network
         \item[PDDL] Planning Domain Definition Language
         \item[\sai] Sample Improvement
@@ -398,6 +400,19 @@ To support preferred operators, Fast Downward extends the textbook implementatio
 \section{Neural Networks}
 A standard NN architecture is composed of an input layer, one or more hidden layers, and an output layer. Each neuron in the hidden layers applies a nonlinear transformation to a weighted sum of the inputs it receives. The weights and biases of the neurons are learned through a process called backpropagation, which optimizes a loss function using gradient descent or its variants. For details on backpropagation and gradient descent, refer to~\citet{Goodfellow.etal/2016}.\ppi{Do I need to explain backpropagation and gradient descent in detail?}
 
+The mean squared error (MSE) loss function is commonly used for regression problems, where the goal is to predict continuous values. Given a prediction $\hat{y}$ and the corresponding target value $y$, the MSE loss is calculated as the mean of the squared differences between the prediction and the target:
+
+$$\text{MSE}(\hat{y}, y) = \frac{1}{N} \sum_{i=1}^{N} (\hat{y}_i - y_i)^2,$$
+
+where $\hat{y}_i$ represents the $i$-th element of the prediction vector $\hat{y}$, $y_i$ represents the $i$-th element of the target vector $y$, and $N$ is the total number of elements in the vectors.
+
+The binary cross-entropy (BCE) loss function is commonly used for binary classification problems, where the goal is to predict a binary outcome, or multi-label classification problems where there can be more than one correct outcome~\cite{Tsoumakas.etal/2007}.
+Given a prediction $\hat{y}$ and the corresponding binary target value $y$, the BCE loss is calculated as the average of the element-wise cross-entropy between the prediction and the target:
+
+$$\text{BCE}(\hat{y}, y) = -\frac{1}{N} \sum_{i=1}^{N} \left[y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i)\right],$$
+
+where $\hat{y}_i$ represents the $i$-th element of the prediction vector $\hat{y}$, $y_i$ represents the $i$-th element of the target vector $y$, and $N$ is the total number of elements in the vectors.
+
 This study implements a feedforward neural network with residual blocks. Let us consider a feedforward neural network with L layers. For simplicity, we assume each layer has the same number of neurons, denoted by N. The input to the network is represented $x$, and the output is denoted by $y$. The activation function of a neuron in the $l$-th layer is denoted as $a^l(\cdot)$, and the weights connecting the $i$-th neuron in layer $l-1$ to the $j$-th neuron in layer $l$ are denoted as $w^{l}_{ij}$. The bias of the $j$-th neuron in layer $l$ is denoted as $b^{l}_{j}$. The output of the $j$-th neuron in layer $l$ is given by:
 
 $$z^{l}_{j} = \sum_{i=1}^{N} w^{l}_{ij} a^{l-1}_{i} + b^{l}_{j}$$
@@ -406,9 +421,17 @@ The activation of the $j$-th neuron in layer $l$ is then computed as:
 
 $$a^{l}_{j} = a^{l}(z^{l}_{j})$$
 
-Common activation functions include sigmoid, tanh, and rectified linear units (ReLU).
+Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
 
-While standard NNs have achieved impressive results, they may suffer from the vanishing gradient problem~\cite{Bengio.etal/1994}. The gradients tend to diminish as they propagate backward through multiple layers, making it challenging for earlier layers to learn meaningful representations. This issue hampers the optimization process and limits the network's overall performance.
+\begin{figure}[ht]
+%\captionsetup{skip=5pt}
+\caption{Sigmoid, ReLU, and tanh activation functions.}
+%\centering
+\centerline{\includegraphics[]{img/sigmoid-relu-tanh}}
+\label{fig:activation-functions}
+\end{figure}
+
+Standard NNs may suffer from the vanishing gradient problem~\cite{Bengio.etal/1994}. The gradients tend to diminish as they propagate backward through multiple layers, making it challenging for earlier layers to learn meaningful representations. This issue hampers the optimization process and limits the network's overall performance.
 
 To address this challenge, Residual Neural Networks (ResNets)~\cite{He.etal/2016} were introduced. ResNets use skip connections or shortcuts that bypass one or more layers, allowing the information to flow directly from one layer to another. This bypassing mechanism mitigates the vanishing gradient problem and facilitates the training of very deep networks. Let us consider a ResNet architecture with L layers. The output of the $l$-th layer is denoted by $a^{l}$, and the output of the previous layer is denoted by $a^{l-1}$. The residual connection between the $l$-th and $l-1$-th layers can be represented as:
 
@@ -568,8 +591,16 @@ The quality of the discovered preferred operators depends on the quality of the 
 % empiricism!
 %
 \chapter{Experiments}
+This section comprises three sets of experiments. In the first set (\cref{sec:learning-perfect-pos}), we investigate learning preferred operators and establish an upper-bound performance measure using the ideal preferred operators~\postar. The second set (\cref{sec:learning-discovered-pos}) evaluates learning discovered preferred operators~\pog from sample sets of varying sizes and compares them to symbolic-based preferred operators. Finally, in the third set (\cref{sec:other-heuristic-functions}), we analyze the learned preferred operators~\pog in conjunction with several symbolic-based heuristic functions.
 
 \section{Configuration}
+We use a residual neural network~\cite{He.etal/2016} with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
+Each hidden layer has $250$ neurons and is ReLU-activated.
+The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and early-stop patience of $100$.
+The network's input is a sample set containing a Boolean representation of the states, with $0$ if a proposition is false and $1$ otherwise.
+We use the MSE loss function to learn heuristic values in a regression context, and for learning preferred operators we opt for the BCE loss since learning preferred operators is a multi-label classification problem.
+Thus, the output for the regression network is a single ReLU-activated neuron representing the learned $h$-value, and the output for classification is a sigmoid-activated tensor with values in the range $0$ to $1$ and a size equal to the number of operators of the input task.
+Each output neuron corresponds to an indexed operator. The training set comprises $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
 
 \chapter{Limitations}
 
