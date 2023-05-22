@@ -40,6 +40,7 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage[capitalise]{cleveref}
+\usepackage{booktabs}       % professional-quality tables
 
 % \usepackage{times}              % pacote para usar fonte Adobe Times
  \usepackage{palatino}
@@ -212,6 +213,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
         \item[MSE] Mean Squared Error
         \item[NN]  Neural Network
         \item[PDDL] Planning Domain Definition Language
+        \item[ResNet] Residual Network
         \item[\sai] Sample Improvement
         \item[\sas] Simplified Action Structures Plus
         \item[SD] Standard Deviation
@@ -257,8 +259,8 @@ In a classical planning task, the initial state serves as the starting point for
 For example, in a Blocks World task, consider the initial state (left) and the goal state (right) shown in Figure \ref{fig:intro-blocks}. The agent needs to apply a sequence of operators to reach the goal state from the initial state. We can define operators such as ``pick up block X'', ``put block X on block Y'', and ``put block X on the table.'' In this example, the agent can find one of the possible plans by applying the following operators: pick up block C, put block C on the table, pick up block B, put block B on block C, and put block A on block B.
 
 \begin{figure}[ht]
-\captionsetup{skip=5pt} % the original spacing looks ugly as f* so I adjusted it a little bit
 \caption{Initial state (left) and goal state (right) of a Blocks World task.}
+\vspace{\baselineskip}
 \centering
 \begin{tikzpicture}[scale=0.8]
   % Initial configuration
@@ -427,7 +429,9 @@ Common activation functions include sigmoid, rectified linear units (ReLU), and 
 %\captionsetup{skip=5pt}
 \caption{Sigmoid, ReLU, and tanh activation functions.}
 %\centering
-\centerline{\includegraphics[]{img/sigmoid-relu-tanh}}
+\vspace{\baselineskip}
+\centering
+\includegraphics[]{img/sigmoid-relu-tanh}
 \label{fig:activation-functions}
 \end{figure}
 
@@ -594,13 +598,38 @@ The quality of the discovered preferred operators depends on the quality of the 
 This section comprises three sets of experiments. In the first set (\cref{sec:learning-perfect-pos}), we investigate learning preferred operators and establish an upper-bound performance measure using the ideal preferred operators~\postar. The second set (\cref{sec:learning-discovered-pos}) evaluates learning discovered preferred operators~\pog from sample sets of varying sizes and compares them to symbolic-based preferred operators. Finally, in the third set (\cref{sec:other-heuristic-functions}), we analyze the learned preferred operators~\pog in conjunction with several symbolic-based heuristic functions.
 
 \section{Configuration}
-We use a residual neural network~\cite{He.etal/2016} with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
+We use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
 Each hidden layer has $250$ neurons and is ReLU-activated.
 The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and early-stop patience of $100$.
 The network's input is a sample set containing a Boolean representation of the states, with $0$ if a proposition is false and $1$ otherwise.
 We use the MSE loss function to learn heuristic values in a regression context, and for learning preferred operators we opt for the BCE loss since learning preferred operators is a multi-label classification problem.
 Thus, the output for the regression network is a single ReLU-activated neuron representing the learned $h$-value, and the output for classification is a sigmoid-activated tensor with values in the range $0$ to $1$ and a size equal to the number of operators of the input task.
 Each output neuron corresponds to an indexed operator. The training set comprises $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
+
+\subsection{Neural Network Initialization}
+In training NNs, a phenomenon known as ``born dead'' as described by~\citet{Lu.etal/2020}, can occur when the network outputs zero for all training samples after initialization. We observed this phenomenon happens frequently in experiments involving learning heuristic functions on smaller state spaces with fewer samples. To address this, we implemented a test to check if the network outputs zero for all training samples after initialization. If this condition is met, we reinitialize the network with a different seed until it produces a non-zero output for at least one sample.
+
+\subsection{Extracting Preferred Operators}
+We extract the predicted preferred operators from the NN by selecting the operator with the highest output value. Additionally, if there are any operators with output values greater than $0.9$, we include them in the selection. We do this to avoid false positives since most tasks considered in this work have a mean number of preferred operators close to one. Through experimentation, we found that this strategy produced better results than selecting only operators with output values above an arbitrary threshold, as lowering the threshold resulted in poorer performance.
+
+\subsection{Dataset}
+For the planning tasks, we select tasks with ``small state spaces'', i.e., state spaces with $30$\,K states or more, and fewer than $1$\,M states. To generate samples, we use one task for the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task, namely the size of the FSS, and the number of facts and operators per task. The number of operators corresponds to the output neurons in the neural network, while the number of facts corresponds to the input neurons. In the following sections, to denote a different number of samples, we write ``$n$ percent of the state space'' to be $n$ percent of the total number of states in the FSS, e.g., $5\,\%$ of Block World's state space is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
+
+We evaluate the results based on the number of expanded states since all planning tasks are solved. Each FSS has $50$ randomly generated initial states, resulting in $50$ planning tasks. We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
+In the tables, each cell represents the mean value across $50$ planning tasks and $25$ seeds ($5$ sample seeds $\times$ $5$ network seeds).
+
+\subsection{Training}
+Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a}, and we use PyTorch 1.9.0~\cite{Paszke/2019} for defining and training the neural networks. The experiments were conducted on an AMD~Ryzen~$9$~$3900$X $12$-core processor ($4.2$~GHz) with a memory limit of $4$~GB and one core per process. The neural networks were trained until convergence, with the most complex networks requiring approximately two hours of training.
+
+\subsection{Evaluation}
+We use Fast Downward~\cite{Helmert/2006} with GBFS to solve all $50$ initial states of each domain using a heuristic with the learned preferred operators and a $5$ minute search time limit for each planning task. Due to better experimental results, we use a boosted dual-queue with a boost value of $1000$ for the preferred queue.
+
+\subsection{Baseline}
+To comprehend the limitations of solving tasks with minimal domain logic, our approach adopts a sample-based model. Consequently, we establish a learned heuristic function that meets the same requirements.
+For this, we train the learned heuristic \hnn over samples generated as described in~\cref{sec:sample-learn-h}, with sample set size equal to $1\,\%$ of the state space, and setting $p_{\bfsrw}=10\,\%$ of the total number of samples.
+Since in this work are only interested in the effects of learned preferred operators, the learned heuristic functions are invariant for each task. When using the learned preferred operators \pog, we generate the sample set for training according to the method described in~\cref{sec:sample-learn-po} with $k_1 = 0.1$ and $k_2 = 0.9$. We set these values due to better results in preliminary experiments.
+
+\input{tables/tasks_info}
 
 \chapter{Limitations}
 
