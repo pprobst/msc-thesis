@@ -1,17 +1,17 @@
 \begin{table}[htb]
 \centering
-\caption{Information on the task used for each domain.} 
+\caption{Information on the task used for each domain. The forward state space size, the distance \distfarthest of the state most distant from the goal state, regression limit $L$, the number of facts, and the number of operators.}
 \vspace{\baselineskip}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Domain     & FS size  & \# facts & \# operators \\ \midrule
-Blocks     & 65990    & 64       & 98           \\
-Grid       & 452353   & 76       & 252          \\
-N-Puzzle   & 181440   & 81       & 192          \\
-Rovers     & 565824   & 32       & 57           \\
-Scanalyzer & 46080    & 42       & 300          \\
-Transport  & 637632   & 66       & 572          \\
-VisitAll   & 79931    & 31       & 48           \\ \bottomrule
+Domain     & FSS size & \distfarthest & $L$  & \# facts & \# operators \\ \midrule
+Blocks     & 65990    & 24            & 17   & 64       & 98           \\
+Grid       & 452353   & 32            & 44   & 76       & 252          \\
+N-Puzzle   & 181440   & 31            & 41   & 81       & 192          \\
+Rovers     & 565824   & 19            & 27   & 32       & 57           \\
+Scanalyzer & 46080    & 15            & 20   & 42       & 300          \\
+Transport  & 637632   & 17            & 35   & 66       & 572          \\
+VisitAll   & 79931    & 15            & 17   & 31       & 48           \\ \bottomrule
 \end{tabular}
 \label{tab:tasks_info}
 \end{table}

@@ -17,7 +17,7 @@ def relu(x):
 def tanh(x):
     return np.tanh(x)
 
-x = np.linspace(-10, 10, 100)
+x = np.linspace(-5, 5, 100)
 
 y_sigmoid = sigmoid(x)
 y_relu = relu(x)

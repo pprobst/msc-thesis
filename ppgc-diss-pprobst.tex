@@ -47,6 +47,7 @@
 % \usepackage{mathptmx}          % p/ usar fonte Adobe Times nas fórmulas
 
 \usepackage[alf,abnt-emphasize=bf]{abntex2cite}	% pacote para usar citações abnt
+\usepackage{subcaption}
 
 \input{definitions}
 
@@ -182,7 +183,13 @@
 
 % agradecimentos
 \chapter*{Acknowledgements}
-TODO.
+
+I would like to express my sincere gratitude to my advisors, Marcus Ritt and André G. Pereira, for their unwavering support and guidance throughout the duration of this two-year journey. I consider myself incredibly fortunate to have had such dedicated mentors.
+
+I would also like to extend my heartfelt appreciation to my colleague, Rafael V. Bettker, whose tireless dedication and ability to program long hours into the night have greatly contributed to the extensibility and success of our research.
+
+Lastly, I want to express my deep gratitude to my mother for being the only person I consider family.
+
 
 % abstract in english
 \begin{abstract}
@@ -217,6 +224,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
         \item[\sai] Sample Improvement
         \item[\sas] Simplified Action Structures Plus
         \item[SD] Standard Deviation
+        \item[SPG] Shortest Path Graph
         \item[STRIPS] Stanford Research Institute Problem Solver
         \item[\sui] Successor Improvement
 \end{listofabbrv}
@@ -497,7 +505,7 @@ Different expansion strategies generate sample sets with varying distributions o
 In previous work by \citet{Yu.etal/2020} and \citet{OToole/2022}, a maximum limit $L$ of $200$ and $500$, respectively, has been used to restrict expansion depth. However, using a fixed limit may not be the optimal choice for tasks with state spaces of varying diameters or different maximum distances to a fixed goal when seeking a representative sample of the state space. This becomes particularly problematic in regression, as an overestimated maximum regression limit $L$ can result in inflated cost-to-goal estimates, while an underestimated limit can lead to an excessive concentration of samples near the goal.
 
 Hence, it is essential to determine the optimal maximum regression limit for a fixed goal as a function of the longest distance \distfarthest between the goal state and any potential initial state. While BFS can provide an accurate estimate of \distfarthest, DFS and random walks need higher limits due to their tendency to deviate from the shortest paths. Since the exact value of \distfarthest is typically unknown, we propose an adaptive and approximated approach to define the maximum regression limit $L$ based on the input task parameters. This adaptive method allows us to tailor the limit according to the specific characteristics of the task.
-Thus, we set the regression limit to $L=\bar F=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators.
+Thus, we set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators.
 
 \subsection{Sample Completion}
 Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
@@ -533,7 +541,7 @@ In addition to sampling the same states, it is common to sample neighboring stat
 
 \section{Sampling for Learning Preferred Operators}
 \label{sec:sample-learn-po}
-The sample generation approach described in~\cref{sec:sample-learn-h} is not suitable for learning preferred operators due to the presence of duplicate samples within rollouts. This leads to a sample set that contains numerous repeated samples, which offer no additional value when constructing the shortest path graph for identifying preferred operators. Consequently, this approach fails to effectively explore the state space and identify additional preferred operators. To address this limitation, we have developed an alternative sample generation method specifically designed to discover preferred operators, divided into two phases.
+The sample generation approach described in~\cref{sec:sample-learn-h} is not suitable for learning preferred operators due to the presence of duplicate samples within rollouts. This leads to a sample set that contains numerous repeated samples, which offer no additional value when constructing the shortest path graph (SPG) for identifying preferred operators. Consequently, this approach fails to effectively explore the state space and identify additional preferred operators. To address this limitation, we have developed an alternative sample generation method specifically designed to discover preferred operators, divided into two phases.
 
 Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ samples, where $S = \{ s_1, s_2, \ldots, s_n\}$ with distinct elements $s_i \neq s_j$ for $i \neq j$. Let $k_1$ and $k_2$ be variables satisfying $k_2 = 1 - k_1$ if $k_1 > k_2$, and $k_1 = 1 - k_2$ if $k_1 < k_2$, where $0 < k_1 < 1$ and $0 < k_2 < 1$.
 In the first phase, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
@@ -613,10 +621,12 @@ In training NNs, a phenomenon known as ``born dead'' as described by~\citet{Lu.e
 We extract the predicted preferred operators from the NN by selecting the operator with the highest output value. Additionally, if there are any operators with output values greater than $0.9$, we include them in the selection. We do this to avoid false positives since most tasks considered in this work have a mean number of preferred operators close to one. Through experimentation, we found that this strategy produced better results than selecting only operators with output values above an arbitrary threshold, as lowering the threshold resulted in poorer performance.
 
 \subsection{Dataset}
-For the planning tasks, we select tasks with ``small state spaces'', i.e., state spaces with $30$\,K states or more, and fewer than $1$\,M states. To generate samples, we use one task for the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task, namely the size of the FSS, and the number of facts and operators per task. The number of operators corresponds to the output neurons in the neural network, while the number of facts corresponds to the input neurons. In the following sections, to denote a different number of samples, we write ``$n$ percent of the state space'' to be $n$ percent of the total number of states in the FSS, e.g., $5\,\%$ of Block World's state space is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
+For the planning tasks, we select tasks with ``small state spaces'', i.e., state spaces with $30$\,K states or more, and fewer than $1$\,M states. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task. The number of operators corresponds to the output neurons in the neural network, while the number of facts corresponds to the input neurons. In the following sections, to denote a different number of samples, we write ``$n$ percent of the state space'' to be $n$ percent of the total number of states in the FSS, e.g., $5\,\%$ of Block World's state space is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
 
 We evaluate the results based on the number of expanded states since all planning tasks are solved. Each FSS has $50$ randomly generated initial states, resulting in $50$ planning tasks. We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
 In the tables, each cell represents the mean value across $50$ planning tasks and $25$ seeds ($5$ sample seeds $\times$ $5$ network seeds).
+
+\input{tables/tasks_info}
 
 \subsection{Training}
 Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a}, and we use PyTorch 1.9.0~\cite{Paszke/2019} for defining and training the neural networks. The experiments were conducted on an AMD~Ryzen~$9$~$3900$X $12$-core processor ($4.2$~GHz) with a memory limit of $4$~GB and one core per process. The neural networks were trained until convergence, with the most complex networks requiring approximately two hours of training.
@@ -624,32 +634,164 @@ Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a
 \subsection{Evaluation}
 We use Fast Downward~\cite{Helmert/2006} with GBFS to solve all $50$ initial states of each domain using a heuristic with the learned preferred operators and a $5$ minute search time limit for each planning task. Due to better experimental results, we use a boosted dual-queue with a boost value of $1000$ for the preferred queue.
 
-\subsection{Baseline}
+\subsection{Sampling}
 To comprehend the limitations of solving tasks with minimal domain logic, our approach adopts a sample-based model. Consequently, we establish a learned heuristic function that meets the same requirements.
-For this, we train the learned heuristic \hnn over samples generated as described in~\cref{sec:sample-learn-h}, with sample set size equal to $1\,\%$ of the state space, and setting $p_{\bfsrw}=10\,\%$ of the total number of samples.
+For this, we train the learned heuristic \hnn over samples generated as described in~\cref{sec:sample-learn-h}, with sample set size equal to $1\,\%$ of the state space, and setting $p_{\bfsrw}=10\,\%$ of the total number of samples, and a quantity of randomly generated samples equal to $20\,\%$ of the total number of samples.
+
 Since in this work are only interested in the effects of learned preferred operators, the learned heuristic functions are invariant for each task. When using the learned preferred operators \pog, we generate the sample set for training according to the method described in~\cref{sec:sample-learn-po} with $k_1 = 0.1$ and $k_2 = 0.9$. We set these values due to better results in preliminary experiments.
 
-\input{tables/tasks_info}
+\section{Learning Preferred Operators}
+\label{sec:exp-learning-po}
+% Clear, objective description of this section
+This section compares task-solving performance with and without preferred operators, using various configurations: \hstar (perfect heuristic), \hnn (learned heuristic without preferred operators), \postartable (oracle of ideal preferred operators), \postar (learned ideal preferred operators), and \pogstar and \pog (discovered preferred operators). The discovered operators were trained on a $1\,\%$ sample set obtained through regression. It is worth noting that \pogstar uses \hstar instead of Dijkstra's algorithm for calculating the shortest path distance.
+
+\input{tables/learning_perfect_pos}
+
+% General comparison
+\cref{tab:learning_perfect_pos} shows that all approaches using preferred operators lead to fewer expansions compared to using only the learned heuristic \hnn. These approaches closely approach the optimal expansion values achieved with the optimal heuristic \hstar, except in the Grid and Scanalyzer domains using the SPG method from~\cref{sec:sample-discovered-po}, where a slight degradation of approximately four and two expansions is observed, respectively. The ideal preferred operators serve as performance limits, representing the best achievable results as defined in \cref{sec:sample-ideal-po}. When comparing the learned ideal preferred operators \postar with the oracle \postartable, we find that the NN can learn the preferred operators for the entire state space in all domains, except for Blocks World and N-Puzzle, where performance degrades but remains better than \hnn.
+
+The learned ideal preferred operators \postar outperform using only the learned heuristic \hnn in all domains. They significantly reduce the number of expansions by over $50\,\%$ in Grid, N-Puzzle, and Scanalyzer. Conversely, when we reduce the learned state space to $1\,\%$ and employ SPGs to identify preferred operators, \pog exhibits an increase of approximately $13\,\%$ in the geometric mean of expanded states compared to ideal preferred operators. However, the learned discovered preferred operators \pog expand fewer states than \hnn in all domains except Grid and Scanalyzer, with improvements of approximately $25\,\%$ and $35\,\%$ observed in Blocks World and N-Puzzle, respectively.
+
+The effectiveness of preferred operators may inversely correlate with the quality of the heuristic function. When the heuristic function is nearly optimal, the inclusion of preferred operators can potentially interfere with the search process. In \cref{sec:other-heuristic-functions}, we explore the outcomes observed when using different symbolic-based heuristics with varying levels of quality.
+
+% Particular comparisons and anomalies
+Although \pogstar uses the optimal heuristic \hstar to get the shortest paths in the sample set, when comparing to \pog, both have close results. The reason for this similarity is that the arcs in the SPG $G'$ for the discovered preferred operators \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods typically have similar preferred operators; consequently, these states likely to have a similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different sets in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. Since the difference between the sets of both approaches are as ideal as the selected one, and the search only requires one ideal preferred operator to make progress, then the difference is not significant in the results as seen in \cref{tab:learning_perfect_pos} where, for both domains, the approaches differ by about one expansion. This result indicates that extracting preferred operators from the SPG with quality similar to ideal preferred operators is possible even without \hstar-values.
+
+Comparing \pogstar to \pog, despite \pogstar utilizing the optimal heuristic \hstar to obtain shortest paths in the sample set, both methods yield similar results. This similarity arises from the substantial retention of arcs in the SPG $G'$ for the discovered preferred operators in \pog compared to \pogstar. Additionally, equivalent states in the sample sets of both approaches typically possess similar preferred operators, resulting in comparable shortest paths. Except for Scanalyzer ($92,\%$) and VisitAll ($68\,\%$), nearly $100\,\%$ of the samples have the same set of preferred operators in both \pogstar and \pog across all domains. In cases where the sets differ, the preferred operators of \pog are a subset of the preferred operators of \pogstar. Since the difference between the sets of both approaches is as ideal as the selected one, and a single ideal preferred operator is sufficient for progress in the search, the disparity has minimal impact on the results. This observation is evident in \cref{tab:learning_perfect_pos}, where the approaches differ by only around one expansion for both domains. This result indicates that extracting preferred operators from the SPG with quality similar to ideal preferred operators is possible even without \hstar-values.
+
+%Summary of the section
+In this experiment, we determined that learned heuristics can achieve a performance limit of approximately $50\,\%$ reduction in expansions when employing preferred operators. We demonstrated the effectiveness of learning high-quality preferred operators that enhance sub-optimal heuristics. The ideal preferred operators \postar outperformed \hnn in all domains, while the learned discovered preferred operators \pog outperformed \hnn in five out of seven domains, improving the geometric mean by approximately $13\,\%$.
+
+\section{Performance of Discovered Preferred Operators}
+\label{sec:exp-performance-po}
+This experiment evaluates the performance of preferred operators discovered in the sample set described in \cref{sec:sample-discovered-po}. We use GBFS guided by the learned heuristic \hnn and compare the graph's learned preferred operators \pog to the symbolic-based preferred operators \poff from FF~\cite{Hoffmann.Nebel/2001} implemented in Fast Downward~\cite{Helmert/2006}. In addition to using a sample set equivalent to $1\,\%$ of the forward state space, as in the previous experiment, we also examine other percentages: $5,\%$, $10\,\%$, $20\,\%$, $30\,\%$, $40,\%$, $50\,\%$ \cref{tab:learning_discovered_pos} shows the results.
+
+\input{tables/learning_discovered_pos}
+
+By increasing the sample set size, the number of arcs in the graph $G'$ expands, leading to the discovery of new shortest paths. As expected, the performance of the learned discovered preferred operators \pog improves as the sample set size increases, reaching a plateau after $20,\%$. However, Rovers shows an exception where the learned preferred operators result in increased expansions after $5\,\%$. It's worth noting that in this domain, both the symbolic-based preferred operators \poff and the learned heuristic \hnn with \pog trained on a $1\,\%$ sample set size yield worse results compared to \hnn alone. This suggests that in Rovers, preferred operators may not be helpful since \hnn already approaches optimality ($13.4$ vs. $10.3$), as shown in~\cref{tab:learning_perfect_pos}.
+
+During the search process, there are cases where the neural network's predicted preferred operator generates a successor state that has already been generated. Consequently, the state is not added to the preferred queue, which means it cannot be expanded first (as the preferred queue has higher priority), and another state, potentially further from the goal, is expanded instead. This issue can occur in all domains but has a more disruptive impact on Rovers and Blocks World. Furthermore, this problem becomes more pronounced when training with larger sample sets, as multiple preferred operators are predicted more frequently. To address this, we can select only the preferred operator with the highest output value from the neural network. When implementing this approach, Blocks World and Rovers stabilize from $10\,\%$ onward at approximately $27$ and $12$ expansions, respectively, while the other domains do not experience significant changes. %Alternatively, we can also disable boosting, but the search performance degrades.
+
+Training with just $5\,\%$ of the sample set size is sufficient to achieve fewer expansions on average compared to \poff. The learned preferred operators \pog can outperform symbolic-based ones given a large enough sample set size. Specifically, with $5\,\%$, we achieve better results than \poff except in Grid ($53.0$ vs. $32.7$) and Scanalyzer ($18.1$ vs. $17.1$). However, as the sample size increases, we eventually surpass \poff in all domains. Moreover, the use of symbolic-based preferred operators \poff leads to degraded performance in N-Puzzle compared to \hnn, while using \pog with a $1\,\%$ sample set substantially improves it.
+
+\cref{fig:errors} shows the standard deviations (SDs) for the expansions in~\cref{tab:learning_discovered_pos}. Smaller sample sets generally exhibit higher variability in the number of expanded states, as indicated by the SD. For instance, with a $1,\%$ sample set size, Blocks World, Grid, N-Puzzle, and Scanalyzer have SDs of approximately $12$, $27$, $8$, and $10$, respectively. However, as the sample set size increases, the SDs decrease, except for Blocks World, which maintains an SD of approximately $10$. Notably, all domains, except Blocks World, have SD values close to one for sample set sizes of $20\,\%$ and above.
+
+\begin{figure}
+  \caption{Mean number of expansions and its standard deviation per domain for GBFS guided by different heuristics with \pog trained using sample sets of different sizes.}
+  \centering
+  \vspace{\baselineskip}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_1pct.pdf}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_5pct.pdf}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_10pct.pdf}
+  \end{subfigure}
+
+  \vspace{0.5cm}
+
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_20pct.pdf}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_30pct.pdf}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_40pct.pdf}
+  \end{subfigure}
+
+  \vspace{0.5cm}
+
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hNN_poG_50pct.pdf}
+  \end{subfigure}
+  \hfill
+  \label{fig:errors}
+\end{figure}
+
+
+\section{Comparison to Alternative Sampling Method}
+\cref{sec:sample-learn-h} proposes a sampling generation technique to produce pairs of states and cost-to-goal estimates. Although the method yields satisfactory outcomes for learning heuristic functions, it falls short in acquiring preferred operators.
+This limitation arises from the presence of numerous duplicate sampled states that do not contribute to constructing the SPG. Consequently, we discover fewer preferred operators than would be possible otherwise.
+
+\cref{tab:comparison_sample} compares state expansions between the sampling method proposed in~\cref{sec:sample-learn-po} \pog and the one from \cref{sec:sample-learn-h} \pofsm (excluding random samples since applicable operators do not generate them). The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onwards) and VisitAll. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average.
+
+\input{tables/comparison_sample}
+
+
+\section{Using Learned Preferred Operators with Other Heuristic Functions}
+We examine the impact of using the learned preferred operators \pog, trained on a $1\,\%$ sample set size, on the performance of GBFS guided by different symbolic-based heuristic functions. Specifically, we evaluate the effect on the more informed heuristics \hff and \hadd, the less informed heuristic \hgc (goal-count), and Blind search without information. We also compare our results with searches using \poff. The outcomes are summarized in \cref{tab:logic_heuristics_1pct}.
+
+\input{tables/logic_heuristics_1pct}
+
+Using the learned preferred operators \pog with the \hgc heuristic reduces the number of expansions from $124.9$ to $41.4$. This performance is competitive with the baseline \hff and \hadd heuristics, and it yields fewer expansions in Blocks World, N-Puzzle, and VisitAll. Furthermore, when using \hgc with \pog trained on a $5\,\%$ sample set size, we achieve a geometric mean of $28.1$, which is approximately $25\,\%$ lower than the results obtained with the baseline \hff and \hadd heuristics. These findings highlight that utilizing preferred operators can lead to more significant performance improvements in task-solving compared to transitioning to a more informed heuristic.
+
 
 \chapter{Limitations}
+A clear limitation of learned preferred operators is the number of samples required for training. Our experiments used small state spaces and a relatively simple neural network as a first step to explore learning preferred operators. Consequently, we had access to the complete state space of a task. However, this is often infeasible for harder tasks, as state spaces tend to grow exponentially in size as the amount of information needed to describe them increases, meaning that if computational resources are a concern, even sampling $1\,\%$ of the state space can be impractical. Another problem involves the size of the target variable, where certain domains span tens of thousands of classes in larger tasks -- this can have a significant impact on training efficiency.
+
+Therefore, to improve learning efficiency and quality, future research could focus on experimenting with other learning architectures that enable the generalization of preferred operators using a smaller number of samples.
 
 \chapter{Conclusion}
+Extensive research has been conducted on learning heuristic functions for solving planning tasks. We explore for the first time the learning of preferred operators. The proposed approaches not only provide novel insights into planning but also have the potential for broader applications beyond planning, such as in reinforcement learning.
+
+One noteworthy aspect of this research is the adaptability of the presented approaches as an alternative to policies in reinforcement learning. Despite the lack of an explicit goal state in reinforcement learning, the methods described in this work can be used to learn to seek states that lead to higher rewards over time. By establishing a hierarchy of goals in complex problems, the learning process can be divided into multiple stages with each goal state defined in terms of higher-level objectives. This hierarchical structure enables the agent to sample from multiple goal states and work towards specific goals at different stages.
+
+The results obtained in this study indicate a significant potential for learning-based approaches to outperform traditional symbolic-based methods. Specifically, the experiments demonstrate that learned preferred operators can surpass symbolic-based preferred operators like \poff in the considered planning tasks. Additionally, utilizing less informed heuristics with preferred operators can lead to fewer expanded states compared to switching to more informed heuristics. Moreover, the experiments highlight the ability to discover preferred operators and train a neural network capable of generalizing for the entire task using only a small subset of the complete state space. Transition analysis between successor and predecessor states proved to be an effective method for discovering preferred operators from a limited sample set.
+
+Overall, this study opens up new possibilities for improving heuristic search in planning through the learning of preferred operators and showcases the potential for their application in diverse domains, including reinforcement learning.
 
 \bibliographystyle{abntex2-alf}
 \bibliography{biblio}
 
 \appendix
 
-\chapter{Resumo expandido}
-
+\chapter{Resumo Expandido}
 \noindent
-\textbf{Resolução 02/2021 -- Redação de Teses e Dissertações em Inglês}
-Dissertações de Mestrado e Teses de Doutorado do PPGC, bem como outros
-trabalhos escritos tais como Proposta de Tese e PEP, poderão ser
-redigidas em inglês desde que contenham um título e resumo expandido
-redigidos em português. O resumo expandido deve conter no mínimo duas
-páginas inteiras, deve aparecer como apêndice e deve conter as
-principais contribuições e resultados do trabalho.
+%\textbf{Resolução 02/2021 -- Redação de Teses e Dissertações em Inglês}
+%Dissertações de Mestrado e Teses de Doutorado do PPGC, bem como outros
+%trabalhos escritos tais como Proposta de Tese e PEP, poderão ser
+%redigidas em inglês desde que contenham um título e resumo expandido
+%redigidos em português. O resumo expandido deve conter no mínimo duas
+%páginas inteiras, deve aparecer como apêndice e deve conter as
+%principais contribuições e resultados do trabalho.
 
+No contexto de tarefas de planejamento, os agentes precisam a selecionar a melhor ação possível dentre um conjunto consideravelmente vasto de opções disponíveis em cada etapa. Planejadores simbólicos têm sido utilizados para lidar com esse problema, aplicando operadores preferidos que reduzem significativamente a quantidade de ações a serem consideradas. Os planejadores simbólicos que incorporam operadores preferidos na busca foram os vencedores da trilha \emph{satisficing} da \emph{International Planning Competition} (IPC) em 2004, 2008, 2011 e 2018~\cite{Helmert/2006,Richter.lama.etal/2011,Richter.lama.etal/2011,Seipp-fast.etal/2018}.
+No entanto, este trabalho apresenta um método que vai além dessas abordagens convencionais, introduzindo uma estratégia de amostragem e aprendizado de operadores preferidos com aplicabilidade em todo o espaço de estados de uma tarefa de planejamento.
+
+O objetivo principal deste trabalho é identificar os operadores preferidos ideais, que se encontram nos caminhos mais curtos que levam a um objetivo específico. O desafio reside no fato de que os espaços de estado geralmente são extremamente grandes, o que dificulta a exploração completa de todas as possibilidades. Para contornar essa limitação, desenvolvemos uma nova abordagem de amostragem adaptada, projetada para extrair operadores preferidos de alta qualidade de um conjunto de amostras que representa apenas uma fração do espaço de estados completo. Os resultados demonstraram que essa abordagem reduzida ainda é capaz de alcançar excelentes desempenhos em tarefas de planejamento.
+
+%Uma contribuição importante deste estudo é a aplicação de redes neurais para aproximar efetivamente os operadores preferidos ideais. Por meio do treinamento dessas redes em amostras selecionadas, foi possível obter estimativas precisas dos operadores preferidos para tarefas envolvendo múltiplos estados. Destacamos tambem o potencial de aplicação desta abordagem em outros domínios, como aprendizagem de máquina, como uma alternativa a aprender políticas.
+
+Para fornecer uma análise mais abrangente dessa nova categoria de operadores preferidos, realizamos experimentos controlados. Comparamos sistematicamente os resultados com abordagens simbólicas tradicionais como os operadores preferidos do Fast-Forward (FF)~\cite{Hoffmann.Nebel/2001, Helmert/2006}, avaliamos a eficácia dos operadores preferidos aprendidos em diferentes tamanhos de amostra e exploraramos seu desempenho ao serem combinados com diversas funções heurísticas, tanto aprendidas quanto simbólicas. Essa investigação detalhada permite uma compreensão mais profunda das vantagens e limitações dos operadores preferidos aprendidos.
+
+Este estudo representa a primeira tentativa de descobrir operadores preferidos a partir de um conjunto de amostras e usar uma NN para aprendê-los. Apresentamos um novo método de amostragem e uma nova técnica para identificar operadores preferidos em amostras. A técnica de amostragem envolve regressão do estado objetivo, construindo um gráfico com estados amostrados que representam suas relações sucessor-predecessor e determinando, para cada estado, o conjunto de operadores usados para atingir o estado objetivo no menor caminho como operadores preferidos. Este estudo revela que uma rede neural pode aprender os operadores preferidos a partir de um subconjunto do espaço de estados e estender esse aprendizado de forma eficaz a todo o espaço de estados em diversos domínios de planejamento. A abordagem proposta supera o melhor método atual de operadores preferidos do FF nas tarefas de referência. Em particular, este trabalho apresenta:
+
+\begin{itemize}
+\item Um estudo sistemático de operadores preferidos.
+\item Um novo método de amostragem adaptado para descobrir operadores preferidos.
+\item Um novo método baseado em gráficos de caminho mais curto para descobrir operadores preferidos em um conjunto de amostras existente.
+\item Uma análise da qualidade dos operadores preferidos aprendidos e uma comparação com os métodos baseados em símbolos existentes.
+\end{itemize}
+
+Um exemplo de resultado consiste em uma rede treinada sobre uma quantidade de amostras equivalente a $5\,\%$ do espaço de estados completo de uma tarefa. Nesse caso, os operadores preferidos aprendidos superam significativamente uma busca guiada apenas por uma heurística aprendida, com uma média de aproximadamente $13$ expansões a menos. Além disso, eles também superam os operadores do FF em média, com aproximadamente $6$ expansões a menos.
+
+\chapter{Training details}
+\cref{tab:training_info} presents the mean training information for the learned preferred operators \pog networks across $25$ different seed runs for each domain, trained over sample sets of distinct sizes. The table shows the size of the sample set in relation to the forward state space, the epoch associated with the minimum validation loss, the value of the minimum validation loss, the elapsed time required to train a neural network, and the number of preferred operators per sample. All the networks converged.
+
+\input{tables/training_info}
 
 \end{document}

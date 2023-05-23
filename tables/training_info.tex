@@ -1,11 +1,14 @@
 \begin{table}[!h]
 \centering
+%\small
+%\setlength{\tabcolsep}{0.7ex}
 \caption{Training summary over $25$ seeds for each domain, with the goal of learning \pog.} 
 \label{tab:training_info}
 \vspace{\baselineskip}
+\scalebox{0.85}{
 \begin{tabular}{lrrrrr}
 \toprule
-Domain   & Sample size ($\%$) &  Best epoch &  Val. loss &  Elapsed time (s) &  \# ops./sample \\
+Domain   & Sample set size ($\%$) &  Best epoch &  Val. loss &  Elapsed time (s) &  \# ops./sample \\
 \midrule
 Blocks   & 1 &       167.9 &      0.0113 &                16.8 &                           1.1 \\
          & 5 &        75.0 &      0.0130 &                53.9 &                           1.2 \\
@@ -57,4 +60,5 @@ VisitAll & 1 &       196.8 &      0.0258 &                21.8 &                
          & 50 &        74.0 &      0.0333 &               540.4 &                           1.8 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
