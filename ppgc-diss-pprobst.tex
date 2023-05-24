@@ -630,7 +630,69 @@ Different expansion strategies generate sample sets with varying distributions o
 
 \bfsrw consists of two phases. In the first phase, a fixed percentage $p_\bfsrw$ of the $N$ samples is generated using BFS. The BFS expands a state from layer $k$ and generates $n$ states from layer $k+1$. These states are sampled only if the total samples plus $n$ are within $p_{\bfsrw}N$; otherwise, no states are sampled, and BFS expands another state. The set of unexpanded samples, i.e., leaves, is denoted as $Q$. The second phase involves multiple random walk rollouts starting from states in $Q$, selected randomly with replacement after all states have been chosen once. This process continues until the sample set reaches $N$. During the random walk phase, states sampled in the BFS phase are discarded.
 
-\ppi{Add pseudocode.}
+\begin{algorithm}
+\caption{Sampling states for heuristic values using \bfsrw}
+\begin{algorithmic}[1]
+\Procedure{\bfsrw}{$\Pi$, $N$, $L$, $p_\bfsrw$}
+\State \textbf{Phase 1}
+\State Initialize empty set $Q$
+\State Initialize empty array $S_{bfs}$
+\State $S_{bfs}$, $Q \gets$ BFSLimited($s_{0}$, $p_{\bfsrw}N$)
+
+\State Initialize empty array $S_{rw}$
+\State \textbf{Phase 2}
+\State Initialize Boolean array $V$ of size $|Q|$ with all indexes set to $False$
+\While{$S_{bfs}\text{.size} + S_{rw}\text{.size} < N$}
+    \State $rnd\_idx \gets$ random index of $Q$
+    \While{$Q$[$rnd\_idx$] is $True$}
+      \State $rnd\_idx \gets$ random index of $Q$
+    \EndWhile
+    \State Initialize a partial state $s$
+    \State $s \gets$ $Q$[$rnd\_idx$]
+    \State $V$[$rnd\_idx$]$~\gets True$
+    \If{all positions in $V$ are $True$}
+      \State Set all positions in $V$ to $False$~\emph{\# ``Replacement''}
+    \EndIf
+    \State $S_{rw} \gets$ $S_{rw} + $ RW($s$, $L$, $S_{bfs}$) \emph{\# Random walk with regression limit $L$}
+\EndWhile
+\State $S \gets S_{bfs} + S_{rw}$
+\State \textbf{return} $S$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Breadth-first search of \bfsrw}
+\begin{algorithmic}[1]
+\Procedure{BFSLimited}{$s_{0}$, $M$}
+\State Initialize set $Q$ with $s_{0}$
+\State Initialize array $k$ with $s_{0}$ \emph{\# i.e., layer $k$}
+\State Initialize empty array $k_{+1}$ \emph{\# i.e., layer $k+1$}
+\State Initialize array $S_{bfs}$ with $s_{0}$
+\While{$S_{bfs}\text{.size} < M$ and $k$ is not empty}
+    \State Shuffle $k$
+    \ForAll{partial states $s$ of $k$}
+      \State Initialize empty array $succ_{s}$
+      \ForAll{predecessor partial states $s'$ of $s$}
+        \State Insert $s'$ into $succ_{s}$
+      \EndFor
+      \If{$S_{bfs}\text{.size} + succ_{s}\text{.size} \le  M$}
+        \State Remove $s$ from $Q$
+        \ForAll{partial states $s''$ of $succ_{s}$}
+          \State Insert $s''$ into $S_{bfs}$, $k_{+1}$, $Q$
+        \EndFor
+      \EndIf
+      \If{$S_{bfs}\text{.size} = M$}
+        \State break
+      \EndIf
+    \EndFor
+    \State $k \gets k_{+1}$
+    \State Clear $k_{+1}$
+\EndWhile
+\State \textbf{return} $S_{bfs}$, $Q$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Maximum Regression Limit}
 \label{sec:sample-maximum-regression-limit}
@@ -690,18 +752,17 @@ In the first phase, we use BFS by applying backward applicable operators from th
 In the second phase, we maintain an open queue, containing states generated but not yet expanded, and a closed queue, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed queue, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in either queue. The sampling process continues until $|S_2| = k_2N$. See \cref{alg:sampling-po,alg:sampling-bfs}. Note that this algorithm has a single rollout, so no maximum regression limit is used.
 
 \begin{algorithm}
-\caption{Sampling for preferred operators using \bfsrs}
+\caption{Sampling states for preferred operators using \bfsrs}
 \label{alg:sampling-po}
 \begin{algorithmic}[1]
 \Procedure{BRS}{$\Pi$, $N$, $k_{1}$, $k_{2}$}
-  \State Initialize an empty queue $open$
-  \State Initialize an empty set $S_{1}$
-  \State \# First phase
+  \State Initialize empty queue $open$
+  \State Initialize empty set $S_{1}$
+  \State \textbf{Phase 1}
   \State $S_{1} \gets$ BFS($s_{0}$, $open$, $k_1N$)
-  \State Initialize an empty queue $closed$
-  \State $closed \gets$ $S_{1}$
-  \State Initialize an empty set $S_{2}$
-  \State \# Second phase
+  \State Initialize queue $closed$ with $S_{1}$
+  \State \textbf{Phase 2}
+  \State Initialize empty set $S_{2}$
   \While{$S_{2}\text{.size} < k_{2}N$}
     \If{$open$ is empty}
       \State \textbf{return} $S_{1} + S_{2}$ (backward state space fully explored)
@@ -725,7 +786,7 @@ In the second phase, we maintain an open queue, containing states generated but 
 \end{algorithm}
 
 \begin{algorithm}
-\caption{Sampling with breadth-first search}
+\caption{Breadth-first search of \bfsrs}
 \label{alg:sampling-bfs}
 \begin{algorithmic}[1]
 \Procedure{BFS}{$s_{0}$, $open$, $M$}
