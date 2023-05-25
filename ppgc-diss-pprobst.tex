@@ -26,6 +26,7 @@
 
 % Use unicode
 \usepackage[utf8]{inputenc}   % pacote para acentuação
+%\usepackage[hyperpageref]{backref}
 
 % Necessário para incluir figuras
 \usepackage{graphicx}           % pacote para importar figuras
@@ -72,8 +73,8 @@
 % \usepackage{times}              % pacote para usar fonte Adobe Times
  \usepackage{palatino}
 % \usepackage{mathptmx}          % p/ usar fonte Adobe Times nas fórmulas
-
-\usepackage[alf,abnt-emphasize=bf]{abntex2cite}	% pacote para usar citações abnt
+%
+\usepackage[alf,abnt-emphasize=bf]{abntex2cite} % pacote para usar citações abnt
 \usepackage{subcaption}
 
 \input{definitions}
@@ -303,7 +304,7 @@ In a classical planning task, the initial state serves as the starting point for
 For example, in a Blocks World task, consider the initial state (left) and the goal state (right) shown in Figure \ref{fig:intro-blocks}. The agent needs to apply a sequence of operators to reach the goal state from the initial state. We can define operators such as ``pick up block X'', ``put block X on block Y'', and ``put block X on the table.'' In this example, the agent can find one of the possible plans by applying the following operators: pick up block C, put block C on the table, pick up block B, put block B on block C, and put block A on block B.
 
 \begin{figure}[ht]
-\caption{Initial state (left) and goal state (right) of a Blocks World task.}
+\caption[Initial state of a Blocks World task]{Initial state (left) and goal state (right) of a Blocks World task.}
 \vspace{\baselineskip}
 \centering
 \begin{tikzpicture}[scale=0.8]
@@ -459,6 +460,7 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 
 \section{Preferred Operators}
 \label{sec:background-preferred-operators}
+\ppi{Dar mais detalhes.}
 Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic. Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
 
 The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs), compatible with multi-valued variables, where the preferred operators obtained with the calculation of the FF heuristic are the current best. The DTG provides a compact representation of the state space by capturing the dependencies between variables and their possible values, where each variable in the planning domain is represented as a node, and the transitions between different values of the variable are represented as edges between the nodes. The DTG for variable $v$ has a transition $d \xrightarrow{o} d'$ if there exists an operator that can modify the value of $v$ from $d$ to $d'$.
@@ -504,7 +506,7 @@ An example of a simple fully-connected neural network is shown in~\cref{fig:neur
 Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
 
 \begin{figure}[ht]
-\caption{A neural network with $n$ input neurons, $3$ hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
+\caption[A fully-connected neural network]{A neural network with $n$ input neurons, $3$ hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
 \vspace{\baselineskip}
 \centering
 \begin{tikzpicture}[x=2.2cm,y=1.4cm]
@@ -541,7 +543,7 @@ Common activation functions include sigmoid, rectified linear units (ReLU), and 
 \end{figure}
 
 \begin{figure}[ht]
-\caption{Sigmoid, ReLU, and tanh activation functions.}
+\caption[Common activation functions]{Sigmoid, ReLU, and tanh activation functions.}
 \vspace{\baselineskip}
 \centering
 \includegraphics[]{img/sigmoid-relu-tanh}
@@ -563,7 +565,7 @@ where $\mathcal{F}$ represents a residual function, typically implemented as a f
 \cref{fig:residual-block} has a visual representation of a small \emph{residual block} with a skip connection.
 
 \begin{figure}[ht]
-\caption{A residual block with two hidden layers.}
+\caption[A residual block]{A residual block with two hidden layers.}
 \vspace{\baselineskip}
 \centering
 \begin{tikzpicture}
@@ -586,11 +588,12 @@ where $\mathcal{F}$ represents a residual function, typically implemented as a f
 
 \chapter{Related Work}
 \label{cha:related-work}
+\ppi{Cite Bettker 2022}
 In this chapter, we review and discuss the previous research conducted on topics related to the subject matter of this study.
 
 \section{Obtaining Preferred Operators}
 \label{sec:related-pos}
-The first notion of preferred operators as currently used was described by~\citet{Hoffmann.Nebel/2001} and implemented in the FF planner, then called \emph{helpful actions}. The current most effective approach for identifying preferred operators uses the computation of the FF heuristic as implemented in the Fast Downward planning system~\cite{Helmert/2006}.
+The first notion of preferred operators as currently used was described by~\citet{Hoffmann.Nebel/2001} and implemented in the FF planner, then called \emph{helpful actions}, described in~\cref{sec:background-preferred-operators}. The current most effective approach for identifying preferred operators uses the computation of the FF heuristic as implemented in the Fast Downward planning system~\cite{Helmert/2006}.
 Furthermore, \citet{Richter.Helmert/2009} performed a systematic study on how best to use preferred operators and showed that the dual-queue approach described in~\cref{sec:background-preferred-operators} yielded the best results.
 
 \section{Learning Heuristic Functions}
@@ -601,11 +604,15 @@ On the other hand, the second approach minimally employs domain logic solely for
 
 The first approach uses ``structured'' neural networks with architectures specifically designed to align with the characteristics and requirements of the given input task. Examples include learning domain-independent heuristic functions with hypergraph neural networks~\cite{Shen.etal/2020}, and learning policies with action schema networks~\cite{Toyer.etal/2018,Toyer.etal/2020} and graph neural networks~\cite{Stahlberg.etal/2022}. These approaches offer higher expressive power and can be applied regardless of the state spaces. However, they heavily rely on domain logic. Furthermore, the major limitation of this set of approaches is that they can not be used to solve planning tasks of the size typically solved by planners as they require excessive memory for instantiation or are too slow in expanding the necessary number of states.
 
-This work follows the second approach, employing supervised learning to train a feedforward neural network with pairs of states and cost-to-goal estimates~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022}. Samples can be generated with forward search from the initial state~\cite{Ferber.etal/2020a}, backward search from the goal~\cite{Yu.etal/2020,OToole/2022}, or a combination of both~\cite{Ferber.etal/2022}.
+The second approach employs supervised learning to train a feedforward neural network with pairs of states and cost-to-goal estimates. Samples can be generated with forward search from the initial state~\cite{Ferber.etal/2020a}, backward search from the goal~\cite{Yu.etal/2020,OToole/2022,Bettker.etal/2022}, or a combination of both~\cite{Ferber.etal/2022}.
 
-In this context,~\citet{Ferber.etal/2020a} conducted a systematic study on the hyperparameters of the feedforward neural network architecture and found that their influence is secondary. They discovered that, for a fixed architecture, two main factors significantly impact the informativeness of the heuristic: the selection of the sample subset and the size of the sample set.
+%In this context,~\citet{Ferber.etal/2020a} conducted a systematic study on the hyperparameters of the feedforward neural network architecture and found that their influence is secondary. They discovered that, for a fixed architecture, two main factors significantly impact the informativeness of the heuristic: the selection of the sample subset and the size of the sample set.
 
-Furthermore,~\citet{Yu.etal/2020} and~\citet{OToole/2022} performed backward searches from the goal state.~\citet{Yu.etal/2020} employed depth-first search, while ~\citet{OToole/2022} used random walks. In both cases, the cost-to-goal estimates were assigned as the lowest depth at which the states were generated.~\citet{Ferber.etal/2022} used a combination of backward and forward searches. To concurrently generate samples and learn a heuristic function,~\citet{Ferber.etal/2022} employed a bootstrapping method~\cite{Arfaee.etal/2011}, where initially new initial states are generated using backward random walks, which are then solved using GBFS guided by the learned heuristic. The resulting plans yield samples, with each sample corresponding to a state within the plan and its associated cost-to-goal estimate. These samples are subsequently used to further train the neural network, aiming to enhance the learned heuristic.
+%Some approaches sample states by backward searches from the goal~\cite{Yu.etal/2020, OToole/2022, Bettker.etal/2022}.
+Regarding sampling by backward search,~\citet{Yu.etal/2020} employed depth-first search,~\citet{OToole/2022} used random walks, and~\citet{Bettker.etal/2022} used a combination of breadth-first search and random walks. In these cases, the cost-to-goal estimates were assigned as the lowest depth at which the states were generated.~\citet{Ferber.etal/2022} used a combination of backward and forward searches, employing bootstrap learning~\cite{Arfaee.etal/2011}.
+Specifically,~\citet{Bettker.etal/2022} introduce various cost-to-goal improvement methods to enhance sample quality and emphasize that the effectiveness of learned heuristics relies on two crucial factors: a sample set that encompasses diverse regions of the state space and accurate cost-to-goal estimates; one without the other is insufficient.
+%$To concurrently generate samples and learn a heuristic function,~\citet{Ferber.etal/2022} employed a bootstrapping method~\cite{Arfaee.etal/2011}, where initially new initial states are generated using backward random walks, which are then solved using GBFS guided by the learned heuristic. The resulting plans yield samples, with each sample corresponding to a state within the plan and its associated cost-to-goal estimate. These samples are subsequently used to further train the neural network, aiming to enhance the learned heuristic.
+
 % O'Toole (2022) also presented a method for generating samples that does not involve expansions. This method includes randomly generating states with high cost-to-goal estimates and including them in the sample set. O'Toole demonstrated that this approach substantially increases coverage.
 
 This second set of approaches offers the advantage of requiring minimal computational resources. However, a limitation is that the trained models are typically applicable only within the specific state space they were trained on. These approaches rely on domain logic to a lesser extent, and only during sample generation, such as determining applicable operators and mutexes. Moreover, in cases where a black-box simulator is accessible to generate predecessor and successor states, which can also be learned, these approaches can eliminate the requirement for domain-specific logic entirely.
@@ -625,109 +632,163 @@ There are multiple techniques available to generate a sample set for training ne
 
 \section{Sampling for Learning Heuristic Functions}
 \label{sec:sample-learn-h}
-To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the backward state space. Specifically, we use a combination of BFS with RW, named \bfsrw.
+\ppi{Menos detalhes.}
+To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the BSS. Specifically, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple rollouts RW, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
 
-A regression rollout refers to a sequence of state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the depth limit $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the depth limit $L$, whereas BFS has a single rollout. However, if the backward state space contains an insufficient number of states to generate the required $N$ samples, BFS may need to perform multiple rollouts.
+A regression rollout refers to a sequence of state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the depth limit $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the depth limit $L$, whereas BFS has a single rollout.
+Due to better results than using a fixed $L$~\cite{Yu.etal/2020, OToole/2022}, \citet{Bettker.etal/2022} set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators. This adaptive $L$ aims to approximate the longest distance \distfarthest between the goal state and any potential initial state.
+% However, if the backward state space contains an insufficient number of states to generate the required $N$ samples, BFS may need to perform multiple rollouts.
 
-Different expansion strategies generate sample sets with varying distributions of optimal distances from the goal. To address this, we propose a novel approach called \bfsrw, combining BFS and random walks. \bfsrw aims to achieve good coverage near the goal while obtaining a diverse set of samples from the remaining state space.
+\bfsrw consists of two phases. In the first phase, a fixed percentage $p_\bfsrw$ of the $N$ samples is generated using BFS. The BFS expands a state from layer $k$ and generates $n$ states from layer $k+1$. These states are sampled only if the total samples plus $n$ are within $p_{\bfsrw}N$; otherwise, no states are sampled, and BFS expands another state. The set of unexpanded samples, i.e., leaves, is denoted as $Q$. The second phase involves multiple random walk rollouts starting from states in $Q$. This process continues until the sample set reaches $N$. During the random walk phase, states sampled in the BFS phase are discarded.
 
-\bfsrw consists of two phases. In the first phase, a fixed percentage $p_\bfsrw$ of the $N$ samples is generated using BFS. The BFS expands a state from layer $k$ and generates $n$ states from layer $k+1$. These states are sampled only if the total samples plus $n$ are within $p_{\bfsrw}N$; otherwise, no states are sampled, and BFS expands another state. The set of unexpanded samples, i.e., leaves, is denoted as $Q$. The second phase involves multiple random walk rollouts starting from states in $Q$, selected randomly with replacement after all states have been chosen once. This process continues until the sample set reaches $N$. During the random walk phase, states sampled in the BFS phase are discarded.
+%\begin{algorithm}
+%\caption{Sampling states for heuristic values using \bfsrw}
+%\begin{algorithmic}[1]
+%\Procedure{\bfsrw}{$\Pi$, $N$, $L$, $p_\bfsrw$}
+%\State \textbf{Phase 1}
+%\State Initialize empty set $Q$
+%\State Initialize empty set $S_{bfs}$
+%\State $S_{bfs}$, $Q \gets$ BFSLimited($s_{0}$, $p_{\bfsrw}N$)
+%
+%\State Initialize empty set $S_{rw}$
+%\State \textbf{Phase 2}
+%\State Initialize Boolean array $V$ of size $|Q|$ with all indexes set to $False$
+%\While{$|S| < N$}
+%    \State $rnd\_idx \gets$ random index of $Q$ where  $V$[$rnd\_idx$]$ = False$
+%    \State $V$[$rnd\_idx$]$~\gets True$
+%    \If{all positions in $V$ are $True$}
+%      \State Set all positions in $V$ to $False$~\emph{\# ``Replacement''}
+%    \EndIf
+%    \State Initialize a partial state $s$
+%    \State $s \gets$ $Q$[$rnd\_idx$]
+%    \State $n_{rw} \gets min(L - h(s), N - |S|)$ \# \emph{$n$ states to sample in this RW rollout}
+%    \State $S_{rw} \gets$ RW($s$, $n_{rw}$) \# \emph{Random walk sampling starting from $s$}
+%    \State $S \gets S \cup (S_{rw} \setminus S_{bfs}) $
+%\EndWhile
+%\State \textbf{return} $S$
+%\EndProcedure
+%\end{algorithmic}
+%\end{algorithm}
 
-\begin{algorithm}
-\caption{Sampling states for heuristic values using \bfsrw}
-\begin{algorithmic}[1]
-\Procedure{\bfsrw}{$\Pi$, $N$, $L$, $p_\bfsrw$}
-\State \textbf{Phase 1}
-\State Initialize empty set $Q$
-\State Initialize empty set $S_{bfs}$
-\State $S_{bfs}$, $Q \gets$ BFSLimited($s_{0}$, $p_{\bfsrw}N$)
+%\begin{algorithm}
+%\caption{Breadth-first search of \bfsrw}
+%\begin{algorithmic}[1]
+%\Procedure{BFSLimited}{$s_{0}$, $M$}
+%\State Initialize set $Q$ with $s_{0}$
+%\State Initialize set $K$ with $s_{0}$ \emph{\# i.e., layer $k$}
+%\State Initialize empty set $K_{+1}$ \emph{\# i.e., layer $k+1$}
+%\State Initialize set $S_{bfs}$ with $s_{0}$
+%\While{$|S_{bfs}| < M$ and $K$ is not empty}
+%    \State Shuffle $K$
+%    \ForAll{partial states $s$ of $K$}
+%      \State Initialize empty set $P_{s}$
+%      \State $P_{s} \gets \{s' \mid s' \in pred_{bfs}(s)~\text{and}~s' \notin S_{bfs}\}$
+%      \If{$|S_{bfs}| + |P_{s}| \le  M$}
+%          \State $S_{bfs} \gets S_{bfs} \cup P_{s} $
+%          \State $K_{+1} \gets K_{+1} \cup P_{s} $
+%          \State $Q \gets (Q \cup P_{s}) \setminus \{s\} $
+%      \EndIf
+%      \If{$|S_{bfs}| = M$}
+%        \State break
+%      \EndIf
+%    \EndFor
+%    \State $K \gets K_{+1}$
+%    \State $K_{+1} \gets \emptyset$
+%\EndWhile
+%\State \textbf{return} $S_{bfs}$, $Q$
+%\EndProcedure
+%\end{algorithmic}
+%\end{algorithm}
 
-\State Initialize empty set $S_{rw}$
-\State \textbf{Phase 2}
-\State Initialize Boolean array $V$ of size $|Q|$ with all indexes set to $False$
-\While{$|S| < N$}
-    \State $rnd\_idx \gets$ random index of $Q$ where  $V$[$rnd\_idx$]$ = False$
-    \State $V$[$rnd\_idx$]$~\gets True$
-    \If{all positions in $V$ are $True$}
-      \State Set all positions in $V$ to $False$~\emph{\# ``Replacement''}
-    \EndIf
-    \State Initialize a partial state $s$
-    \State $s \gets$ $Q$[$rnd\_idx$]
-    \State $n_{rw} \gets min(L - h(s), N - |S|)$ \# \emph{$n$ states to sample in this RW rollout}
-    \State $S_{rw} \gets$ RW($s$, $n_{rw}$) \# \emph{Random walk sampling starting from $s$}
-    \State $S \gets S \cup (S_{rw} \setminus S_{bfs}) $
-\EndWhile
-\State \textbf{return} $S$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-\caption{Breadth-first search of \bfsrw}
-\begin{algorithmic}[1]
-\Procedure{BFSLimited}{$s_{0}$, $M$}
-\State Initialize set $Q$ with $s_{0}$
-\State Initialize set $K$ with $s_{0}$ \emph{\# i.e., layer $k$}
-\State Initialize empty set $K_{+1}$ \emph{\# i.e., layer $k+1$}
-\State Initialize set $S_{bfs}$ with $s_{0}$
-\While{$|S_{bfs}| < M$ and $K$ is not empty}
-    \State Shuffle $K$
-    \ForAll{partial states $s$ of $K$}
-      \State Initialize empty set $P_{s}$
-      \State $P_{s} \gets \{s' \mid s' \in pred_{bfs}(s)~\text{and}~s' \notin S_{bfs}\}$
-      \If{$|S_{bfs}| + |P_{s}| \le  M$}
-          \State $S_{bfs} \gets S_{bfs} \cup P_{s} $
-          \State $K_{+1} \gets K_{+1} \cup P_{s} $
-          \State $Q \gets (Q \cup P_{s}) \setminus \{s\} $
-      \EndIf
-      \If{$|S_{bfs}| = M$}
-        \State break
-      \EndIf
-    \EndFor
-    \State $K \gets K_{+1}$
-    \State $K_{+1} \gets \emptyset$
-\EndWhile
-\State \textbf{return} $S_{bfs}$, $Q$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
-\section{Maximum Regression Limit}
-\label{sec:sample-maximum-regression-limit}
-In previous work by \citet{Yu.etal/2020} and \citet{OToole/2022}, a maximum limit $L$ of $200$ and $500$, respectively, has been used to restrict expansion depth. However, using a fixed limit may not be the optimal choice for tasks with state spaces of varying diameters or different maximum distances to a fixed goal when seeking a representative sample of the state space. This becomes particularly problematic in regression, as an overestimated maximum regression limit $L$ can result in inflated cost-to-goal estimates, while an underestimated limit can lead to an excessive concentration of samples near the goal.
-
-Hence, it is essential to determine the optimal maximum regression limit for a fixed goal as a function of the longest distance \distfarthest between the goal state and any potential initial state. While BFS can provide an accurate estimate of \distfarthest, DFS and random walks need higher limits due to their tendency to deviate from the shortest paths. Since the exact value of \distfarthest is typically unknown, we propose an adaptive and approximated approach to define the maximum regression limit $L$ based on the input task parameters. This adaptive method allows us to tailor the limit according to the specific characteristics of the task.
-Thus, we set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators.
+%\section{Maximum Regression Limit}
+%\label{sec:sample-maximum-regression-limit}
+%In previous work by \citet{Yu.etal/2020} and \citet{OToole/2022}, a maximum limit $L$ of $200$ and $500$, respectively, has been used to restrict expansion depth. However, using a fixed limit may not be the optimal choice for tasks with state spaces of varying diameters or different maximum distances to a fixed goal when seeking a representative sample of the state space. This becomes particularly problematic in regression, as an overestimated maximum regression limit $L$ can result in inflated cost-to-goal estimates, while an underestimated limit can lead to an excessive concentration of samples near the goal.
+%
+%Hence, it is essential to determine the optimal maximum regression limit for a fixed goal as a function of the longest distance \distfarthest between the goal state and any potential initial state. While BFS can provide an accurate estimate of \distfarthest, DFS and random walks need higher limits due to their tendency to deviate from the shortest paths. Since the exact value of \distfarthest is typically unknown, we propose an adaptive and approximated approach to define the maximum regression limit $L$ based on the input task parameters. This adaptive method allows us to tailor the limit according to the specific characteristics of the task.
+%Thus, we set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators.
 
 \section{Improving Cost-to-Goal Estimates}
 \label{sec:sample-improving-h}
-Let us begin by noting that cost-to-goal estimates always provide a lower bound on the true cost-to-goal $h^{*}$, as explained below.
+%\citet{Bettker.etal/2022} also developed two methods to improve the cost-to-goal estimates of each sampled state.
+%Let us begin by noting that cost-to-goal estimates always provide a lower bound on the true cost-to-goal $h^{*}$, as explained below.
 
-\begin{property}
-\label{prop:hvalue}
-The cost-to-goal estimate $h(s)$ of a sample $s$ obtained by regression satisfies $h(s)\geq h^*(s)$.
-\end{property}
+%\begin{property}
+%\label{prop:hvalue}
+%The cost-to-goal estimate $h(s)$ of a sample $s$ obtained by regression satisfies $h(s)\geq h^*(s)$.
+%\end{property}
 
-\begin{proof}
-This follows because each estimate is witnessed by a plan.
-A valid regression sequence $\rho=(o_1,\ldots,o_k)$ produces a series of partial states that can reach the goal within a maximum of $k$ steps and with a cost no greater than $\sum_{i\in[k]}\text{cost}(o_i)$. The cost of this sequence cannot be lower than the optimal cost.
-\end{proof}
+%\begin{proof}
+%This follows because each estimate is witnessed by a plan.
+%A valid regression sequence $\rho=(o_1,\ldots,o_k)$ produces a series of partial states that can reach the goal within a maximum of $k$ steps and with a cost no greater than $\sum_{i\in[k]}\text{cost}(o_i)$. The cost of this sequence cannot be lower than the optimal cost.
+%\end{proof}
 
-Better $h$-value estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates while preserving \cref{prop:hvalue}, we employ two straightforward techniques. The first method, called \sai, minimizes estimates across repeated samples, while the second method, known as \sui, minimizes estimates across the successors of samples.
+Better $h$-value estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates of each sampled state,~\citet{Bettker.etal/2022} developed two straightforward methods that are used in this study. The first method, called \sai, minimizes estimates across repeated samples, while the second method, known as \sui, minimizes estimates across the successors of samples.
 
 
 \subsection{Sample Improvement}
 \label{sec:sample-sai}
-It is possible to generate duplicate states with different estimates due to multiple random walk rollouts. To address this, we update the cost-to-goal estimate for each sampled state $s$ to the minimum estimate $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$. This update is applied to both partial and complete states since identical complete states can be generated from different partial states. We refer to this procedure as ``sample improvement'' (\sai). Choosing the minimum $h$-value is sound because valid plans from a regression witness these distances. Consequently, \cref{prop:hvalue} remains valid.
+It is possible to generate duplicate states with different estimates due to multiple random walk rollouts. To address this, we update the cost-to-goal estimate for each sampled state $s$ to the minimum estimate $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$.
+% This update is applied to both partial and complete states since identical complete states can be generated from different partial states.
+This procedure is referred as ``sample improvement'' (\sai).
 
 \subsection{Successor Improvement}
 \label{sec:sample-sui}
-In addition to sampling the same states, it is common to sample neighboring states in the state space, especially for states close to the goal. We can leverage this to enhance the cost-to-goal estimates using the following approach.
+In addition to sampling the same states, it is common to sample neighboring states in the state space, especially for states close to the goal. We can leverage this to enhance the cost-to-goal estimates using the following approach, starting by constructing a graph $G$ containing the relations between all states in the sample set.
 %Let $G=(V,A)$ be a directed graph representing all sampled partial states, where~$V=\{s_i\mid i\in[N]\}$. For every pair of states $s$ and $t$ in $V$, if there exists an operator $o\in\mathcal{O}$ applicable to $s$ such that $\sucs(s,o)\subseteq t$, we add an arc $(s,t)$ of length $\text{cost}(o)$ to $A$. Note that, unlike in regression, if $\pre(o)$ mentions to an undefined variable in $s$, then $o$ is not applicable.
 \begin{definition}[Sample Set Graph]\label{def:graph}
 A sample set graph is a directed and labeled graph~$G = (V, A)$ defined by the states obtained in the sampling. Each vertex is labeled by a sampled partial state, i.e., $V = \{s_i \mid i \in [N]\}$. (Note that the undefined variables of a partial state can typically be completed in multiple ways, so each vertex represents a set of complete states.) Set $A$ contains an arc $(s,t)$ for each operator $o \in \mathcal{O}$ where $\sucs(s,o) \subseteq t$, i.e., $\sucs(s,o)$ can become $t$ from an assignment of undefined variables.
 \end{definition}
-To efficiently handle subsets, we store all samples in a trie and search for successors in states that are supersets. For partial states generated by regression, there is always at least one successor, except for the goal state $s^*$. We then compute the shortest paths to the goal in the graph $G$, for example, using the Dijkstra algorithm, and update the cost-to-goal estimates of each state accordingly. We refer to this procedure as ``successor improvement'' (\sui). Since all distances are supported by plans, \cref{prop:hvalue} is preserved.
+To efficiently handle subsets, we store all samples in a trie and search for successors in states that are supersets. For partial states generated by regression, there is always at least one successor, except for the goal state $s^*$. We then compute the shortest paths to the goal in the graph $G$, for example, using the Dijkstra algorithm, and update the cost-to-goal estimates of each state accordingly. This procedure is referred as ``successor improvement'' (\sui).
+
+\section{Sample Completion}
+\label{sec:sample-completion}
+
+Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
+Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
+To complete partial states, we employ a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false (zero)\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}.
+
+
+\section{Ideal Preferred Operators}
+\label{sec:sample-ideal-po}
+Ideally, we want preferred operators that help solve a task with the least effort, which we call ideal preferred operators.
+
+\begin{definition}[Ideal Preferred Operator]\label{def:ideal_preferred_operator}
+  An ideal preferred operator generates a state with the shortest distance to the goal among all successors. Given a state $s$ and an operator~$o \in \mathcal{O}$ where $\sucs(s,o) = t$, $o$ is an ideal preferred operator if $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
+\end{definition}
+
+Every state $s$ that has a plan is associated with at least one preferred operator. These preferred operators generate successor states $t$ where $\hstarp{t} < \hstarp{s}$. Thus, only the goal states and dead-end states lack preferred operators.
+
+\begin{property}
+  \label{prop:ideal-optimal}
+  GBFS only expands states on an optimal path if using a safe heuristic function, ideal preferred operators, tie-breaking by larger g-value, and starting with infinite boost (only states from the preferred queue are expanded during search).
+\end{property}
+
+\begin{proof}
+We will prove the property by contradiction.
+
+Suppose a state $s$ expanded by GBFS from the preferred queue is not on any optimal path.
+Let $\pi^*$ be an optimal path from the initial state $s_0$ to the goal state $s^*$. Since $s$ is not on any optimal path, there must be another path $\pi = s_0,\ldots,s,\ldots,s^*$ greater than $\pi^*$.
+Let $s'$ be the last state on the optimal path $\pi^*$ before diverging to $\pi$, and let $s''$ be the next state on $\pi$ after diverging from $\pi^*$, i.e., $s''$ is a successor of $s'$. Note that $h^*(s') < h^*(s'')$ because a lower $h$-value determines an optimal path.
+
+Now, consider the situation when the search reaches $s'$ during the expansion process. At this point, $s'$ has already been expanded, and all its successors have been generated. Since $s'$ is on the optimal path, the ideal preferred operator used to generate $s''$ must have the property that $h^*(s'') = \min_{t \in \sucs(s')} h^*{(t)}$. However, we have already established that $h^*(s') < h^*(s'')$. This contradicts the definition of an ideal preferred operator, as the operator used to generate $s''$ should have the smallest $h^*$ value among all successors of $s'$. Therefore, our assumption that there exists a state not on the optimal path expanded by GBFS is false.
+
+%Since GBFS expands states in a best-first manner using ideal preferred operators, tie-breaking by larger g-value, and infinite boosting where the first expansion is a state generated by preferred operators (meaning that only states generated by preferred operators are expanded), it only explores successors with the lowest $h^*$ values. As the optimal path consists of states with the lowest $h^*$ values, GBFS will expand states only on the optimal path, ultimately reaching the goal state.
+
+\end{proof}
+
+\section{Discovered Preferred Operators}
+\label{sec:sample-discovered-po}
+Obtaining ideal preferred operators is challenging for large tasks as we often lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set that represents a smaller portion of the state space, without relying on \hstar-values. We construct a sample set graph $G$~(\cref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
+
+In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal states, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal state. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal state.
+
+\begin{definition}[Discovered Preferred Operators]\label{def:discovered_preferred_operators}
+Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has the shortest path of at least one vertex $v$ is inserted in $A'$. The discovered preferred operators of the set of states $s$ are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
+\end{definition}
+
+The quality of the discovered preferred operators depends on the quality of the shortest paths. It is worth noting that a state can have multiple discovered preferred operators if it has multiple shortest paths.
+
+\ppi{Need to show an example of obtaining preferred operators with the shortest path graph.}
 
 \section{Sampling for Learning Preferred Operators}
 \label{sec:sample-learn-po}
@@ -735,7 +796,7 @@ The sample generation approach described in~\cref{sec:sample-learn-h} is not sui
 
 Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ samples, where $S = \{ s_1, s_2, \ldots, s_n\}$ with distinct elements $s_i \neq s_j$ for $i \neq j$. Let $k_1$ and $k_2$ be variables satisfying $k_2 = 1 - k_1$ if $k_1 > k_2$, and $k_1 = 1 - k_2$ if $k_1 < k_2$, where $0 < k_1 < 1$ and $0 < k_2 < 1$.
 In the first phase, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
-In the second phase, we maintain an open queue, containing states generated but not yet expanded, and a closed queue, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed queue, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in either queue. The sampling process continues until $|S_2| = k_2N$. See \cref{alg:sampling-po,alg:sampling-bfs}. Note that this algorithm has a single rollout, so no maximum regression limit is used.
+In the second phase, we maintain an open queue, containing states generated but not yet expanded, and a closed queue, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed queue, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in either queue. The sampling process continues until $|S_2| = k_2N$. See \cref{alg:sampling-po,alg:sampling-bfs}. Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
 
 \begin{algorithm}
 \caption{Sampling states for preferred operators using \bfsrs}
@@ -802,56 +863,7 @@ In the second phase, we maintain an open queue, containing states generated but 
 \end{algorithmic}
 \end{algorithm}
 
-We then apply \sai and \sui and complete the partial states as described in~\cref{sec:sample-learn-h}. We do not use randomly generated samples since they are not generated by applicable operators.
-
-\subsection{Ideal Preferred Operators}
-\label{sec:sample-ideal-po}
-Ideally, we want preferred operators that help solve a task with the least effort, which we call ideal preferred operators.
-
-\begin{definition}[Ideal Preferred Operator]\label{def:ideal_preferred_operator}
-  An ideal preferred operator generates a state with the shortest distance to the goal among all successors. Given a state $s$ and an operator~$o \in \mathcal{O}$ where $\sucs(s,o) = t$, $o$ is an ideal preferred operator if $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
-\end{definition}
-
-Every state $s$ that has a plan is associated with at least one preferred operator. These preferred operators generate successor states $t$ where $\hstarp{t} < \hstarp{s}$. Thus, only the goal states and dead-end states lack preferred operators.
-
-\begin{property}
-  \label{prop:ideal-optimal}
-  GBFS only expands states on an optimal path if using a safe heuristic function, ideal preferred operators, tie-breaking by larger g-value, and starting with infinite boost (only states from the preferred queue are expanded during search).
-\end{property}
-
-\begin{proof}
-We will prove the property by contradiction.
-
-Suppose a state $s$ expanded by GBFS from the preferred queue is not on any optimal path.
-Let $\pi^*$ be an optimal path from the initial state $s_0$ to the goal state $s^*$. Since $s$ is not on any optimal path, there must be another path $\pi = s_0,\ldots,s,\ldots,s^*$ greater than $\pi^*$.
-Let $s'$ be the last state on the optimal path $\pi^*$ before diverging to $\pi$, and let $s''$ be the next state on $\pi$ after diverging from $\pi^*$, i.e., $s''$ is a successor of $s'$. Note that $h^*(s') < h^*(s'')$ because a lower $h$-value determines an optimal path.
-
-Now, consider the situation when the search reaches $s'$ during the expansion process. At this point, $s'$ has already been expanded, and all its successors have been generated. Since $s'$ is on the optimal path, the ideal preferred operator used to generate $s''$ must have the property that $h^*(s'') = \min_{t \in \sucs(s')} h^*{(t)}$. However, we have already established that $h^*(s') < h^*(s'')$. This contradicts the definition of an ideal preferred operator, as the operator used to generate $s''$ should have the smallest $h^*$ value among all successors of $s'$. Therefore, our assumption that there exists a state not on the optimal path expanded by GBFS is false.
-
-%Since GBFS expands states in a best-first manner using ideal preferred operators, tie-breaking by larger g-value, and infinite boosting where the first expansion is a state generated by preferred operators (meaning that only states generated by preferred operators are expanded), it only explores successors with the lowest $h^*$ values. As the optimal path consists of states with the lowest $h^*$ values, GBFS will expand states only on the optimal path, ultimately reaching the goal state.
-
-\end{proof}
-
-\subsection{Discovered Preferred Operators}
-\label{sec:sample-discovered-po}
-Obtaining ideal preferred operators is challenging for large tasks as we often lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set that represents a smaller portion of the state space, without relying on \hstar-values. We construct a sample set graph $G$~(\cref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
-
-In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal states, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal state. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal state.
-
-\begin{definition}[Discovered Preferred Operators]\label{def:discovered_preferred_operators}
-Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has the shortest path of at least one vertex $v$ is inserted in $A'$. The discovered preferred operators of the set of states $s$ are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
-\end{definition}
-
-The quality of the discovered preferred operators depends on the quality of the shortest paths. It is worth noting that a state can have multiple discovered preferred operators if it has multiple shortest paths.
-
-\ppi{Need to show an example of obtaining preferred operators with the shortest path graph.}
-
-\section{Sample Completion}
-\label{sec:sample-completion}
-
-Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
-Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
-To complete partial states, we employ a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false (zero)\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}.
+We apply \sai and \sui and complete the states as described in~\cref{sec:sample-improving-h,sec:sample-completion}.
 
 %\section{Randomly Generated Samples}
 %\label{sec:sample-random-samples}
@@ -878,9 +890,9 @@ We use the MSE loss function to learn heuristic values in a regression context, 
 Thus, the output for the regression network is a single ReLU-activated neuron representing the learned $h$-value, and the output for classification is a sigmoid-activated tensor with values in the range $0$ to $1$ and a size equal to the number of operators of the input task.
 Each output neuron corresponds to an indexed operator. The training set comprises $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
 
-\subsection{Neural Network Initialization}
-\label{sec:exp-nn-init}
-While training NNs, a phenomenon known as ``born dead'' as described by~\citet{Lu.etal/2020}, can occur when the network outputs zero for all training samples after initialization. We observed this phenomenon happens frequently in experiments involving learning heuristic functions on smaller state spaces with fewer samples. To address this, we implemented a test to check if the network outputs zero for all training samples after initialization. If this condition is met, we reinitialize the network with a different seed until it produces a non-zero output for at least one sample.
+%\subsection{Neural Network Initialization}
+%\label{sec:exp-nn-init}
+%While training NNs, a phenomenon known as ``born dead'' as described by~\citet{Lu.etal/2020}, can occur when the network outputs zero for all training samples after initialization. We observed this phenomenon happens frequently in experiments involving learning heuristic functions on smaller state spaces with fewer samples. To address this, we implemented a test to check if the network outputs zero for all training samples after initialization. If this condition is met, we reinitialize the network with a different seed until it produces a non-zero output for at least one sample.
 
 \subsection{Extracting Preferred Operators}
 \label{sec:exp-extracting-pos}
@@ -949,7 +961,7 @@ Training with just $5\,\%$ of the sample set size is sufficient to achieve fewer
 \cref{fig:errors} shows the standard deviations (SDs) for the expansions in~\cref{tab:learning_discovered_pos}. Smaller sample sets generally exhibit higher variability in the number of expanded states, as indicated by the SD. For instance, with a $1\,\%$ sample set size, Blocks World, Grid, N-Puzzle, and Scanalyzer have SDs of approximately $12$, $27$, $8$, and $10$, respectively. However, as the sample set size increases, the SDs decrease, except for Blocks World, which maintains an SD of approximately $10$. Notably, all domains, except Blocks World, have SD values close to one for sample set sizes of $20\,\%$ and above.
 
 \begin{figure}[tb]
-  \caption{Mean number of expansions and its standard deviation per domain for GBFS guided by different heuristics with \pog trained using sample sets of different sizes.}
+  \caption[Standard deviation of expansions using \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by different heuristics with \pog trained using sample sets of different sizes.}
   \centering
   \vspace{\baselineskip}
   \begin{subfigure}{0.41\textwidth}
