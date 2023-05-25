@@ -689,26 +689,14 @@ Different expansion strategies generate sample sets with varying distributions o
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Maximum Regression Limit}
+\section{Maximum Regression Limit}
 \label{sec:sample-maximum-regression-limit}
 In previous work by \citet{Yu.etal/2020} and \citet{OToole/2022}, a maximum limit $L$ of $200$ and $500$, respectively, has been used to restrict expansion depth. However, using a fixed limit may not be the optimal choice for tasks with state spaces of varying diameters or different maximum distances to a fixed goal when seeking a representative sample of the state space. This becomes particularly problematic in regression, as an overestimated maximum regression limit $L$ can result in inflated cost-to-goal estimates, while an underestimated limit can lead to an excessive concentration of samples near the goal.
 
 Hence, it is essential to determine the optimal maximum regression limit for a fixed goal as a function of the longest distance \distfarthest between the goal state and any potential initial state. While BFS can provide an accurate estimate of \distfarthest, DFS and random walks need higher limits due to their tendency to deviate from the shortest paths. Since the exact value of \distfarthest is typically unknown, we propose an adaptive and approximated approach to define the maximum regression limit $L$ based on the input task parameters. This adaptive method allows us to tailor the limit according to the specific characteristics of the task.
 Thus, we set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators.
 
-\subsection{Sample Completion}
-\label{sec:sample-completion}
-
-Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
-Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
-To complete partial states, we employ a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false (zero)\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}.
-
-\subsection{Randomly Generated Samples}
-\label{sec:sample-random-samples}
-\citet{OToole/2022} demonstrated that augmenting a sample set generated through expansion with randomly generated samples enhances the performance of the search algorithm guided by the learned heuristic. They suggest assigning a cost-to-goal estimate of $L+1$ to randomly generated samples, where $L$ represents the maximum regression limit.
-The samples are generated from undefined states and are completed as discussed earlier. If the generated state $s$ is already present in the sample set, denoted as $s = s_i$ for some $i\in[N]$, it is assigned the cost-to-goal estimate $h_i$. Conversely, if the state $s$ is not already in the sample set, it is given a cost-to-goal estimate of $1+\max_{i\in[N]} h_i$, ensuring that the estimate is larger than all existing estimates.
-
-\subsection{Improving Cost-to-Goal Estimates}
+\section{Improving Cost-to-Goal Estimates}
 \label{sec:sample-improving-h}
 Let us begin by noting that cost-to-goal estimates always provide a lower bound on the true cost-to-goal $h^{*}$, as explained below.
 
@@ -725,11 +713,11 @@ A valid regression sequence $\rho=(o_1,\ldots,o_k)$ produces a series of partial
 Better $h$-value estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates while preserving \cref{prop:hvalue}, we employ two straightforward techniques. The first method, called \sai, minimizes estimates across repeated samples, while the second method, known as \sui, minimizes estimates across the successors of samples.
 
 
-\subsubsection{Sample Improvement}
+\subsection{Sample Improvement}
 \label{sec:sample-sai}
 It is possible to generate duplicate states with different estimates due to multiple random walk rollouts. To address this, we update the cost-to-goal estimate for each sampled state $s$ to the minimum estimate $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$. This update is applied to both partial and complete states since identical complete states can be generated from different partial states. We refer to this procedure as ``sample improvement'' (\sai). Choosing the minimum $h$-value is sound because valid plans from a regression witness these distances. Consequently, \cref{prop:hvalue} remains valid.
 
-\subsubsection{Successor Improvement}
+\subsection{Successor Improvement}
 \label{sec:sample-sui}
 In addition to sampling the same states, it is common to sample neighboring states in the state space, especially for states close to the goal. We can leverage this to enhance the cost-to-goal estimates using the following approach.
 %Let $G=(V,A)$ be a directed graph representing all sampled partial states, where~$V=\{s_i\mid i\in[N]\}$. For every pair of states $s$ and $t$ in $V$, if there exists an operator $o\in\mathcal{O}$ applicable to $s$ such that $\sucs(s,o)\subseteq t$, we add an arc $(s,t)$ of length $\text{cost}(o)$ to $A$. Note that, unlike in regression, if $\pre(o)$ mentions to an undefined variable in $s$, then $o$ is not applicable.
@@ -853,6 +841,17 @@ Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path
 
 The quality of the discovered preferred operators depends on the quality of the shortest paths. It is worth noting that a state can have multiple discovered preferred operators if it has multiple shortest paths.
 
+\section{Sample Completion}
+\label{sec:sample-completion}
+
+Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
+Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
+To complete partial states, we employ a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false (zero)\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}.
+
+%\section{Randomly Generated Samples}
+%\label{sec:sample-random-samples}
+%\citet{OToole/2022} demonstrated that augmenting a sample set generated through expansion with randomly generated samples enhances the performance of the search algorithm guided by the learned heuristic. They suggest assigning a cost-to-goal estimate of $L+1$ to randomly generated samples, where $L$ represents the maximum regression limit.
+%The samples are generated from undefined states and are completed as discussed in~\cref{sec:sample-completion}. If the generated state $s$ is already present in the sample set, denoted as $s = s_i$ for some $i\in[N]$, it is assigned the cost-to-goal estimate $h_i$. Conversely, if the state $s$ is not already in the sample set, it is given a cost-to-goal estimate of $1+\max_{i\in[N]} h_i$, ensuring that the estimate is larger than all existing estimates.
 
 %
 % - - - - - - - - - - - - - - - -- - - - - -
@@ -902,9 +901,11 @@ We use Fast Downward~\cite{Helmert/2006} with GBFS to solve all $50$ initial sta
 \subsection{Sampling}
 \label{sec:exp-sampling}
 To comprehend the limitations of solving tasks with minimal domain logic, our approach adopts a sample-based model. Consequently, we establish a learned heuristic function that meets the same requirements.
-For this, we train the learned heuristic \hnn over samples generated as described in~\cref{sec:sample-learn-h}, with sample set size equal to $1\,\%$ of the state space, and setting $p_{\bfsrw}=10\,\%$ of the total number of samples, and a quantity of randomly generated samples equal to $20\,\%$ of the total number of samples.
+For this, we train the learned heuristic \hnn over samples generated as described in~\cref{sec:sample-learn-h}, with sample set size equal to $1\,\%$ of the state space, regression limit of $L=\ceil{\facts/\overline{\eff}}$, and setting $p_{\bfsrw}=10\,\%$ of the total number of samples. Additionally, we add a quantity of randomly generated samples~\cite{OToole/2022} equal to $20\,\%$ of the total number of samples, with cost-to-goal estimates equal to the maximum estimate of the pre-existing samples plus one.
 
-Since in this work are only interested in the effects of learned preferred operators, the learned heuristic functions are invariant for each task. When using the learned preferred operators \pog, we generate the sample set for training according to the method described in~\cref{sec:sample-learn-po} with $k_1 = 0.1$ and $k_2 = 0.9$. We set these values due to better results in preliminary experiments.
+Since in this work are only interested in the effects of learned preferred operators, the learned heuristic functions are invariant for each task. When using the learned preferred operators \pog, we generate the sample set for training according to the method described in~\cref{sec:sample-learn-po} with $k_1 = 0.1$ and $k_2 = 0.9$.
+
+We set these values due to better results in preliminary experiments.
 
 \section{Learning Preferred Operators}
 \label{sec:exp-learning-po}
@@ -997,7 +998,7 @@ Training with just $5\,\%$ of the sample set size is sufficient to achieve fewer
 \cref{sec:sample-learn-h} proposes a sampling generation technique to produce pairs of states and cost-to-goal estimates. Although the method yields satisfactory outcomes for learning heuristic functions, it falls short in acquiring preferred operators.
 This limitation arises from the presence of numerous duplicate sampled states that do not contribute to constructing the SPG. Consequently, we discover fewer preferred operators than would be possible otherwise.
 
-\cref{tab:comparison_sample} compares state expansions between the sampling method proposed in~\cref{sec:sample-learn-po} \pog and the one from \cref{sec:sample-learn-h} \pofsm (excluding random samples since applicable operators do not generate them). The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onwards) and VisitAll. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average.
+\cref{tab:comparison_sample} compares state expansions between the sampling method proposed in~\cref{sec:sample-learn-po} \pog and the one from \cref{sec:sample-learn-h} \pofsm (excluding randomly generated samples since applicable operators do not generate them). The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onwards) and VisitAll. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average.
 
 \input{tables/comparison_sample}
 
