@@ -632,11 +632,10 @@ There are multiple techniques available to generate a sample set for training ne
 
 \section{Sampling for Learning Heuristic Functions}
 \label{sec:sample-learn-h}
-\ppi{Menos detalhes.}
 To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the BSS. Specifically, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple rollouts RW, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
 
 A regression rollout refers to a sequence of state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the depth limit $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the depth limit $L$, whereas BFS has a single rollout.
-Due to better results than using a fixed $L$~\cite{Yu.etal/2020, OToole/2022}, \citet{Bettker.etal/2022} set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators. This adaptive $L$ aims to approximate the longest distance \distfarthest between the goal state and any potential initial state.
+Due to better results than using a fixed $L$~\cite{Yu.etal/2020, OToole/2022}, \citet{Bettker.etal/2022} set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators of the input task. This adaptive $L$ aims to approximate the longest distance \distfarthest between the goal state and any potential initial state.
 % However, if the backward state space contains an insufficient number of states to generate the required $N$ samples, BFS may need to perform multiple rollouts.
 
 \bfsrw consists of two phases. In the first phase, a fixed percentage $p_\bfsrw$ of the $N$ samples is generated using BFS. The BFS expands a state from layer $k$ and generates $n$ states from layer $k+1$. These states are sampled only if the total samples plus $n$ are within $p_{\bfsrw}N$; otherwise, no states are sampled, and BFS expands another state. The set of unexpanded samples, i.e., leaves, is denoted as $Q$. The second phase involves multiple random walk rollouts starting from states in $Q$. This process continues until the sample set reaches $N$. During the random walk phase, states sampled in the BFS phase are discarded.
@@ -812,7 +811,7 @@ In the second phase, we maintain an open queue, containing states generated but 
   \State Initialize empty set $S_{2}$
   \While{$|S_{2}| < k_{2}N$}
     \If{$open =  \emptyset$}
-      \State \textbf{return} $S_{1} + S_{2}$ (backward state space fully explored)
+      \State \textbf{return} $S_{1} \cup S_{2}$ (backward state space fully explored)
     \EndIf
 
     \State $rnd\_idx \gets$ random index of $open$
@@ -821,6 +820,8 @@ In the second phase, we maintain an open queue, containing states generated but 
     \State Remove element at $open$[$rnd\_idx$]
     \State $closed \gets closed \cup \{s\}$
     \State $S_{2} \gets S_{2} \cup \{s\}$
+    \State \# \emph{$pred_{bfs}(s)$ refers to a predecessor function behaving as BFS, i.e.,}
+    \State \# \emph{generating the immediate neighbors of $s$}
     \State $P \gets \{s' \mid s' \in pred_{bfs}(s)\}$
     \ForAll{partial state $s' \in P$}
       \If{$s' \notin (open \cup closed)$}
@@ -829,7 +830,7 @@ In the second phase, we maintain an open queue, containing states generated but 
     \EndFor
   \EndWhile
 
-  \State \textbf{return} $S_{1} + S_{2}$
+  \State \textbf{return} $S_{1} \cup S_{2}$
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
@@ -882,10 +883,10 @@ This section comprises four sets of experiments. In the first set (\cref{sec:exp
 
 \section{Configuration}
 \label{sec:exp-configuration}
-We use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
+We follow the same ResNet as \citet{Bettker.etal/2022} with modifications to support learning preferred operators. Specifically, we use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
 Each hidden layer has $250$ neurons and is ReLU-activated.
 The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and early-stop patience of $100$.
-The network's input is a sample set containing a Boolean representation of the states, with $0$ if a proposition is false and $1$ otherwise.
+The network's input is a sample set containing a Boolean representation of the states, with $0$ if a proposition is false and $1$ otherwise~(\cref{sec:background-heuristics}).
 We use the MSE loss function to learn heuristic values in a regression context, and for learning preferred operators we opt for the BCE loss since learning preferred operators is a multi-label classification problem.
 Thus, the output for the regression network is a single ReLU-activated neuron representing the learned $h$-value, and the output for classification is a sigmoid-activated tensor with values in the range $0$ to $1$ and a size equal to the number of operators of the input task.
 Each output neuron corresponds to an indexed operator. The training set comprises $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
