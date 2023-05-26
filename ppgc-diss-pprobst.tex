@@ -461,16 +461,80 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 \section{Preferred Operators}
 \label{sec:background-preferred-operators}
 \ppi{Dar mais detalhes.}
-Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic. Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
+Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
+Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state, and they contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determines if there is none, and FF restarts without preferred operators if they fail.
+%Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task (ignoring delete effects) in polynomial time, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. %The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
+
+\begin{algorithm}
+\caption{Computing the relaxed planning graph}
+\label{alg:computing-rpg}
+\begin{algorithmic}[1]
+\Procedure{RelaxedPlanningGraph}{$\Pi^{+}$}
+  \State $P_{0} \gets s_{0}$ \# \emph{Initial proposition layer}
+  \State $k \gets 0$ \# \emph{Index of current layer}
+  \While{$s^{*} \nsubseteq P_{k}$}
+    \State $k \gets k + 1$
+    \State $O_{k} \gets \{o \in O\ \mid pre(O) \subseteq P_{k}\}$ \# \emph{Gets the action layer at layer $k$}
+    \State $P_{k} \gets P_{k-1}$
+    \ForAll{$o \in O_{k}$}
+      \State $P_{k} \gets P_{k} \cup add(o)$ \# \emph{Computes the proposition layer at layer $k$}
+    \EndFor
+    \If{$P_{k} = P_{k-1}$}
+      \State \textbf{return} failure
+    \EndIf
+
+  \EndWhile
+
+  \State $G^{+} \gets $ [$P_{0}, O_{1}, P_{1},\ldots,O_{k}, P_{k}$] \# \emph{The relaxed planning graph}
+  \State \textbf{return} $G^{+}$
+\EndProcedure
+\State \# \emph{Source: modified from Dr. Gerhard Wickler and Prof. Austin Tate,}
+\State \# \emph{University of Edinburgh}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Extracting the relaxed plan}
+\label{alg:extracting-relaxed-plan}
+\begin{algorithmic}[1]
+\Procedure{RelaxedPlan}{$G^{+}$, $s^{*}$}
+  \State $P \gets$ proposition layers of $G^{+}$
+  \State $O \gets$ action layers of $G^{+}$
+  %\State $l \gets$ number of layers in $G^{+}$
+  %\If{$s^{*} \nsubseteq P_{l}$}
+  %  \State \textbf{return} failure
+  %\EndIf
+  \State Initialize empty set $plan$
+  \State \# \emph{maximum(index of the first layer where each fact of $s^{*}$ first appears in $P$)}
+  \State $M \gets$ $\max \{\text{firstlayer}(s_{i}^{*}, P) \mid s_{i}^{*} \in s^{*}\}$
+  \For{$k \gets 0$ \textbf{to} $M$}
+    \State \# \emph{$S_{k}^{*}$ are the goal facts that need to be achieved in $P_{k}$}
+    \State $S_{k}^{*} \gets$ $\{s_{i}^{*} \in s^{*} \mid \text{firstlayer}(s_{i}^{*}, P_{k})\}$
+  \EndFor
+  \For{$k \gets M$ \textbf{to} $1$}
+    \ForAll{$s_{k}^{*} \in S_{k}^{*}$}
+      \State $o \gets$ $\text{firstlayer}(o, O_{k}) \mid s_{k}^{*} \in add(o)$
+      \State $plan \cup \{o\}$
+      \ForAll{$p \in pre(o)$}
+        \State $S_{firstlayer(p, P)}^{*} \gets S_{firstlayer(p, P)}^{*} \cup \{p\}$
+      \EndFor
+    \EndFor
+  \EndFor
+  \State \textbf{return} $plan$
+\EndProcedure
+\State \# \emph{Source: modified from Dr. Gerhard Wickler and Prof. Austin Tate,}
+\State \# \emph{University of Edinburgh}
+\end{algorithmic}
+\end{algorithm}
+
 
 The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs), compatible with multi-valued variables, where the preferred operators obtained with the calculation of the FF heuristic are the current best. The DTG provides a compact representation of the state space by capturing the dependencies between variables and their possible values, where each variable in the planning domain is represented as a node, and the transitions between different values of the variable are represented as edges between the nodes. The DTG for variable $v$ has a transition $d \xrightarrow{o} d'$ if there exists an operator that can modify the value of $v$ from $d$ to $d'$.
 
-To support preferred operators, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
+To support preferred operators and assure the search is complete, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
 
 \section{Neural Networks}
 \label{sec:background-neural-nets}
-A standard NN architecture is composed of an input layer, one or more hidden layers, and an output layer. Each neuron in the hidden layers applies a nonlinear transformation to a weighted sum of the inputs it receives. The weights and biases of the neurons are learned through a process called backpropagation, which optimizes a loss function using gradient descent or its variants. For details on backpropagation and gradient descent, refer to~\citet{Goodfellow.etal/2016}.\ppi{Do I need to explain backpropagation and gradient descent in detail?}
-
+A standard NN architecture is composed of an input layer, one or more hidden layers, and an output layer. Each neuron in the hidden layers applies a nonlinear transformation to a weighted sum of the inputs it receives. The weights and biases of the neurons are learned through a process called backpropagation, which optimizes a loss function using gradient descent or its variants. For details on backpropagation and gradient descent, refer to~\citet{Goodfellow.etal/2016}.
 
 The mean squared error (MSE) loss function is commonly used for regression problems, where the goal is to predict continuous values.
 \begin{definition}[Mean Squared Error]\label{def:mse}
@@ -588,7 +652,6 @@ where $\mathcal{F}$ represents a residual function, typically implemented as a f
 
 \chapter{Related Work}
 \label{cha:related-work}
-\ppi{Cite Bettker 2022}
 In this chapter, we review and discuss the previous research conducted on topics related to the subject matter of this study.
 
 \section{Obtaining Preferred Operators}
@@ -790,7 +853,6 @@ The quality of the discovered preferred operators depends on the quality of the 
 
 \begin{figure}[ht]
 \caption[Example graph $G'$ with two shortest paths]{Example graph $G$ with two shortest paths (red, orange) from $s_{1}$ to $s^{*}$.}
-\vspace{\baselineskip}
 \centering
 \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,semithick]
   \tikzstyle{state}=[circle,draw,minimum size=1cm]
