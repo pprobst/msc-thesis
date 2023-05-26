@@ -460,7 +460,6 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 
 \section{Preferred Operators}
 \label{sec:background-preferred-operators}
-\ppi{Dar mais detalhes.}
 Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
 Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state, and they contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determines if there is none, and FF restarts without preferred operators if they fail.
 %Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task (ignoring delete effects) in polynomial time, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. %The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
@@ -469,15 +468,18 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 \caption{Computing the relaxed planning graph}
 \label{alg:computing-rpg}
 \begin{algorithmic}[1]
-\Procedure{RelaxedPlanningGraph}{$\Pi^{+}$}
+\Procedure{RelaxedPlanningGraph}{relaxed planning task $\Pi^{+}$}
   \State $P_{0} \gets s_{0}$ \# \emph{Initial proposition layer}
   \State $k \gets 0$ \# \emph{Index of current layer}
   \While{$s^{*} \nsubseteq P_{k}$}
     \State $k \gets k + 1$
-    \State $O_{k} \gets \{o \in O\ \mid pre(O) \subseteq P_{k}\}$ \# \emph{Gets the action layer at layer $k$}
+    \State \# \emph{Computes the action layer $O_{k}$ at layer $k$, i.e., all the actions}
+    \State \# \emph{with the preconditions satisfied in the layer $P_{k}$}
+    \State $O_{k} \gets \{o \in O\ \mid pre(o) \subseteq P_{k}\}$
     \State $P_{k} \gets P_{k-1}$
     \ForAll{$o \in O_{k}$}
-      \State $P_{k} \gets P_{k} \cup add(o)$ \# \emph{Computes the proposition layer at layer $k$}
+      \State \# \emph{Computes the proposition layer $P_{k}$ at layer $k$}
+      \State $P_{k} \gets P_{k} \cup add(o)$
     \EndFor
     \If{$P_{k} = P_{k-1}$}
       \State \textbf{return} failure
@@ -497,7 +499,7 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 \caption{Extracting the relaxed plan}
 \label{alg:extracting-relaxed-plan}
 \begin{algorithmic}[1]
-\Procedure{RelaxedPlan}{$G^{+}$, $s^{*}$}
+\Procedure{RelaxedPlan}{relaxed planning graph $G^{+}$, goal facts $s^{*}$}
   \State $P \gets$ proposition layers of $G^{+}$
   \State $O \gets$ action layers of $G^{+}$
   %\State $l \gets$ number of layers in $G^{+}$
@@ -509,12 +511,16 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
   \State $M \gets$ $\max \{\text{firstlayer}(s_{i}^{*}, P) \mid s_{i}^{*} \in s^{*}\}$
   \For{$k \gets 0$ \textbf{to} $M$}
     \State \# \emph{$S_{k}^{*}$ are the goal facts that need to be achieved in $P_{k}$}
-    \State $S_{k}^{*} \gets$ $\{s_{i}^{*} \in s^{*} \mid \text{firstlayer}(s_{i}^{*}, P_{k})\}$
+    \State $S_{k}^{*} \gets$ $\{s_{i}^{*} \in s^{*} \mid \text{firstlayer}(s_{i}^{*}, P_{k}) = k\}$
   \EndFor
   \For{$k \gets M$ \textbf{to} $1$}
     \ForAll{$s_{k}^{*} \in S_{k}^{*}$}
-      \State $o \gets$ $\text{firstlayer}(o, O_{k}) \mid s_{k}^{*} \in add(o)$
+      \State \# \emph{Selects the action $o$ that achieves the goal fact $s_{k}^{*}$}
+      \State \# \emph{and appears for the first time in layer $k$}
+      \State $o \gets$ $\text{firstlayer}(o, O_{k}) = k \mid s_{k}^{*} \in add(o)$
       \State $plan \cup \{o\}$
+      \State \# \emph{Now add the preconditions of $o$ as sub-goals to $S^{*}$}
+      \State \# \emph{in the layer where $p$ first appears}
       \ForAll{$p \in pre(o)$}
         \State $S_{firstlayer(p, P)}^{*} \gets S_{firstlayer(p, P)}^{*} \cup \{p\}$
       \EndFor
