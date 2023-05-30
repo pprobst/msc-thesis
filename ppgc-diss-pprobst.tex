@@ -38,7 +38,6 @@
 \contourlength{1.4pt}
 
 \tikzset{>=latex} % for LaTeX arrow head
-\def\nstyle{int(\lay<\Nnodlen?min(2,\lay):3)} % map layer number onto 1, 2, or 3
 \colorlet{myred}{red!80!black}
 \colorlet{myblue}{blue!80!black}
 \colorlet{mygreen}{green!60!black}
@@ -46,17 +45,12 @@
 \colorlet{mydarkred}{red!30!black}
 \colorlet{mydarkblue}{blue!40!black}
 \colorlet{mydarkgreen}{green!30!black}
-\tikzstyle{node}=[thick,circle,draw=myblue,minimum size=22,inner sep=0.5,outer sep=0.6]
-\tikzstyle{node in}=[node,green!20!black,draw=mygreen!30!black,fill=mygreen!25]
-\tikzstyle{node hidden}=[node,blue!20!black,draw=myblue!30!black,fill=myblue!20]
-\tikzstyle{node convol}=[node,orange!20!black,draw=myorange!30!black,fill=myorange!20]
-\tikzstyle{node out}=[node,red!20!black,draw=myred!30!black,fill=myred!20]
-\tikzstyle{connect}=[thick,mydarkblue] %,line cap=round
-\tikzstyle{connect arrow}=[-{Latex[length=4,width=3.5]},thick,mydarkblue,shorten <=0.5,shorten >=1]
 \tikzset{ % node styles, numbered for easy mapping with \nstyle
-  node 1/.style={node in},
-  node 2/.style={node hidden},
-  node 3/.style={node out},
+  my nodes/.style={circle,inner sep=0,minimum size=8mm},
+  input/.style={my nodes,draw=mygreen,fill=mygreen!20,text=green!50!black},
+  hidden/.style={my nodes,draw=violet,fill=violet!20,text=violet},
+  output/.style={my nodes,draw=myred!60!black,fill=myred!20,text=red!60!black},
+  my text/.style={text=#1,text width=1cm,align=center}
 }
 
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
@@ -577,38 +571,37 @@ An example of a simple fully-connected neural network is shown in~\cref{fig:neur
 Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
 
 \begin{figure}[tb]
-\caption[A fully-connected neural network]{A neural network with $n$ input neurons, $3$ hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
+\caption[A fully-connected neural network]{A neural network with $n$ input neurons, $2$ hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
 \vspace{\baselineskip}
 \centering
-\begin{tikzpicture}[x=2.2cm,y=1.4cm,scale=0.9]
-  \readlist\Nnod{4,5,5,5,3} % array of number of nodes per layer
-  \readlist\Nstr{n,m,m,m,k} % array of string number of nodes per layer
-  \readlist\Cstr{\strut x,a^{(\prev)},a^{(\prev)},a^{(\prev)},y} % array of coefficient symbol per layer
-  \def\yshift{0.5} % shift last node for dots
+\begin{tikzpicture}[x=1.5cm,y=1cm,scale=0.85]
 
-  \message{^^J  Layer}
-  \foreachitem \N \in \Nnod{ % loop over layers
-    \def\lay{\Ncnt} % alias of index of current layer
-    \pgfmathsetmacro\prev{int(\Ncnt-1)} % number of previous layer
-    \message{\lay,}
-    \foreach \i [evaluate={\c=int(\i==\N); \y=\N/2-\i-\c*\yshift;
-                 \index=(\i<\N?int(\i):"\Nstr[\lay]");
-                 \x=\lay; \n=\nstyle;}] in {1,...,\N}{ % loop over nodes
-      % NODES
-      \node[node \n] (N\lay-\i) at (\x,\y) {$\Cstr[\lay]_{\index}$};
+\foreach\i in {1,2,3}
+  \node[input]  (x\i)  at (0,-1.5*\i)       {$x_\i$};
+\node[input]    (x4)   at (0,-7)            {$x_n$};
 
-      % CONNECTIONS
-      \ifnum\lay>1 % connect to previous layer
-        \foreach \j in {1,...,\Nnod[\prev]}{ % loop over nodes in previous layer
-          \draw[connect,white,line width=1.2] (N\prev-\j) -- (N\lay-\i);
-          \draw[connect] (N\prev-\j) -- (N\lay-\i);
-          %\draw[connect] (N\prev-\j.0) -- (N\lay-\i.180); % connect to left
-        }
-      \fi % else: nothing to connect first layer
+\foreach\i in {1,2,3,4}
+  \node[hidden] (w_1\i)  at (2.5,0.75-1.5*\i) {$w_\i^{(1)}$};
+\node[hidden]   (w_15)   at (2.5,-7.75)       {$w_m^{(1)}$};
 
-    }
-    \path (N\lay-\N) --++ (0,1+\yshift) node[midway,scale=1.5] {$\vdots$};
-  }
+\foreach\i in {1,2,3,4}
+  \node[hidden] (w_2\i)  at (5.0,0.75-1.5*\i) {$w_\i^{(2)}$};
+\node[hidden]   (w_25)   at (5.0,-7.75)       {$w_m^{(2)}$};
+
+\foreach\i in {1,2,3}
+  \node[output]  (y\i)  at (7,-1.5*\i)       {$y_\i$};
+\node[output]    (y4)   at (7,-7)            {$y_k$};
+
+% connections
+\foreach\i in {1,2,3,4,5} \foreach\j in {1,2,3,4}
+{
+  \draw[black,thick]   (w_1\i) -- (x\j);
+  \draw[black,thick]   (w_2\i) -- (w_1\j);
+  \draw[black,thick]   (w_2\i) -- (y\j);
+}
+% dots
+\foreach\i/\j in {x3/x4,w_14/w_15,w_24/w_25,y3/y4}
+  \node at ($(\i)!0.5!(\j)$) {\strut$\vdots$};
 \end{tikzpicture}
 \label{fig:neural-network}
 \end{figure}
