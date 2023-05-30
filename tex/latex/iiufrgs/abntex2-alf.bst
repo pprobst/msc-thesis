@@ -566,43 +566,48 @@ abnt.last.names
 
 if$
 }
+
 FUNCTION {format.names}
-{ 'bibinfo :=  duplicate$ empty$ 'skip$
+{ 'bibinfo :=
+  duplicate$ empty$ 'skip$
   {'s :=
    "" 't :=
-   #1 'nameptr :=  s num.names$ 'numnames :=
-    numnames 'namesleft :=
-    { namesleft #0 > }
-    { format.single.name
-      bibinfo bibinfo.check
-      't :=
-      nameptr #1 >
-        {nameptr #1 #1 + = numnames abnt.etal.list > and
-            {abnt.etal.list {"others" 't := #1 'namesleft :=} 'skip$ if$ }
-            'skip$
-          if$
-          namesleft #1 >
-            { "; " * t * }
-            { numnames #2 >
-                { "" * }
-                'skip$
-              if$
-              s nameptr "{ll}" format.name$ duplicate$ "others" =
-                { 't := }
-                { pop$ }
-              if$
-              t "others" =
-                { bbl.etal *}
-                { "; " * t *}
-              if$ }
-          if$ }
-        't
-      if$
-      nameptr #1 + 'nameptr :=
-      namesleft #1 - 'namesleft := }
+   #1 'nameptr :=
+   s num.names$ 'numnames :=
+   numnames 'namesleft :=
+   { namesleft #0 > }
+   { format.single.name
+     bibinfo bibinfo.check
+     't :=
+     nameptr #1 >
+       {nameptr #100 >  % Change this line
+         {"; et al." 't := #1 'numnames :=}  % Change this line
+         'skip$
+       if$
+       namesleft #1 >
+         { "; " * t * }
+         { numnames #2 >
+             { "" * }
+             'skip$
+           if$
+           s nameptr "{ll}" format.name$ duplicate$ "others" =
+             { 't := }
+             { pop$ }
+           if$
+           t "others" =
+             { bbl.etal *}
+             { "; " * t *}
+           if$ }
+       if$ }
+     't
+     if$
+     nameptr #1 + 'nameptr :=
+     namesleft #1 - 'namesleft :=
+   }
   while$
   } if$
 }
+
 
 %from plain.bst
 FUNCTION {format.names.plain}
