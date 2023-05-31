@@ -360,6 +360,8 @@ For example, in Blocks World, $(ontable~?x)$ represents a predicate that indicat
 that is, $x$ is not on the table, $x$ is not clear, the hand is not empty, and the hand is holding $x$.
 
 \section{Regression}
+\label{background-regression}
+
 The predecessor of a partial state $s$ under operator $o$, denoted $\pred(s,o)$, can be obtained through a process called backward search or regression. Regression involves determining predecessor states that can lead to the current partial state by applying the operator $o$. An operator $o$ is considered relevant for partial state $s$ if at least one defined effect in $o$ is applicable to $s$, i.e., there exists at least one effect in the operator $o$ whose preconditions are satisfied by the partial state $s$, and consistent if the operator agrees with the defined effects in $s$. An operator $o$ is said to be \emph{backward applicable} in partial state $s$ if it is both relevant and consistent with $s$, and it leads to a predecessor $r$ given by $r=\pre(o)\circ (s|_{\dom(s)\setminus\eff_r})$\ppi{$eff_r$ or $eff_o$?}. Note that $\sucs(r,o)\subseteq s$ may differ from $s$, i.e., applying an operator to a predecessor state may result in a subset of the current partial state, but it does not necessarily cover all the possible states represented by $s$.
 % $(s|_{\dom(s)\setminus\eff_r})$: This part refers to the restriction or projection of the current partial state $s$ onto the variables in its domain ($\dom(s)$) that are not affected by the effects of operator $o$ ($\eff_r$). In other words, it selects the values of the variables in $s$ that are not modified by $o$.
 A partial state $s$ has predecessors $\pred(s)=\{{\pred(s,o)\mid o\in \mathcal{O}}\}$ where $o$ is backward applicable to $s$, and a regression sequence from state $s_0$ is valid if $o_i$ can be applied to $s_{i-1}$ and produces $s_i=\pred(s_{i-1},o_i)$. All partial states~$s_k$ can reach a partial state $s\subseteq s_0$ in at most $k$ forward applications of the reversed operator sequence.
@@ -370,11 +372,12 @@ If a valid regression sequence $\rho = (o_1, \ldots, o_k)$ is generated, it will
 \section{State Spaces}
 \label{background-state-spaces}
 
-Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be a goal state, and $succ : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $X = \langle S, s_0, s^{*}, succ \rangle$.
-For any planning task $\Pi$ with states $S$, initial state $s_0$, goal state $s^{*}$, and successor function $succ$, the corresponding state space of $\Pi$ is denoted as $X(\Pi) = \langle S, s_0, s^{*}, succ \rangle$.
+Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be a goal state, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $X = \langle S, s_0, s^{*}, \sucs \rangle$.
+For any planning task $\Pi$ with states $S$, initial state $s_0$, goal state $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $X(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
 
-The backward state space (BSS) refers to the set of partial states that can be reached from the goal state $s^*$ by applying backward applicable operators. The BSS is explored during regression. Conversely, the forward state space (FSS) pertains to the set of states that can be reached from the initial state $s_0$ by applying a sequence of operators. The FSS is explored when solving a task, for example by using a best-first search algorithm.
-\ppi{Define FSS and BSS with $X$?}
+The forward state space (FSS) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be explored forward from the initial state towards the goal state. The forward state space for a planning task $\Pi$ is denoted as $X_{\text{F}}(\Pi) = \langle S_{\text{F}}, s_0, s^{*}, \sucs \rangle$, where $S_{\text{F}}$ is the set of states reachable from the initial state, and $\sucs : S_{\text{F}} \to 2^{S_{\text{F}}}$ is the successor function that maps each state to a set of possible successor states and determines the available transitions in the forward direction. In other words, $X_{\text{F}}(\Pi)$ is defined as the subset of states and transitions within $X$ that are relevant to the planning task $\Pi$ and the forward exploration towards the goal state. The FSS is explored when solving a task, for example by using a best-first search algorithm.
+
+The backward state space (BSS), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be explored backward from the goal state towards the initial state. The backward state space of a planning task $\Pi$ is denoted as $X_{\text{B}}(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction. The BSS is explored during regression~(\cref{background-regression}).
 
 
 \section{Heuristic Functions}
@@ -389,10 +392,12 @@ A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}
 \end{itemize}
 
 Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map of some state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
-
 A propositional representation of a state is better suited for learning heuristic functions over states. For this purpose, consider a planning task denoted as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$. Here, $\mathcal{V}=\{v_1,\ldots,v_n\}$ represents a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ represents the domains of variable $v_i$, with $i\in[n]$. To represent any state $s$, we use a sequence of facts denoted as
 % The domain consists of possible values that $v_i$ can take. The values are represented as $d_{i1}$ to $d_{i,s_i}$, where $s_i$ indicates the number of possible values for $v_i$.
-$$\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n}),$$ where each fact $f_{ij}=[s(v_i)=d_{ij}]$ indicates whether variable $v_i$ assumes the value $d_{ij}$ in state $s$. It is important to note that the facts $\mathcal{F}_i=\{f_{i1},\ldots,f_{i,s_i}\}$ corresponding to variable $v_i$ adhere to the consistency condition $\sum_{f\in \mathcal{F}_i} f\leq 1$, as each variable can take at most one value, and $\sum_{f\in \mathcal{F}_i} f=0$ only when $v_i$ is undefined. In a more general sense, given a set of propositions $\mathcal{P}$, we express $\mutex(\mathcal{P})$ when the constraint $\sum_{p\in \mathcal{P}} [p]\leq 1$ must be satisfied within the states of $\Pi$. Planning systems can typically deduce mutexes from the description of the planning task $\Pi$~\cite{Helmert/2009}.
+$$\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n}),$$ where each fact $f_{ij}=[s(v_i)=d_{ij}]$ indicates whether variable $v_i$ assumes the value $d_{ij}$ in state $s$. It is important to note that the facts $\mathcal{F}_i=\{f_{i1},\ldots,f_{i,s_i}\}$ corresponding to variable $v_i$ adhere to the consistency condition $\sum_{f\in \mathcal{F}_i} f\leq 1$, as each variable can take at most one value, and $\sum_{f\in \mathcal{F}_i} f=0$ only when $v_i$ is undefined.
+
+For example, let $\mathcal{P}$ be a set of propositions, and let $p_i, p_j \in \mathcal{P}$ be two propositions. We say that $p_i$ and $p_j$ are mutex (mutually exclusive) if $\neg(p_i \land p_j)$ holds, i.e., $p_i$ and $p_j$ cannot both be true at the same time in any valid state of the planning problem. More generally, we express $\mutex(\mathcal{P})$ when the constraint $\sum_{p\in \mathcal{P}} [p]\leq 1$ must be satisfied within the states of $\Pi$. Planning systems can typically deduce mutexes from the description of the planning task $\Pi$~\cite{Helmert/2009}.
+
 
 \section{Greedy Best-First Search}
 \label{sec:background-gbfs}
@@ -402,13 +407,13 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 \caption{Greedy best-first search (GBFS)}
 \label{alg:gbfs}
 \begin{algorithmic}[1]
-\Procedure{GBFS}{$\Pi, \text{heuristic}$}
-  \State Initialize an empty priority queue $pqueue$
+\Procedure{GBFS}{$\Pi, \text{heuristic function}~h$}
+  \State Initialize an empty priority queue $Q$
   \State Mark the initial state $s_0$ as visited
-  \State Insert $s_0$ into $pqueue$ with priority $\text{heuristic}(s_0)$
+  \State Insert $s_0$ into $Q$ with priority $h(s_0)$
 
-  \While{$pqueue$ is not empty}
-    \State $s \gets$ state with the highest priority in $pqueue$
+  \While{$Q$ is not empty}
+    \State $s \gets$ state with the highest priority in $Q$
 
     \If{$s$ satisfies the goal state $s^{*}$}
       \State \textbf{return} the solution
@@ -418,7 +423,7 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
     \ForAll{successor states $s' \in S'$}
       \If{$s'$ has not been visited}
         \State Mark $s'$ as visited
-        \State Insert $s'$ into $pqueue$ with priority $\text{heuristic}(s')$
+        \State Insert $s'$ into $Q$ with priority $h(s')$
       \EndIf
     \EndFor
   \EndWhile
@@ -430,8 +435,8 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 
 \section{Preferred Operators}
 \label{sec:background-preferred-operators}
-Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
-Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state, and they contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determines if there is none, and FF restarts without preferred operators if they fail.
+Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation\pp{It does depend on implementation. The way we identify POs is very different from the delete-relaxation-based method from FF, and the results may not be the same.}, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
+Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. To extract the relaxed plan, the algorithm marks the goal facts that need to be achieved at each layer $k$ of the relaxed planning graph, then iterate from the last layer to the initial layer, marking the actions at layer $k$ that achieve the goal facts of the same layer. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state, and they contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determines if there is none, and FF restarts without preferred operators if they fail.\footnote{\cref{alg:computing-rpg,alg:extracting-relaxed-plan} were modified from~\citet{Wickler.etal/2015}.}
 %Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task (ignoring delete effects) in polynomial time, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. %The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
 
 \begin{algorithm}[tb]
@@ -439,16 +444,16 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 \label{alg:computing-rpg}
 \begin{algorithmic}[1]
 \Procedure{RelaxedPlanningGraph}{relaxed planning task $\Pi^{+}$}
-  \State $P_{0} \gets s_{0}$ \textcolor{gray}{\# \emph{Initial proposition layer}}
-  \State $k \gets 0$ \textcolor{gray}{\# \emph{Index of current layer}}
+  \State $P_{0} \gets s_{0}$ \textcolor{gray}{\# \emph{Initial proposition layer}.}
+  \State $k \gets 0$ \textcolor{gray}{\# \emph{Index of current layer}.}
   \While{$s^{*} \nsubseteq P_{k}$}
     \State $k \gets k + 1$
     \State \textcolor{gray}{\# \emph{Computes the action layer $O_{k}$ at layer $k$, i.e., all the actions}}
-    \State \textcolor{gray}{\# \emph{with the preconditions satisfied in the layer $P_{k}$}}
+    \State \textcolor{gray}{\# \emph{with the preconditions satisfied in the layer $P_{k}$}.}
     \State $O_{k} \gets \{o \in O\ \mid pre(o) \subseteq P_{k}\}$
     \State $P_{k} \gets P_{k-1}$
     \ForAll{$o \in O_{k}$}
-      \State \textcolor{gray}{\# \emph{Computes the proposition layer $P_{k}$ at layer $k$}}
+      \State \textcolor{gray}{\# \emph{Computes the proposition layer $P_{k}$ at layer $k$}.}
       \State $P_{k} \gets P_{k} \cup add(o)$
     \EndFor
     \If{$P_{k} = P_{k-1}$}
@@ -457,11 +462,9 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 
   \EndWhile
 
-  \State $G^{+} \gets $ [$P_{0}, O_{1}, P_{1},\ldots,O_{k}, P_{k}$] \textcolor{gray}{\# \emph{The relaxed planning graph}}
+  \State $G^{+} \gets $ [$P_{0}, O_{1}, P_{1},\ldots,O_{k}, P_{k}$] \textcolor{gray}{\# \emph{The relaxed planning graph}.}
   \State \textbf{return} $G^{+}$
 \EndProcedure
-\State \textcolor{gray}{\# \emph{Source: modified from Dr. Gerhard Wickler and Prof. Austin Tate,}}
-\State \textcolor{gray}{\# \emph{University of Edinburgh's AIPLAN open online course.}}
 \end{algorithmic}
 \end{algorithm}
 
@@ -477,20 +480,21 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
   %  \State \textbf{return} failure
   %\EndIf
   \State Initialize empty set $plan$
-  \State \textcolor{gray}{\# \emph{maximum(index of the first layer where each fact of $s^{*}$ first appears in $P$)}}
+  \State \textcolor{gray}{\# \emph{firstlayer($x$,$Y$) returns the number of the first layer at which $x$ appears in $Y$.}}
+  \State \textcolor{gray}{\# \emph{M = maximum(index of the first layer where each fact of $s^{*}$ first appears in $P$).}}
   \State $M \gets$ $\max \{\text{firstlayer}(s_{i}^{*}, P) \mid s_{i}^{*} \in s^{*}\}$
   \For{$k \gets 0$ \textbf{to} $M$}
-    \State \textcolor{gray}{\# \emph{$S_{k}^{*}$ are the goal facts that need to be achieved in $P_{k}$}}
+    \State \textcolor{gray}{\# \emph{$S_{k}^{*}$ are the goal facts that need to be achieved in $P_{k}$.}}
     \State $S_{k}^{*} \gets$ $\{s_{i}^{*} \in s^{*} \mid \text{firstlayer}(s_{i}^{*}, P_{k}) = k\}$
   \EndFor
   \For{$k \gets M$ \textbf{to} $1$}
     \ForAll{$s_{k}^{*} \in S_{k}^{*}$}
       \State \textcolor{gray}{\# \emph{Selects the action $o$ that achieves the goal fact $s_{k}^{*}$}}
-      \State \textcolor{gray}{\# \emph{and appears for the first time in layer $k$}}
+      \State \textcolor{gray}{\# \emph{and appears for the first time in layer $k$}.}
       \State $o \gets$ $\text{firstlayer}(o, O_{k}) = k \mid s_{k}^{*} \in add(o)$
-      \State $plan \cup \{o\}$
+      \State $plan \gets plan \cup \{o\}$
       \State \textcolor{gray}{\# \emph{Now add the preconditions of $o$ as sub-goals to $S^{*}$}}
-      \State \textcolor{gray}{\# \emph{in the layer where $p$ first appears}}
+      \State \textcolor{gray}{\# \emph{in the layer where $p$ first appears}.}
       \ForAll{$p \in pre(o)$}
         \State $S_{firstlayer(p, P)}^{*} \gets S_{firstlayer(p, P)}^{*} \cup \{p\}$
       \EndFor
@@ -498,13 +502,14 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
   \EndFor
   \State \textbf{return} $plan$
 \EndProcedure
-\State  \textcolor{gray}{\# \emph{Source: modified from Dr. Gerhard Wickler and Prof. Austin Tate,}}
-\State \textcolor{gray}{\# \emph{University of Edinburgh's AIPLAN open online course.}}
 \end{algorithmic}
 \end{algorithm}
 
 
-The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs), compatible with multi-valued planning tasks, where the preferred operators obtained with the calculation of the FF heuristic are the current best. (In Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.) The DTG provides a compact representation of the state space by capturing the dependencies between variables and their possible values, where each variable in the planning domain is represented as a node, and the transitions between different values of the variable are represented as edges between the nodes. The DTG for variable $v$ has a transition $d \xrightarrow{o} d'$ if there exists an operator that can modify the value of $v$ from $d$ to $d'$.
+The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs) instead of relaxed planning graphs, compatible with multi-valued planning tasks, where the preferred operators obtained with the calculation of the FF heuristic are the current best. A DTG is defined as follows.
+
+Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
+To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
 
 To support preferred operators and assure the search is complete, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
 
@@ -894,7 +899,7 @@ In the second phase, we maintain an open queue, containing states generated but 
     \State $closed \gets closed \cup \{s\}$
     \State $S_{2} \gets S_{2} \cup \{s\}$
     \State \textcolor{gray}{\# \emph{$pred_{bfs}(s)$ refers to a predecessor function behaving as BFS, i.e.,}}
-    \State \textcolor{gray}{\# \emph{generating the immediate neighbors of $s$}}
+    \State \textcolor{gray}{\# \emph{generating the immediate neighbors of $s$}.}
     \State $P \gets \{s' \mid s' \in pred_{bfs}(s)\}$
     \ForAll{partial state $s' \in P$}
       \If{$s' \notin (open \cup closed)$}
