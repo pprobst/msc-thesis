@@ -229,8 +229,8 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 \end{listofabbrv}
 
 \begin{listofsymbols}{$\alpha\beta\pi\omega$}
-       \item[G] Sample set graph
-       \item[G' ] Shortest path sample set graph
+       %\item[$G$] Sample set graph
+       %\item[$G'$] Shortest path sample set graph
        \item[\h] Heuristic
        \item[\hstar] Optimal heuristic
        \item[\hnn] Learned heuristic
@@ -405,6 +405,7 @@ A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}
 \end{itemize}
 
 Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map of some state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
+\ppi{The paragraph below needs to change a bit since it's too similar to Rafael's.}
 A propositional representation of a state is better suited for learning heuristic functions over states. For this purpose, consider a planning task denoted as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$. Here, $\mathcal{V}=\{v_1,\ldots,v_n\}$ represents a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ represents the domains of variable $v_i$, with $i\in[n]$. To represent any state $s$, we use a sequence of facts denoted as
 % The domain consists of possible values that $v_i$ can take. The values are represented as $d_{i1}$ to $d_{i,s_i}$, where $s_i$ indicates the number of possible values for $v_i$.
 $$\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n}),$$ where each fact $f_{ij}=[s(v_i)=d_{ij}]$ indicates whether variable $v_i$ assumes the value $d_{ij}$ in state $s$. It is important to note that the facts $\mathcal{F}_i=\{f_{i1},\ldots,f_{i,s_i}\}$ corresponding to variable $v_i$ adhere to the consistency condition $\sum_{f\in \mathcal{F}_i} f\leq 1$, as each variable can take at most one value, and $\sum_{f\in \mathcal{F}_i} f=0$ only when $v_i$ is undefined.
@@ -975,7 +976,7 @@ This section comprises four sets of experiments. In the first set (\cref{sec:exp
 
 \section{Configuration}
 \label{sec:exp-configuration}
-We follow the same ResNet as \citet{Bettker.etal/2022} with modifications to support learning preferred operators. Specifically, we use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
+We follow the same ResNet as \citet{Ferber.etal/2022},~\citet{OToole/2022}, and~\citet{Bettker.etal/2022} with modifications to support learning preferred operators. Specifically, we use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
 Each hidden layer has $250$ neurons and is ReLU-activated.
 The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and early-stop patience of $100$.
 The network's input is a sample set containing a Boolean representation of the states, with $0$ if a proposition is false and $1$ otherwise~(\cref{sec:background-heuristics}).
