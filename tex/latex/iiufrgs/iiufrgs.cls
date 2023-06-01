@@ -134,7 +134,8 @@
     % Isso é opcional na norma ABNT (que permite que seja usado itálico) e
     % não é o padrão do abntex2.
     abnt-emphasize=bf,
-    bibjustif
+    bibjustif,
+    abnt-etal-cite=2
 ]{abntex2cite}
 \fi
 

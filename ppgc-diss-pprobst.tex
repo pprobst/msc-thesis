@@ -92,6 +92,20 @@
 \newcommand{\pp}[2][noinline]{\todo[color=purple!50,linecolor={purple!100},#1,fancyline,author=Pedro]{#2}}
 \newcommand{\ppi}[2][inline]{\todo[color=purple!50,linecolor={purple!100},#1,fancyline,author=Pedro]{#2}}
 
+% nominata
+\renewcommand{\nominataReit}{Prof.~Carlos Andr{\'e} Bulh{\~o}es}
+% \renewcommand{\nominataReitname}{Rector}
+\renewcommand{\nominataPRCA}{Prof\textsuperscript{a}.~Patricia Pranke}
+% \renewcommand{\nominataPRCAname}{Vice-Rector}
+\renewcommand{\nominataPRAPG}{Prof.~J{\'u}lio Ot{\'a}vio Jardim Barcellos}
+% \renewcommand{\nominataPRAPGname}{Dean of Graduate Studies}
+\renewcommand{\nominataDir}{Prof\textsuperscript{a}.~Carla Maria Dal Sasso Freitas}
+% \renewcommand{\nominataDirname}{Director of the Institute of Informatics}
+\renewcommand{\nominataCoordPPGC}{Prof.~Alberto Egon Schaeffer Filho}
+% \renewcommand{\nominataCoordnamePPGC}{Coordinator of the PPGC}
+\renewcommand{\nominataBibchefe}{Alexsander Borges Ribeiro}
+% \renewcommand{\nominataBibchefename}{Chief Librarian of the Institute of Informatics}
+
 
 %
 % Informações gerais
@@ -251,11 +265,10 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 \label{cha:introduction}
 In planning, preferred operators act in conjunction with heuristic functions and help reduce the number of expanded states during the planning process by prioritizing states closer to a goal condition.
 This study introduces a novel approach to deriving preferred operators in planning tasks. Unlike the traditional symbolic-based methods, we use a sample-based approach to discover preferred operators. By training a neural network with a sample set consisting of pairs of states and their preferred operators discovered during the sampling procedure, the neural network learns to generalize preferred operators for the given planning task.
-\pp{Rewrote this according to Ritt's review.}
 
 \section{Planning}
 \label{sec:intro-planning}
-Planning involves determining a series of operators (or actions) that transitions a given initial state to a desired goal state.\pp{Removed the citation here since we don't actually need it.}
+Planning involves determining a series of operators (or actions) that transitions a given initial state to a desired goal state.
 In a classical planning task, the agent acts in a fully-observable environment, i.e., with access to all relevant information of the current state of the world, such as the positions of objects and the values of variables. The agent starts in a initial state and needs to fulfill a specific goal condition. This is achieved by using deterministic operators to modify the current state of the world. A solution plan for the planning task can be defined as a sequence of operators that, when applied to the initial state, successfully satisfy the goal condition. A state expansion involves the application of all relevant operators to a given state, thereby generating its successor states.
 
 For example, in a Blocks World task, consider the initial state (left) and the goal state (right) shown in Figure \ref{fig:intro-blocks}. The agent needs to apply a sequence of operators to reach the goal state from the initial state. We can define operators such as ``pick up block X'', ``put block X on block Y'', and ``put block X on the table.'' In this example, the agent can find one of the possible plans by applying the following operators: pick up block G, put block G on the table, pick up block B, put block B on block G, and put block R on block B. %Applying each of these operators generate a successor state.
@@ -515,7 +528,7 @@ To support preferred operators and assure the search is complete, Fast Downward 
 
 \section{Neural Networks}
 \label{sec:background-neural-nets}
-A standard NN architecture, called a multi-layer perceptron (MLP), is composed of an input layer, one or more hidden layers, and an output layer. The neurons in hidden layers apply activation functions to the weighted sum of their inputs, introducing (non-)linear transformations. The weights and biases of the neurons are learned through a process called backpropagation, which optimizes a loss function using gradient descent or its variants. For details on backpropagation and gradient descent, refer to~\citet{Goodfellow.etal/2016}.
+A commonly used neural network architecture known as a multi-layer perceptron (MLP) consists of an input layer, one or more hidden layers, and an output layer. The neurons within the hidden layers apply activation functions to the weighted sum of their inputs, which introduces both linear and nonlinear transformations. A bias term represents a constant value that is optionally added to the weighted sum of inputs of a neuron before applying the activation function, introducing an offset in the activation that allows the neural network to account for any systematic errors or deviations that may exist in the data. The weights and biases of the neurons are learned through a process called backpropagation, which optimizes a loss function using gradient descent or its variations. For more information on backpropagation and gradient descent, refer to~\citet{Goodfellow.etal/2016}.
 
 The mean squared error (MSE) loss function is commonly used for regression problems, where the goal is to predict continuous values.
 \begin{definition}[Mean Squared Error]\label{def:mse}
@@ -594,9 +607,9 @@ Common activation functions include sigmoid, rectified linear units (ReLU), and 
 \label{fig:activation-functions}
 \end{figure}
 
-Standard NNs may suffer from the vanishing gradient problem~\cite{Bengio.etal/1994}. The gradients tend to diminish as they propagate backward through multiple layers, making it challenging for earlier layers to learn meaningful representations. This problem hampers the optimization process and restricts the overall performance of the network.
+Standard NNs may suffer from the vanishing gradient problem~\cite{Hochreiter/1991}. The gradients tend to diminish as they propagate backward through multiple layers, making it challenging for earlier layers to learn meaningful representations. This problem hampers the optimization process and restricts the overall performance of the network.
 
-Residual Neural Networks (ResNets)~\cite{He.etal/2016} can reduce the vanishing gradient problem\pp{Ritt put something here but I didn't understand what was written.}. ResNets use skip connections that bypass layers, allowing the information to flow directly from one layer to another. This bypassing mechanism mitigates the vanishing gradient problem and facilitates the training of deep networks.
+Residual Neural Networks (ResNets)~\cite{He.etal/2016} can reduce the vanishing gradient problem. ResNets use skip connections that bypass layers, allowing the information to flow directly from one layer to another. This bypassing mechanism mitigates the vanishing gradient problem and facilitates the training of deep networks.
 
 \begin{definition}[Skip Connection]
 Let us consider a ResNet architecture with $L$ layers. The output of the $l$-th layer is denoted by $a^{l}$, and the output of the previous layer is denoted by $a^{l-1}$. The residual connection between the $l$-th and $l-1$-th layers can be represented as:
@@ -638,6 +651,7 @@ In this chapter, we review and discuss the previous research conducted on topics
 \label{sec:related-pos}
 The first notion of preferred operators as currently used was described by~\citet{Hoffmann.Nebel/2001} and implemented in the FF planner, then called \emph{helpful actions}, described in~\cref{sec:background-preferred-operators}. The current most effective approach for identifying preferred operators uses the computation of the FF heuristic as implemented in the Fast Downward planning system~\cite{Helmert/2006}.
 Furthermore, \citet{Richter.Helmert/2009} performed a systematic study on how best to use preferred operators and showed that the dual-queue approach described in~\cref{sec:background-preferred-operators} yielded the best results.
+\ppi{Unsure what's the best course of action here. This paragraph is essentially useless since I talked about this in ~\cref{sec:background-preferred-operators}. Maybe remove the Related Work chapter and merge with the text withing the Background?}
 
 \section{Learning Heuristic Functions}
 \label{sec:related-h}
@@ -645,22 +659,22 @@ While prior research has not specifically addressed learning preferred operators
 The first approach heavily relies on domain logic to generate samples and instantiate networks. Its objective is to generalize across domains or a planning formalism.
 On the other hand, the second approach minimally uses domain logic solely for generating samples and focuses on generalization within a state space.
 
-The first approach uses ``structured'' neural networks with architectures specifically designed to align with the characteristics and requirements of the given input task. Examples include learning domain-independent heuristic functions with hypergraph neural networks~\cite{Shen.etal/2020}, and learning policies with action schema networks~\cite{Toyer.etal/2018,Toyer.etal/2020} and graph neural networks~\cite{Stahlberg.etal/2022}. These approaches offer higher expressive power and can be applied regardless of the state spaces. However, they heavily rely on domain logic. Furthermore, the major limitation of this set of approaches is that they can not be used to solve planning tasks of the size typically solved by planners as they require excessive memory for instantiation or are too slow in expanding the necessary number of states.
+The first approach uses structured neural networks with architectures specifically designed to align with the characteristics and requirements of the given input task. Examples include learning domain-independent heuristic functions with hypergraph neural networks~\cite{Shen.etal/2020}, and learning policies with action schema networks~\cite{Toyer.etal/2018,Toyer.etal/2020} and graph neural networks~\cite{Stahlberg.etal/2022}. These approaches are generally applicable to state spaces that differ from the ones they were originally trained on. The major limitation of this set of approaches is that they heavily rely on domain logic, and can also have significant computational overhead, as in the case of action schema networks. Moreover, in domain-independent approaches such as hypergraph neural networks, where the network can be applied to a different domain than the one it was originally trained on, the search performance is considerably inferior when compared to symbolic-based heuristics in terms of coverage. %Furthermore, the major limitation of this set of approaches is that they can not be used to solve planning tasks of the size typically solved by planners as they require excessive memory for instantiation or are too slow in expanding the necessary number of states.
 
 The second approach uses supervised learning to train a feedforward neural network with pairs of states and cost-to-goal estimates. Samples can be generated with forward search from the initial state~\cite{Ferber.etal/2020a}, backward search from the goal~\cite{Yu.etal/2020,OToole/2022,Bettker.etal/2022}, or a combination of both~\cite{Ferber.etal/2022}.
+This set of approaches offers the advantage of requiring less computational resources than the first set. However, a limitation is that the trained models are typically applicable only within the specific state space they were trained on. Search performance is also a problem, since these approached typically solve less tasks than simple symbolic-based heuristics such as goal-count. An advantage is that this set of approached rely on domain logic to a lesser extent, and only during sample generation, such as determining applicable operators and mutexes. Moreover, in cases where a generator of predecessor and successor states is available, which can also be learned, these approaches can eliminate the requirement for domain-specific logic.%\pp{Not really, since partial states.}
 
 %In this context,~\citet{Ferber.etal/2020a} conducted a systematic study on the hyperparameters of the feedforward neural network architecture and found that their influence is secondary. They discovered that, for a fixed architecture, two main factors significantly impact the informativeness of the heuristic: the selection of the sample subset and the size of the sample set.
 
 %Some approaches sample states by backward searches from the goal~\cite{Yu.etal/2020, OToole/2022, Bettker.etal/2022}.
-Regarding sampling by backward search,~\citet{Yu.etal/2020} used depth-first search,~\citet{OToole/2022} used random walks, and~\citet{Bettker.etal/2022} used a combination of breadth-first search and random walks. In these cases, the cost-to-goal estimates were assigned as the lowest depth at which the states were generated.~\citet{Ferber.etal/2022} used a combination of backward and forward searches, using bootstrap learning~\cite{Arfaee.etal/2011}.
-Specifically,~\citet{Bettker.etal/2022} introduce various cost-to-goal improvement methods to enhance sample quality and emphasize that the effectiveness of learned heuristics relies on two crucial factors: a sample set that encompasses diverse regions of the state space and accurate cost-to-goal estimates; one without the other is insufficient.
+Regarding sampling by backward search,~\citet{Yu.etal/2020} used depth-first search,~\citet{OToole/2022} used random walks, and~\citet{Bettker.etal/2022} used a combination of breadth-first search and random walks. In these cases, the cost-to-goal estimates were assigned as the lowest distance from the goal at which the states were generated.~\citet{Ferber.etal/2022} used a combination of backward and forward searches, using bootstrap learning~\cite{Arfaee.etal/2011}.
+
+Specifically,~\citet{Bettker.etal/2022} introduce several cost-to-goal improvement methods to enhance sample quality and emphasize that the effectiveness of learned heuristics relies on two crucial factors: a sample set that encompasses diverse regions of the state space and accurate cost-to-goal estimates; one without the other is insufficient. In particular, this work follows the second set of approaches, and we generate samples by regression from the goal.
 %$To concurrently generate samples and learn a heuristic function,~\citet{Ferber.etal/2022} employed a bootstrapping method~\cite{Arfaee.etal/2011}, where initially new initial states are generated using backward random walks, which are then solved using GBFS guided by the learned heuristic. The resulting plans yield samples, with each sample corresponding to a state within the plan and its associated cost-to-goal estimate. These samples are subsequently used to further train the neural network, aiming to enhance the learned heuristic.
 
 % O'Toole (2022) also presented a method for generating samples that does not involve expansions. This method includes randomly generating states with high cost-to-goal estimates and including them in the sample set. O'Toole demonstrated that this approach substantially increases coverage.
 
-This second set of approaches offers the advantage of requiring minimal computational resources. However, a limitation is that the trained models are typically applicable only within the specific state space they were trained on. These approaches rely on domain logic to a lesser extent, and only during sample generation, such as determining applicable operators and mutexes. Moreover, in cases where a black-box simulator is accessible to generate predecessor and successor states, which can also be learned, these approaches can eliminate the requirement for domain-specific logic entirely.
 
-In particular, this work follows the second set of approaches, and we generate samples by regression from the goal.
 
 
 %
