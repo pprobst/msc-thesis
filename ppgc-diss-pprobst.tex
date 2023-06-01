@@ -564,10 +564,10 @@ An example of a simple fully-connected neural network is shown in~\cref{fig:neur
 Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
 
 \begin{figure}[tb]
-\caption[A fully-connected neural network]{A neural network with $n$ input neurons, $2$ hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
+\caption[A fully-connected neural network]{A neural network with $n$ input neurons, two hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
 \vspace{\baselineskip}
 \centering
-\begin{tikzpicture}[x=1.5cm,y=1cm,scale=0.85]
+\begin{tikzpicture}[x=1.5cm,y=1.0cm,scale=0.75]
 
 \foreach\i in {1,2,3}
   \node[input]  (x\i)  at (0,-1.5*\i)       {$x_\i$};
@@ -603,7 +603,7 @@ Common activation functions include sigmoid, rectified linear units (ReLU), and 
 \caption[Common activation functions]{Sigmoid, ReLU, and tanh activation functions.}
 \vspace{\baselineskip}
 \centering
-\includegraphics[]{img/sigmoid-relu-tanh}
+\includegraphics[scale=1.0]{img/sigmoid-relu-tanh}
 \label{fig:activation-functions}
 \end{figure}
 
@@ -623,9 +623,9 @@ where $\mathcal{F}$ represents a residual function, typically implemented as a f
 
 \begin{figure}[tb]
 \caption[A residual block]{A residual block with two hidden layers.}
-\vspace{\baselineskip}
+%\vspace{\baselineskip}
 \centering
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.70]
   \node[fill=myorange!30] (l1) {layer 1};
   \node[blue!50!black, right=of l1, label={below:activation}] (act1) {$a(x)$};
   \node[fill=myblue!30, right=of act1] (l2) {layer 2};
@@ -687,17 +687,17 @@ Specifically,~\citet{Bettker.etal/2022} introduce several cost-to-goal improveme
 \label{cha:sample-gen}
 This chapter presents the methods we use to generate samples for training, specifically to train a neural network that predicts $h$-values (\cref{sec:sample-learn-h}), and another to train a neural network that identifies preferred operators (\cref{sec:sample-learn-po}).
 
-There are multiple techniques available to generate a sample set for training neural networks in planning. These techniques include search methods like breadth-first search (BFS), depth-first search (DFS), and random walk (RW). In search methods, the generation of the sample set typically begins from a source node, which is commonly the initial state for forward search or the goal state for backward search (regression). Random sampling of the state space can also be used to generate the sample set. Unlike search methods, random sampling produces independent samples, as each state is generated without relying on previous samples. The distribution of samples across the state space can impact the generalization performance of the neural network. This impact can vary depending on the specific sampling algorithm used.
+There are multiple techniques available to generate a sample set for training neural networks in planning. These techniques include search methods like breadth-first search (BFS), depth-first search (DFS), and random walk (RW). In search methods, the generation of the sample set typically begins from a source node, which is commonly the initial state for forward search or the goal state for backward search (regression). Random sampling of the state space can also be used to generate the sample set. Unlike search methods, random sampling produces independent samples, as each state is generated without relying on previous samples. Sample distribution influences neural network generalization~\cite{Ferber.etal/2020a}, and this influence varies depending on the choice of sampling algorithm~\cite{Bettker.etal/2022}.
 
 \section{Sampling for Learning Heuristic Functions}
 \label{sec:sample-learn-h}
 To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the BSS. Specifically, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple rollouts RW, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
 
-A regression rollout refers to a sequence of partial state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the depth limit $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the depth limit $L$, whereas BFS has a single rollout. Repeated partial states are discarded during each RW rollout to avoid cycles during backward search.
+A regression rollout refers to a sequence of partial state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the depth limit $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the depth limit $L$, whereas BFS has a single rollout. Repeated states are discarded during each RW rollout to avoid cycles during backward search. However, repeated states are permitted between rollouts.
 \citet{Bettker.etal/2022} set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators of the input task. Unlike using a fixed $L$~\cite{Yu.etal/2020, OToole/2022}, this adaptive $L$ aims to approximate the longest distance between the goal state and any potential initial state.
 % However, if the backward state space contains an insufficient number of states to generate the required $N$ samples, BFS may need to perform multiple rollouts.
 
-\bfsrw consists of two phases. In the first phase, a fixed percentage $p_\bfsrw$ of the $N$ samples is generated using BFS. The BFS expands a state from layer $k$ and generates $n$ states from layer $k+1$. These states are sampled only if the total samples plus $n$ are within $p_{\bfsrw}N$; otherwise, no states are sampled, and BFS expands another state. The set of unexpanded samples, i.e., leaves, is denoted as $Q$. The second phase involves multiple random walk rollouts starting from states in $Q$. This process continues until the sample set reaches $N$. During the random walk phase, states already sampled in the BFS phase are not sampled again.
+\bfsrw consists of two phases. In the first phase, a fixed percentage $p_\bfsrw$ of the $N$ samples is generated using BFS. The BFS expands a state from layer $k$ and generates $n$ states from layer $k+1$. These generated states are sampled only when $N + n \leq p_{\bfsrw}N$, otherwise, no states are sampled, and BFS expands another state. The set of unexpanded states, i.e., leaves, is denoted as $Q$. The second phase involves multiple random walk rollouts starting from randomly selected states in $Q$. This process continues until the sample set reaches $N$. During the random walk phase, states already sampled in the BFS phase are not sampled again.
 
 After finishing regression,~\citet{Bettker.etal/2022} improve the cost-to-goal estimates of each sampled partial state~(\cref{sec:sample-improving-h}), and complete them to full states~(\cref{sec:sample-completion}).~\ppi{Note that I don't mention randomly generated samples here, only a small remark in the Experiments section. I don't think they're useful for POs and are far more important in Rafael's dissertation.}
 
@@ -787,9 +787,9 @@ Better $h$-value estimates generally result in improved learned heuristics, lead
 
 \subsection{Sample Improvement}
 \label{sec:sample-sai}
-It is possible to generate duplicate states with different estimates due to multiple random walk rollouts. To address this, we update the cost-to-goal estimate for each sampled state $s$ to the minimum estimate $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$.
+It is possible to generate duplicate states with different estimates due to multiple random walk rollouts. Thus, we update the cost-to-goal estimate for each sampled state $s$ to the minimum estimate $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$.
 % This update is applied to both partial and complete states since identical complete states can be generated from different partial states.
-This procedure is referred as ``sample improvement'' (\sai).
+This procedure is called ``sample improvement'' (\sai).
 
 \subsection{Successor Improvement}
 \label{sec:sample-sui}
@@ -800,7 +800,7 @@ In addition to sampling the same states, it is common to sample neighboring stat
 A sample set graph is a directed and labeled graph~$G = (V, A)$ defined by the states obtained in the sampling. Each vertex is labeled by a sampled partial state, i.e., $V = \{s_i \mid i \in [N]\}$. (Note that the undefined variables of a partial state can typically be completed in multiple ways, so each vertex represents a set of complete states.) Set $A$ contains an arc $(s,t)$ for each operator $o \in \mathcal{O}$ where $\sucs(s,o) \subseteq t$, i.e., $\sucs(s,o)$ can become $t$ from an assignment of undefined variables.
 \end{definition}
 
-To efficiently manage subsets, we use a trie data structure to store all the samples and search for successors in states that are supersets. When dealing with partial states generated by regression, we can always find at least one successor, except for the goal state $s^{*}$. We proceed by computing the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Subsequently, we update the cost-to-goal estimates of each state accordingly. This process is called to as ``successor improvement'' (\sui).
+To efficiently manage subsets, we use a trie data structure to store all the samples and search for successors in states that are supersets. When dealing with partial states generated by regression, we can always find at least one successor, except for the goal state $s^{*}$. We proceed by computing the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Subsequently, we update the cost-to-goal estimates of each state accordingly. This process is called ``successor improvement'' (\sui).
 
 
 \section{Sample Completion}
@@ -808,7 +808,7 @@ To efficiently manage subsets, we use a trie data structure to store all the sam
 
 Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
 Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
-To complete partial states, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false (zero)\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}.
+To complete partial states, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false.%\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}
 
 
 \section{Ideal Preferred Operators}
