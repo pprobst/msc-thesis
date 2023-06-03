@@ -561,8 +561,7 @@ The activation of the $j$-th neuron in layer $l$ is then computed as:
 $$a^{l}_{j} = a^{l}(z^{l}_{j})$$
 \end{definition}
 
-An example of a simple fully-connected neural network is shown in~\cref{fig:neural-network}.
-Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
+An example of a simple fully-connected neural network is shown in~\cref{fig:neural-network}. Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
 
 \begin{figure}[tb]
 \caption[A fully-connected neural network]{A neural network with $n$ input neurons, two hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
@@ -607,6 +606,21 @@ Common activation functions include sigmoid, rectified linear units (ReLU), and 
 \includegraphics[scale=1.0]{img/sigmoid-relu-tanh}
 \label{fig:activation-functions}
 \end{figure}
+
+The data feed to an NN is typically divided into two sets. The training dataset is used to train the model by adjusting its parameters based on input samples and corresponding target values. The validation dataset is used to evaluate the model's performance and detect overfitting during training. Overfitting occurs when a model excessively fits the training data but fails to generalize to unseen data.
+
+During training, data can be fed to the neural network in batches. A batch refers to a subset of training samples that are processed together during each iteration of an epoch. Instead of updating the network's weights after processing each individual training sample (which is computationally inefficient), batches allow multiple examples to be processed simultaneously. A larger batch size can lead to more efficient parallel processing but may require more memory. Conversely, a smaller batch size consumes less memory but may result in slower training convergence due to more frequent weight updates.
+
+An epoch is a complete iteration of the entire training dataset. It involves feeding each training sample through the network, updating weights based on the loss function, and performing forward and backward propagation for all training samples. Early stop, also called patience, monitors a metric such as validation loss, and ends the training process if the chosen metric fails to improve for a predefined number of consecutive epochs. Stopping the training early prevents overfitting and improves generalization by preserving the model's performance at the point of best validation metric.
+
+\begin{definition}[Early Stop]
+Let $M$ represent the chosen metric (e.g., validation loss) and $n$ denote the number of consecutive iterations without improvement allowed. Given the current epoch $t$, the training is stopped if the following condition is met:
+
+$$M(t) > \min\{M(t-1), M(t-2), \ldots, M(t-n)\}$$
+
+where $M(t)$ represents the metric value at iteration $t$.
+\end{definition}
+
 
 Standard NNs may suffer from the vanishing gradient problem~\cite{Hochreiter/1991}. The gradients tend to diminish as they propagate backward through multiple layers, making it challenging for earlier layers to learn meaningful representations. This problem hampers the optimization process and restricts the overall performance of the network.
 
@@ -965,9 +979,9 @@ This section comprises four sets of experiments. In the first set (\cref{sec:exp
 
 \section{Configuration}
 \label{sec:exp-configuration}
-We follow the same ResNet as \citet{Ferber.etal/2022},~\citet{OToole/2022}, and~\citet{Bettker.etal/2022} with modifications to support learning preferred operators. Specifically, we use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
+We use the same network architecture as \citet{Ferber.etal/2022},~\citet{OToole/2022}, and~\citet{Bettker.etal/2022} with modifications to support learning preferred operators. Specifically, we use a ResNet with He initialization~\cite{He.etal/2015}, consisting of two hidden layers followed by a residual block containing two hidden layers.
 Each hidden layer has $250$ neurons and is ReLU-activated.
-The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and early-stop patience of $100$.
+The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and early stop patience of $100$ epochs.
 The network's input is a sample set containing a Boolean representation of the states, with $0$ if a proposition is false and $1$ otherwise~(\cref{sec:background-heuristics}).
 We use the MSE loss function to learn heuristic values in a regression context, and for learning preferred operators we opt for the BCE loss since learning preferred operators is a multi-label classification problem.
 Each sample in the sample set used to train the network is a triple $(h(s), \mathcal{F}(s), O_{pref} \subseteq O)$
