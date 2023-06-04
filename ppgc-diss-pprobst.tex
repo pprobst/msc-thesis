@@ -615,16 +615,16 @@ An example of a simple fully-connected NN is shown in~\cref{fig:neural-network}.
 
 The data feed to an NN is typically divided into two sets. The training dataset is used to train the model by adjusting its parameters based on input samples and corresponding target values. The validation dataset is used to evaluate the model's performance and detect overfitting during training. Overfitting occurs when a model excessively fits the training data but fails to generalize to unseen data.
 
-During training, data can be fed to an NN in batches. A batch refers to a subset of training samples that are processed together during each iteration of an epoch. Instead of updating the network's weights after processing each individual training sample (which is computationally inefficient), batches allow multiple examples to be processed simultaneously. A larger batch size can lead to more efficient parallel processing but may require more memory. Conversely, a smaller batch size consumes less memory but may result in slower training convergence due to more frequent weight updates.
+During training, data can be fed to an NN in batches. A batch refers to a subset of training samples that are processed together during each iteration of an epoch. Instead of updating the weights of the network after processing each individual training sample (which is computationally inefficient), batches allow multiple examples to be processed simultaneously. A larger batch size can lead to more efficient parallel processing but may require more memory. Conversely, a smaller batch size consumes less memory but may result in slower training convergence due to more frequent weight updates.
 
 An epoch is a complete iteration of the entire training dataset. It involves feeding each training sample through the network, updating weights based on the loss function, and performing forward and backward propagation for all training samples. Early stop, also called patience, monitors a metric such as validation loss, and ends the training process if the chosen metric fails to improve for a predefined number of consecutive epochs. Stopping the training early prevents overfitting and improves generalization by preserving the performance of the model at the point of best validation metric.
 
 \begin{definition}[Early Stop]
-Let $M$ represent the chosen metric (e.g., validation loss) and $n$ denote the number of consecutive iterations without improvement allowed. Given the current epoch $t$, the training is stopped if the following condition is met:
+Let $M$ represent the chosen metric (e.g., validation loss) and $n$ denote the number of consecutive epochs without improvement allowed. Given the current epoch $t$, the training is stopped if the following condition is met:
 
 $$M(t) > \min\{M(t-1), M(t-2), \ldots, M(t-n)\}$$
 
-where $M(t)$ represents the metric value at iteration $t$.
+where $M(t)$ represents the metric value at epoch $t$.
 \end{definition}
 
 
@@ -1035,7 +1035,7 @@ We extract the predicted preferred operators from the NN by selecting the operat
 
 \subsection{Dataset}
 \label{sec:exp-dataset}
-For the planning tasks, we use the sample dataset as~\citet{Bettker.etal/2022}. We select tasks with ``small state spaces'', i.e., state spaces with $30$\,K to $1$\,M states. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task. The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The input neurons are determined by the number of facts.
+Our dataset consists of planning tasks with state spaces ranging from $40$\,K to $1$\,M states, which is identical to the dataset used by~\citet{Bettker.etal/2022}. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task. The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The input neurons are determined by the number of facts.
 
 
 We evaluate the results based on the number of expanded states since all planning tasks are solved. Each FSS has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
@@ -1050,7 +1050,8 @@ Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a
 
 \subsection{Evaluation}
 \label{sec:exp-evaluation}
-We use Fast Downward~\cite{Helmert/2006} with GBFS to solve all $50$ initial states of each domain using a heuristic with the learned preferred operators and a $5$ minute search time limit for each planning task. Due to better experimental results, we use a boosted dual-queue with a boost value of $1000$ for the preferred queue.
+We use Fast Downward~\cite{Helmert/2006} with GBFS to solve all $50$ initial states of each domain using a heuristic with the learned preferred operators and a $5$ minute search time limit for each planning task.
+When preferred operators are considered, we experimented with searches using dual-queues with and without boosting. Due to better experimental results, for the following experiments we use a boosted dual-queue with a boosting value of $1000$, as in~\citet{Richter.Helmert/2009}. Results for searches with boosting disabled are available in~\vref{cha:discovered_pos_boost0}.
 
 \subsection{Sampling}
 \label{sec:exp-sampling}
@@ -1074,8 +1075,7 @@ The learned ideal preferred operators \postar outperform using only the learned 
 %The effectiveness of preferred operators may inversely correlate with the quality of the heuristic function. When the heuristic function is nearly optimal, the inclusion of preferred operators can potentially interfere with the search process. In \cref{sec:other-heuristic-functions}, we explore the outcomes observed when using different logic-based heuristics with varying levels of quality.
 
 % Particular comparisons and anomalies
-\ppi{Fix this paragraph.}
-When comparing the discovered preferred operators \pogstar to \pog, both have close results despite \pogstar using the optimal heuristic \hstar to calculate the shortest paths in the sample set. The reason for this similarity is that the arcs in the shortest path graph $G'$ for \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods tend to have similar preferred operators, indicating that they are likely to have similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different sets in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. Since the difference between the sets of both approaches is negligible, and the search only requires one preferred operator to make progress, then the difference is not significant in the results as seen in \cref{tab:learning_perfect_pos} where, for both domains, the approaches differ by about one expansion. This result indicates that extracting preferred operators from the shortest path graph $G'$ with quality similar to ideal preferred operators is possible even without \hstar-values.
+When comparing the discovered preferred operators \pogstar to \pog, both have close results despite \pogstar using the optimal heuristic \hstar to calculate the shortest paths in the sample set. The reason for this similarity is that the arcs in the shortest path graph $G'$ for \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods tend to have similar preferred operators, indicating that they are likely to have similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different preferred operators in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. As seen in \cref{tab:learning_perfect_pos}, this difference is negligible for Scanalyzer and VisitAll, where \pogstar and \pog differ by less than one expansion on average. This result indicates that extracting preferred operators from the shortest path graph $G'$ with quality similar to ideal preferred operators is possible even without \hstar-values.
 
 %Summary of the section
 In this experiment, we determined that learned heuristics can achieve a performance limit of approximately $50\,\%$ reduction in expansions when using preferred operators. We demonstrated the effectiveness of learning high-quality preferred operators that enhance sub-optimal heuristics. The ideal preferred operators \postar outperformed \hnn in all domains, while the learned discovered preferred operators \pog outperformed \hnn in five out of seven domains, improving the geometric mean by approximately $13\,\%$.
@@ -1092,7 +1092,7 @@ As shown in~\cref{sec:background-preferred-operators}, in Fast Downward, repeate
 
 Training with $5\,\%$ of the sample set size is sufficient to achieve fewer expansions on average compared to \poff. The learned preferred operators \pog can outperform logic-based ones given a large enough sample set size. Specifically, with $5\,\%$, we achieve better results than \poff except in Grid ($53.0$ vs. $32.7$) and Scanalyzer ($18.1$ vs. $17.1$). However, as the sample size increases, we eventually surpass \poff in all domains. Moreover, the use of logic-based preferred operators \poff leads to degraded performance in N-Puzzle compared to \hnn, while using \pog with a $1\,\%$ sample set substantially improves it.
 
-\cref{fig:errors} shows the standard deviations for the expansions in~\cref{tab:learning_discovered_pos}. Smaller sample sets generally exhibit higher variability in the number of expanded states. For instance, with a $1\,\%$ sample set size, Blocks World, Grid, N-Puzzle, and Scanalyzer have standard deviations of approximately $12$, $27$, $8$, and $10$, respectively. However, as the sample set size increases, the standard deviation decreases, except for Blocks World, which maintains a standard deviation of approximately $10$. Notably, all domains, except Blocks World, have standard deviation values close to one for sample set sizes of $20\,\%$ and above.
+\cref{fig:errors} shows the standard deviations for the expansions in~\cref{tab:learning_discovered_pos}. Smaller sample sets generally exhibit higher variability in the number of expanded states. For instance, with a $1\,\%$ sample set size, Blocks World, Grid, N-Puzzle, and Scanalyzer have standard deviations of approximately $12$, $27$, $8$, and $10$, respectively. As the sample set size increases, the standard deviation decreases, except for Blocks World, which maintains a standard deviation of approximately $10$. Notably, all domains, except Blocks World, have standard deviation values close to one for sample set sizes of $20\,\%$ and above.
 
 \begin{figure}[tb]
   \caption[Standard deviation of expansions using \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by different heuristics with \pog trained using sample sets of different sizes.}
@@ -1189,6 +1189,13 @@ Overall, this study opens up new possibilities for improving heuristic search in
 \chapter{Source Code}
 Available here. TBA.
 
+
+\chapter{Discovered Preferred Operators Without Boosting}
+\label{cha:discovered_pos_boost0}
+\cref{tab:learning_discovered_pos_boost0} shows the number of expanded states using the discovered preferred operators \pog but no boosting during search, i.e., states are expanded alternately from the default queue and the preferred queue.
+
+\input{tables/discovered_pos_boost0}
+
 \chapter{Training Details}
 \cref{tab:training_info} presents the mean training information for the learned preferred operators \pog networks across $25$ different seed runs for each domain, trained over sample sets of distinct sizes. The table shows the size of the sample set in relation to the forward state space, the epoch associated with the minimum validation loss, the value of the minimum validation loss, the elapsed time required to train an NN, and the number of preferred operators per sample. All the networks converged.
 
@@ -1221,6 +1228,6 @@ Este estudo representa a primeira tentativa de descobrir operadores preferidos a
 \item Uma análise da qualidade dos operadores preferidos aprendidos e uma comparação com os métodos baseados em símbolos existentes.
 \end{itemize}
 
-Um exemplo de resultado consiste em uma rede treinada sobre uma quantidade de amostras equivalente a $5\,\%$ do espaço de estados completo de uma tarefa. Nesse caso, os operadores preferidos aprendidos superam significativamente uma busca guiada apenas por uma heurística aprendida, com uma média de aproximadamente $13$ expansões a menos. Além disso, eles também superam os operadores do FF em média, com aproximadamente $6$ expansões a menos.
+Um exemplo de resultado consiste em uma rede treinada sobre uma quantidade de amostras equivalente a $5\,\%$ do espaço de estados completo de uma tarefa. Nesse caso, os operadores preferidos aprendidos superam significativamente uma busca guiada apenas por uma heurística aprendida, com diminuição de $36\,\%$ em número de estados expandidos. Além disso, eles também superam os operadores do FF em média, com aproximadamente $20\,\%$ de expansões a menos.
 
 \end{document}
