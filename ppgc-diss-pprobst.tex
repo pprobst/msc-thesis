@@ -350,27 +350,44 @@ In this section we present three ways to represent a classical planning task. Th
 \subsection{STRIPS}
 \label{sec:background-strips}
 % A planning task in STRIPS is defined as $\Pi = \langle F, O, I, G\rangle$ where $F$ is a set of facts (Boolean variables), $O$ is a set of operators or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$, $I \subseteq F$ is the initial state, and $G \subseteq F$ is a a set of goal facts that must be satisfied. We say that operators $O(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$. We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false. Finally, a sequence of operators $\pi=(o_1,\ldots,o_k)$ applicable to the initial state is called a plan.
-A planning task in STRIPS representation is defined by~$\Pi=\langle\mathcal{P},\mathcal{O},\mathcal{I},\mathcal{G}\rangle$. Here, $\mathcal{P}$~is a set of propositions, $\mathcal{O}$~is a set of operators, $\mathcal{I} \subseteq \mathcal{P}$~is an initial state, and $\mathcal{G}$~is a set of goal states. A state $s$ is defined as $s \subseteq \mathcal{P}$, where each proposition in $s$ can be true ($p \in s$) or false ($p \notin s$). The state $s$ represents the assignment of truth values to the propositions in $\mathcal{P}$, indicating which propositions are true and which are false in the current situation. The set~$\mathcal{S}$ of all states over $\mathcal{P}$ is the state space.
+\begin{definition}[STRIPS Planning Task]\label{def:strips}
+A planning task in STRIPS representation is defined by~$\Pi=\langle\mathcal{P},\mathcal{O},s_{0},s^{*}\rangle$, where $\mathcal{P}$~is a set of propositions, $\mathcal{O}$~is a set of operators,~$s_{0} \subseteq \mathcal{P}$ is an initial state, and~$s^{*}$ is the goal condition.
+A state $s$ is defined as $s \subseteq \mathcal{P}$, where each proposition in $s$ can be true ($p \in s$) or false ($p \notin s$). %The set~$\mathcal{S}$ of all states over $\mathcal{P}$ is the state space.
+An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its preconditions, add-effects and delete-effects, respectively.
+\end{definition}
 
-An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its preconditions, add-effects and delete-effects, respectively. We say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $\del(o)$ to false and in $\add(o)$ to true. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
+In STRIPS, we say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $\del(o)$ to false and in $\add(o)$ to true. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
 
-A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$\mathcal{I}$ is called a plan if $s_k \in \mathcal{G}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan. An optimal plan is the shortest plan that successfully achieves the goal state from the initial state.
+\begin{definition}[Plan]\label{def:plan}
+A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan. An optimal plan is the shortest plan that successfully achieves the goal state from the initial state.
+\end{definition}
 
-Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed} version of the planning task. A relaxed planning task in STRIPS is defined as $\Pi^{+}=\langle\mathcal{P},\mathcal{O'},\mathcal{I},\mathcal{G}\rangle$, where $\mathcal{O'} = \{ \langle \pre(o), \add(o), \emptyset \rangle \,|\, o \in O \}$, i.e., the delete-effects of the planning task are ignored. Relaxed tasks can be solved efficiently even though finding the optimal solution is $\mathcal{NP}$-hard~\cite{Bylander/1994}. For example, the heuristic \hadd approximates the optimal heuristic value for a state $s$ as the sum of the costs of achieving each proposition in $\mathcal{G}$ independently of the others.
+Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed} version of the planning task. A relaxed planning task in STRIPS is defined as $\Pi^{+}=\langle\mathcal{P},\mathcal{O'},s_{0},s^{*}\rangle$, where $\mathcal{O'} = \{ \langle \pre(o), \add(o), \emptyset \rangle \,|\, o \in O \}$, i.e., the delete-effects of the planning task are ignored. Relaxed tasks can be solved efficiently even though finding the optimal solution is $\mathcal{NP}$-hard~\cite{Bylander/1994}. For example, the heuristic \hadd approximates the optimal heuristic value for a state $s$ as the sum of the costs of achieving each proposition in $s^{*}$ independently of the others.
 
 \subsection{\sas}
 \label{sec:background-sas}
-We also use the \sas representation to describe classical planning tasks independent of any particular domain. A \sas planning task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition, where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
-%the expression $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$ means that the domain of $\mathcal{D}$ is the union of the domains of all the elements in $\mathcal{V}$. That is, the set of values that $\mathcal{D}$ can take is the combination of all the values that each element in $\mathcal{V}$ can take.
+We also use the \sas representation to describe classical planning tasks independent of any particular domain.
 
-An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its preconditions are fulfilled by $s$, denoted by $\pre(o) \subseteq s$, and it generates a successor state $s'=\sucs(s,o):=\eff(o)\circ s$. Here, $s'=t\circ s$ is defined as $s'(v)=t(v)$ for all $v$ such that $t(v)$ is defined, and for all other cases, $s'(v)=s(v)$. The set of all successor states resulting from state $s$ is denoted by $\sucs(s)=\{{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s}\}$. A sequence of operators $\pi=(o_1,\ldots,o_k)$, where $o_i\in \mathcal{O}$, is considered valid for the initial state $s_0$ if, for $i\in[k]$, operator $o_i$ can be applied to $s_{i-1}$, and produces $s_i=\sucs(s_{i-1},o_i)$. %A plan refers to a valid sequence $\pi$ for $s_0$ such that $s^* \subseteq s_k$. In this work, all operators have unit costs, so the plan length is $|\pi| = k$.
+\begin{definition}[\sas Planning Task]\label{def:sas}
+A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition. %where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
+%the expression $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$ means that the domain of $\mathcal{D}$ is the union of the domains of all the elements in $\mathcal{V}$. That is, the set of values that $\mathcal{D}$ can take is the combination of all the values that each element in $\mathcal{V}$ can take.
+\end{definition}
+
+An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its preconditions are fulfilled by $s$, denoted by $\pre(o) \subseteq s$, and it generates a successor state $s'=\sucs(s,o):=\eff(o)\circ s$. Here, $s'=t\circ s$ is defined as $s'(v)=t(v)$ for all $v$ such that $t(v)$ is defined, and for all other cases, $s'(v)=s(v)$. The set of all successor states resulting from state $s$ is denoted by $\sucs(s)=\{{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s}\}$.%A sequence of operators $\pi=(o_1,\ldots,o_k)$, where $o_i\in \mathcal{O}$, is considered valid for the initial state $s_0$ if, for $i\in[k]$, operator $o_i$ can be applied to $s_{i-1}$, and produces $s_i=\sucs(s_{i-1},o_i)$. %A plan refers to a valid sequence $\pi$ for $s_0$ such that $s^* \subseteq s_k$. In this work, all operators have unit costs, so the plan length is $|\pi| = k$.
 
 \subsection{PDDL}
 \label{sec:background-pddl}
 We can also represent a classical planning task using PDDL. Tasks specified in PDDL are written in a Lisp-like syntax and are separated into two definitions, the domain, which specifies the operators and predicates, and the task, which specifies the objects, the initial state, and the goal condition.
 
-A domain is defined as a tuple $D = (\mathcal{P}, \mathcal{O})$, where $\mathcal{P}$ is a set of predicates representing the state of the world. Each predicate $p \in \mathcal{P}$ can be true or false in a given state. The set of operators is defined as $\mathcal{O}$. Each operator $o \in \mathcal{O}$ has a pre-condition $\pre(o)$ and an effect $\eff(o)$. Effects are not explicitly separated into add-effects and delete-effects, instead, delete-effects are represented by negating the predicates.
-A task as a tuple $T = (D, \mathcal{I}, \mathcal{G})$, where $D$ is the domain definition associated with the problem, $\mathcal{I}$ is the initial state, represented as $\mathcal{I} = \{p_1, p_2, \ldots, p_n\}$, where $p_i \in \mathcal{P}$, and $\mathcal{G}$ is the goal state, denoted as $\mathcal{G} = \{q_1, q_2, \ldots, q_m\}$, where $q_i \in \mathcal{P}$ represents the desired state of predicate $q_i$ to be achieved.
+\begin{definition}[PDDL Domain]\label{def:pddl-domain}
+A PDDL domain is defined as a tuple $D = (\mathcal{P}, \mathcal{O})$, where $\mathcal{P}$ is a set of predicates representing the state of the world. Each predicate $p \in \mathcal{P}$ can be true or false in a given state. The set of operators is defined as $\mathcal{O}$. Each operator $o \in \mathcal{O}$ has a pre-condition $\pre(o)$ and an effect $\eff(o)$.
+\end{definition}
+
+In PDDL, effects are not explicitly separated into add-effects and delete-effects, instead, delete-effects are represented by negating the predicates.
+
+\begin{definition}[PDDL Task]\label{def:pddl-domain}
+A PDDL task is a triple $T = (D, s_{0}, s^{*})$, where $D$ is the domain definition associated with the problem, $s_{0}$ is the initial state, represented as $s_{0} = \{p_1, p_2, \ldots, p_n\}$, where $p_i \in \mathcal{P}$, and $s^{*}$ is the goal condition, denoted as $s^{*} = \{q_1, q_2, \ldots, q_m\}$, where $q_i \in \mathcal{P}$ represents the desired state of predicate $q_i$ to be achieved.
+\end{definition}
 
 %Actions represent the possible operations or transformations that can be performed, while predicates describe the properties or conditions that can be true or false within the domain. Objects are the entities involved in the planning task, while the initial state describes the starting configuration or state of the objects. The goal condition defines the desired state that a planner aims to achieve.
 
@@ -392,11 +409,23 @@ If a valid regression sequence $\rho = (o_1, \ldots, o_k)$ is generated, it will
 \label{background-state-spaces}
 
 Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be a goal state, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $X = \langle S, s_0, s^{*}, \sucs \rangle$.
+\begin{definition}[State Space of $\Pi$]
 For any planning task $\Pi$ with states $S$, initial state $s_0$, goal state $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $X(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
+\end{definition}
 
-The forward state space (FSS) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be explored forward from the initial state towards the goal state. The forward state space for a planning task $\Pi$ is denoted as $X_{\text{F}}(\Pi) = \langle S_{\text{F}}, s_0, s^{*}, \sucs \rangle$, where $S_{\text{F}}$ is the set of states reachable from the initial state, and $\sucs : S_{\text{F}} \to 2^{S_{\text{F}}}$ is the successor function that maps each state to a set of possible successor states and determines the available transitions in the forward direction. In other words, $X_{\text{F}}(\Pi)$ is defined as the subset of states and transitions within $X$ that are relevant to the planning task $\Pi$ and the forward exploration towards the goal state. The FSS is explored when solving a task, for example by using a best-first search algorithm.
+The forward state space (FSS) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be explored forward from the initial state towards the goal state.
 
-The backward state space (BSS), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be explored backward from the goal state towards the initial state. The backward state space of a planning task $\Pi$ is denoted as $X_{\text{B}}(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction. The BSS is explored during regression~(\cref{background-regression}).
+\begin{definition}[Forward State Space of $\Pi$]
+The forward state space for a planning task $\Pi$ is denoted as $X_{\text{F}}(\Pi) = \langle S_{\text{F}}, s_0, s^{*}, \sucs \rangle$, where $S_{\text{F}}$ is the set of states reachable from the initial state, and $\sucs : S_{\text{F}} \to 2^{S_{\text{F}}}$ is the successor function that maps each state to a set of possible successor states and determines the available transitions in the forward direction.
+\end{definition}
+
+In other words, $X_{\text{F}}(\Pi)$ is defined as the subset of states and transitions within $X$ that are relevant to the planning task $\Pi$ and the forward exploration towards the goal state. The FSS is explored when solving a task, for example by using a best-first search algorithm.
+
+The backward state space (BSS), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be explored backward from the goal state towards the initial state~(\cref{background-regression}).
+
+\begin{definition}[Backward State Space of $\Pi$]
+ The backward state space of a planning task $\Pi$ is denoted as $X_{\text{B}}(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
+\end{definition}
 
 
 \section{Heuristic Functions}
@@ -851,7 +880,7 @@ Every state $s$ that has a plan is associated with at least one preferred operat
 
 \section{Discovered Preferred Operators}
 \label{sec:sample-discovered-po}
-Obtaining ideal preferred operators is challenging for large tasks as we often lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set of the state space, without relying on \hstar-values. We construct a sample set graph $G$~(\vref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
+Obtaining ideal preferred operators is challenging for large tasks as we lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set of the state space, without relying on \hstar-values. We construct a sample set graph $G$~(\vref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
 
 In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal states, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal state. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal state.
 
@@ -895,37 +924,40 @@ The quality of the discovered preferred operators depends on the quality of the 
 \label{sec:sample-learn-po}
 The sample generation approach described in~\cref{sec:sample-learn-h} is not suitable for learning preferred operators due to the presence of duplicate samples within rollouts. This leads to a sample set that contains numerous repeated samples, which offer no additional value when constructing the shortest path graph $G'$ for identifying preferred operators. Consequently, this approach fails to effectively explore the state space and identify additional preferred operators. To address this limitation, we have developed an alternative sample generation method specifically designed to discover preferred operators, dubbed~\bfsrs, divided into two phases.
 
-Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ samples, where $S = \{ s_1, s_2, \ldots, s_n\}$ with distinct elements $s_i \neq s_j$ for $i \neq j$. Let $k_1$ and $k_2$ be variables satisfying $k_2 = 1 - k_1$ if $k_1 > k_2$, and $k_1 = 1 - k_2$ if $k_1 < k_2$, where $0 < k_1 < 1$ and $0 < k_2 < 1$.
-In the first phase, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
-In the second phase, we maintain an open queue, containing states generated but not yet expanded, and a closed queue, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed queue, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in either queue. The sampling process continues until $|S_2| = k_2N$. See \cref{alg:sampling-po,alg:sampling-bfs}. Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
+Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases of~\bfsrs, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ distinct samples. Let $k_1$ and $k_2$ be variables satisfying $k_1 + k_{2} = 1$.
+In the first phase of the algorithm, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
+In the second phase, we maintain two queues first initialized during BFS: an open queue, containing states generated but not yet expanded, and a closed queue, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed queue, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in either queue. The sampling process continues until $|S_2| = k_2N$.
+See \cref{alg:sampling-po}. The primary distinction between phases one and two lies in the selection process for expanding states. Unlike phase one, where the first-in, first-out approach of BFS is used, phase two involves randomly selecting a state from the open queue for expansion.
+%Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
+%See \cref{alg:sampling-po,alg:sampling-bfs}. Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
 
 \begin{algorithm}[tb]
 \caption{Sampling states for preferred operators using \bfsrs}
 \label{alg:sampling-po}
 \begin{algorithmic}[1]
 \Procedure{BRS}{$s^{*}$, $N$, $k_{1}$, $k_{2}$}
-  \State Initialize empty queue $open$
-  \State Initialize empty set $S_{1}$
-  \State \textbf{Phase 1}
-  \State $S_{1} \gets$ BFS($s^{*}$, $open$, $k_1N$)
-  \State Initialize queue $closed$ with $S_{1}$
-  \State \textbf{Phase 2}
-  \State Initialize empty set $S_{2}$
+  \State $open = \emptyset$
+  \State $S_{1} = \emptyset$
+  \State \textcolor{gray}{\# Phase 1: populates $S_{1}$ and $open$ with BFS.}
+  \State $S_{1}, open \gets$ BFS($s^{*}$, $open$, $k_1N$)
+  \State $closed = S_{1}$
+  \State \textcolor{gray}{\# Phase 2 -- populates $S_{2}$ with random elements $s$ from $open$.}
+  \State $S_{2} = \emptyset$
   \While{$|S_{2}| < k_{2}N$}
     \If{$open =  \emptyset$}
       \State \textbf{return} $S_{1} \cup S_{2}$ (backward state space fully explored)
     \EndIf
 
-    \State $rnd\_idx \gets$ random index of $open$
-    \State Initialize a partial state $s$
-    \State $s \gets$ $open$[$rnd\_idx$]
-    \State Remove element at $open$[$rnd\_idx$]
+    \State $i \gets$ random index of $open$
+    \State \textcolor{gray}{\# Initialize a partial state $s$}
+    \State $s \gets$ $open$[$i$]
+    \State Remove element at $open$[$i$]
     \State $closed \gets closed \cup \{s\}$
     \State $S_{2} \gets S_{2} \cup \{s\}$
     \State \textcolor{gray}{\# \emph{$pred_{bfs}(s)$ refers to a predecessor function behaving as BFS, i.e.,}}
     \State \textcolor{gray}{\# \emph{generating the immediate neighbors of $s$}.}
     \State $P \gets \{s' \mid s' \in pred_{bfs}(s)\}$
-    \ForAll{partial state $s' \in P$}
+    \ForAll{partial states $s' \in P$}
       \If{$s' \notin (open \cup closed)$}
         \State Insert $s'$ into $open$
       \EndIf
@@ -937,34 +969,34 @@ In the second phase, we maintain an open queue, containing states generated but 
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[tb]
-\caption{Breadth-first search of \bfsrs}
-\label{alg:sampling-bfs}
-\begin{algorithmic}[1]
-\Procedure{BFS}{$s^{*}$, $open$, $M$}
-  \State Initialize an empty set $S_{1}$
-  \State $open \gets open \cup s^{*}$
-
-  \While{$|S_{1}| < M$}
-    \If{$open =  \emptyset$}
-      \State \textbf{return} $S_{1}$ (backward state space fully explored)
-    \EndIf
-    \State Initialize a partial state $s$
-    \State $s \gets$ first element in $open$
-    \State Remove first element in $open$
-    \State $S_{1} \gets S_{1} \cup \{s\}$
-    \State $P \gets \{s' \mid s' \in pred_{bfs}(s)\}$
-    \ForAll{partial state $s' \in P$}
-      \If{$s' \notin open$}
-        \State $open \gets open \cup \{s'\}$
-      \EndIf
-    \EndFor
-  \EndWhile
-
-  \State \textbf{return} $S_{1}$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[tb]
+%\caption{Breadth-first search of \bfsrs}
+%\label{alg:sampling-bfs}
+%\begin{algorithmic}[1]
+%\Procedure{BFS}{$s^{*}$, $open$, $M$}
+%  \State $S_{1} = \emptyset$
+%  \State $open \gets open \cup \{s^{*}\}$
+%
+%  \While{$|S_{1}| < M$}
+%    \If{$open =  \emptyset$}
+%      \State \textbf{return} $S_{1}$ (backward state space fully explored)
+%    \EndIf
+%    \State \textcolor{gray}{\# Initialize a partial state $s$}
+%    \State $s \gets$ first element in $open$
+%    \State Remove first element in $open$
+%    \State $S_{1} \gets S_{1} \cup \{s\}$
+%    \State $P \gets \{s' \mid s' \in pred_{bfs}(s)\}$
+%    \ForAll{partial state $s' \in P$}
+%      \If{$s' \notin open$}
+%        \State $open \gets open \cup \{s'\}$
+%      \EndIf
+%    \EndFor
+%  \EndWhile
+%
+%  \State \textbf{return} $S_{1}$
+%\EndProcedure
+%\end{algorithmic}
+%\end{algorithm}
 
 We apply \sai and \sui and complete the states as described in~\cref{sec:sample-improving-h,sec:sample-completion}.
 
