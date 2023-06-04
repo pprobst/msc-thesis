@@ -391,7 +391,7 @@ A PDDL task is a triple $T = (D, s_{0}, s^{*})$, where $D$ is the domain definit
 
 %Actions represent the possible operations or transformations that can be performed, while predicates describe the properties or conditions that can be true or false within the domain. Objects are the entities involved in the planning task, while the initial state describes the starting configuration or state of the objects. The goal condition defines the desired state that a planner aims to achieve.
 
-For example, in Blocks World, $(ontable~?x)$ represents a predicate that indicates if a block $x$ is on the table or not, and $(pickup~?x)$ is an action that defines the act of picking up block $x$. This action is further specified by a set of preconditions $(and~(clear~?x)~(ontable~?x)~(handempty))$ that must hold true before $(pickup~?x)$ is applied, i.e., $x$ must be clear (no other block above it), $x$ must be on the table, and the hand must be empty. The effects of applying $(pickup~?x)$ are $$(and~(not~(ontable~?x))~(not~(clear~?x))~(not~(handempty))~(holding~?x)),$$
+As an example, consider Blocks World, where $(ontable~?x)$ represents a predicate that indicates if a block $x$ is on the table or not, and $(pickup~?x)$ is an action that defines the act of picking up block $x$. This action is further specified by a set of preconditions $(and~(clear~?x)~(ontable~?x)~(handempty))$ that must hold true before $(pickup~?x)$ is applied, i.e., $x$ must be clear (no other block above it), $x$ must be on the table, and the hand must be empty. The effects of applying $(pickup~?x)$ are $$(and~(not~(ontable~?x))~(not~(clear~?x))~(not~(handempty))~(holding~?x)),$$
 
 that is, $x$ is not on the table, $x$ is not clear, the hand is not empty, and the hand is holding $x$.
 
@@ -821,7 +821,7 @@ After finishing regression,~\citet{Bettker.etal/2022} improve the cost-to-goal e
 %A valid regression sequence $\rho=(o_1,\ldots,o_k)$ produces a series of partial states that can reach the goal within a maximum of $k$ steps and with a cost no greater than $\sum_{i\in[k]}\text{cost}(o_i)$. The cost of this sequence cannot be lower than the optimal cost.
 %\end{proof}
 
-Better $h$-value estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates of each sampled state,~\citet{Bettker.etal/2022} developed two straightforward methods that are used in this study. The first method, called \sai, minimizes estimates across repeated samples, while the second method, known as \sui, minimizes estimates across the successors of samples.
+Better $h$-value estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates of each sampled state,~\citet{Bettker.etal/2022} developed two methods that are used in this study. The first method, called \sai, minimizes estimates across repeated samples, while the second method, named \sui, minimizes estimates across the successors of samples.
 
 
 \subsection{Sample Improvement}
@@ -888,7 +888,8 @@ In the graph $G$, each arc represents an applicable operator between two sampled
 Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has a shortest path of at least one vertex $v$ is inserted in $A'$. The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
 \end{definition}
 
-The quality of the discovered preferred operators depends on the quality of the shortest paths. It is worth noting that a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$.
+The quality of the discovered preferred operators depend on the quality of the shortest paths. The quality of these paths, in turn, relies on the accuracy of the $h$-values assigned to each sampled state.
+Furthermore, a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$.
 
 \begin{figure}[tb]
 \caption[Example sample set graph with two shortest paths]{Example samplet set graph with two shortest paths (red, orange) from $s_{1}$ to the goal $s^{*}$.}
@@ -927,7 +928,7 @@ The sample generation approach described in~\cref{sec:sample-learn-h} is not sui
 Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases of~\bfsrs, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ distinct samples. Let $k_1$ and $k_2$ be variables satisfying $k_1 + k_{2} = 1$.
 In the first phase of the algorithm, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
 In the second phase, we maintain two queues first initialized during BFS: an open queue, containing states generated but not yet expanded, and a closed queue, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed queue, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in either queue. The sampling process continues until $|S_2| = k_2N$.
-See \cref{alg:sampling-po}. The primary distinction between phases one and two lies in the selection process for expanding states. Unlike phase one, where the first-in, first-out approach of BFS is used, phase two involves randomly selecting a state from the open queue for expansion.
+See \cref{alg:sampling-po}. The primary distinction between phases one and two is the selection process for expanding states from the open queue. Unlike phase one, where the first-in, first-out approach of BFS is used, phase two involves randomly selecting a state from the open queue for expansion.\ppi{Overlook: we don't use a regression limit $L$, so it is possible that we can have samples with very high estimates.}
 %Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
 %See \cref{alg:sampling-po,alg:sampling-bfs}. Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
 
@@ -941,7 +942,7 @@ See \cref{alg:sampling-po}. The primary distinction between phases one and two l
   \State \textcolor{gray}{\# Phase 1: populates $S_{1}$ and $open$ with BFS.}
   \State $S_{1}, open \gets$ BFS($s^{*}$, $open$, $k_1N$)
   \State $closed = S_{1}$
-  \State \textcolor{gray}{\# Phase 2 -- populates $S_{2}$ with random elements $s$ from $open$.}
+  \State \textcolor{gray}{\# Phase 2: populates $S_{2}$ with random elements $s$ from $open$.}
   \State $S_{2} = \emptyset$
   \While{$|S_{2}| < k_{2}N$}
     \If{$open =  \emptyset$}
@@ -949,14 +950,12 @@ See \cref{alg:sampling-po}. The primary distinction between phases one and two l
     \EndIf
 
     \State $i \gets$ random index of $open$
-    \State \textcolor{gray}{\# Initialize a partial state $s$}
+    \State \textcolor{gray}{\# Initialize a partial state $s$.}
     \State $s \gets$ $open$[$i$]
     \State Remove element at $open$[$i$]
     \State $closed \gets closed \cup \{s\}$
     \State $S_{2} \gets S_{2} \cup \{s\}$
-    \State \textcolor{gray}{\# \emph{$pred_{bfs}(s)$ refers to a predecessor function behaving as BFS, i.e.,}}
-    \State \textcolor{gray}{\# \emph{generating the immediate neighbors of $s$}.}
-    \State $P \gets \{s' \mid s' \in pred_{bfs}(s)\}$
+    \State $P \gets \{s' \mid s' \in pred(s)\}$
     \ForAll{partial states $s' \in P$}
       \If{$s' \notin (open \cup closed)$}
         \State Insert $s'$ into $open$
@@ -1013,7 +1012,7 @@ We apply \sai and \sui and complete the states as described in~\cref{sec:sample-
 %
 \chapter{Experiments}
 \label{cha:exp-experiments}
-This section presents four of experiments. In the first (\cref{sec:exp-learning-po}), we investigate learning preferred operators and establish an upper-bound performance measure using the ideal preferred operators~\postar. The second experiment (\cref{sec:exp-performance-po}) evaluates learning discovered preferred operators~\pog from sample sets of varying sizes and compares them to logic-based preferred operators. The third experiment (\cref{sec:exp-comparison-sample-method}) compares the results with preferred operators learned from a sample set generated using two distinct sampling methods, as described in~\cref{sec:sample-learn-h} and~\cref{sec:sample-learn-po}. Finally, the fourth experiment~(\cref{sec:other-heuristic-functions}), we analyze the learned preferred operators~\pog in conjunction with several logic-based heuristic functions.
+This section presents four of experiments. In the first (\cref{sec:exp-learning-po}), we investigate learning preferred operators and establish an upper-bound performance measure using the ideal preferred operators~\postar. The second experiment (\cref{sec:exp-performance-po}) evaluates learning discovered preferred operators~\pog from sample sets of varying sizes and compares them to logic-based preferred operators. The third experiment (\cref{sec:exp-comparison-sample-method}) compares the results with preferred operators learned from a sample set generated using two distinct sampling methods, as described in~\cref{sec:sample-learn-h} and~\cref{sec:sample-learn-po}. Finally, in the fourth experiment~(\cref{sec:other-heuristic-functions}), we analyze the learned preferred operators~\pog in conjunction with several logic-based heuristic functions.
 
 \section{Configuration}
 \label{sec:exp-configuration}
@@ -1025,7 +1024,7 @@ The input of the NN consists of samples in the format $(h(s), \mathcal{F}(s), O_
 where $\mathcal{F}(s)$ is a Boolean representation of the input state $s$, with $0$ if a proposition is false and $1$ otherwise~(\cref{sec:background-heuristics}), $h(s)$ is the target value in the regression network representing the $h$-value for $s$, and $O_{pref}$ are the target values in the classification network representing the preferred operators for state $s$.
 
 The output for the regression network is a single ReLU-activated neuron representing the learned $h$-value, and the output for classification is a sigmoid-activated tensor with values in the range $[0, 1]$ and a size equal to the number of operators of the input task.
-Each output neuron corresponds to an indexed operator. For example, in a planning task with $10$ operators, in which a sampled state $s$ has target preferred operators of indexes $2$ and $5$, the indexes $2$ and $5$ of the output tensor of size $10$ must be maximized~(\cref{fig:po-tensor}). The training set has $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
+Each output neuron corresponds to an indexed operator. For example, in a planning task with ten operators, in which a sampled state $s$ has target preferred operators of indexes two and five, the indexes two and five of the output tensor of size ten must be maximized~(\cref{fig:po-tensor}). The training set has $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
 
 \begin{figure}[tb]
 \caption[]{Example tensor with two preferred operators as target values.}
@@ -1078,7 +1077,7 @@ Additionally, when referring to a specific number of samples, we use the notatio
 
 \subsection{Training}
 \label{sec:exp-training}
-Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a}, and we use PyTorch 1.9.0~\cite{Paszke/2019} for defining and training the NNs. The experiments were conducted on an AMD~Ryzen~$9$~$3900$X $12$-core processor ($4.2$~GHz) with a memory limit of $4$~GB and one core per process. The NNs were trained until convergence, with the most complex networks requiring approximately two hours of training~(see \cref{tab:training_info} in the appendix).
+Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a}, and we use PyTorch 1.9.0~\cite{Paszke/2019} for defining and training the NNs. The experiments were conducted on Ubuntu~$20.04$~LTS~GNU/Linux machines with an AMD~Ryzen~$9$~$3900$X $12$-core processor ($4.2$~GHz) with a memory limit of $4$~GB and one core per process. The NNs were trained until convergence, with the most complex networks requiring approximately two hours of training~(see \cref{tab:training_info} in the appendix).
 
 \subsection{Evaluation}
 \label{sec:exp-evaluation}
@@ -1094,7 +1093,7 @@ Since in this work we are only interested in the effects of learned preferred op
 \section{Learning Preferred Operators}
 \label{sec:exp-learning-po}
 % Clear, objective description of this section
-This section compares task-solving performance with and without preferred operators using several configurations: \hstar, which represents the perfect heuristic; \hnn, which is a learned heuristic without preferred operators; \postartable, an oracle of ideal preferred operators; \postar, learned ideal preferred operators; \pogstar, discovered preferred operators using \hstar for shortest path distance calculation; and \pog, discovered preferred operators using Dijkstra's algorithm for shortest path distance calculation. The discovered operators were trained on a $1\,\%$ sample set obtained through regression.
+This section compares task-solving performance with and without preferred operators using several configurations: \hstar, which represents the perfect heuristic; \hnn, which is a learned heuristic without preferred operators; \postartable, an oracle of ideal preferred operators; \postar, learned ideal preferred operators; \pogstar, discovered preferred operators using \hstar for shortest path distance calculation; and \pog, discovered preferred operators using Dijkstra's algorithm for shortest path distance calculation. The learned ideal preferred operators \postar were trained over the complete FSS of each task, while the discovered operators \pogstar and \pog were trained on a $1\,\%$ sample set obtained through regression.
 
 \input{tables/learning_perfect_pos}
 
@@ -1102,7 +1101,7 @@ This section compares task-solving performance with and without preferred operat
 \cref{tab:learning_perfect_pos} shows that all approaches using preferred operators lead to fewer expansions compared to using only the learned heuristic \hnn. In particular, the ideal preferred operators \postartable and \postar closely approach the optimal expansion values with \hstar.
 The ideal preferred operators serve as performance limits, representing the best achievable results as defined in \cref{sec:sample-ideal-po}. When comparing the learned ideal preferred operators \postar with the oracle \postartable, we find that the NN can learn the preferred operators for the entire state space in all domains, except for Blocks World and N-Puzzle, where performance degrades but remains better than \hnn.
 
-The learned ideal preferred operators \postar outperform using only the learned heuristic \hnn in all domains. They significantly reduce the number of expansions by over $50\,\%$ in Grid, N-Puzzle, and Scanalyzer. Conversely, when we reduce the learned state space to $1\,\%$ and use shortest path graph to identify preferred operators, \pog exhibits an increase of approximately $73\,\%$ in the geometric mean of expanded states compared to ideal preferred operators \postar. However, the learned discovered preferred operators \pog expand fewer states than \hnn in all domains except Grid and Scanalyzer, with improvements in mean expansions of approximately $25\,\%$ and $34\,\%$ observed in Blocks World and N-Puzzle, respectively.
+The learned ideal preferred operators \postar outperform using only the learned heuristic \hnn in all domains. They significantly reduce the number of expansions by over $50\,\%$ in Grid, N-Puzzle, and Scanalyzer. Conversely, when we reduce the learned state space to $1\,\%$ and use the shortest path graph $G'$ to identify preferred operators, \pog exhibits an increase of approximately $73\,\%$ in the geometric mean of expanded states compared to ideal preferred operators \postar. However, the learned discovered preferred operators \pog expand fewer states than \hnn in all domains except Grid and Scanalyzer, with improvements in mean expansions of approximately $25\,\%$ and $34\,\%$ observed in Blocks World and N-Puzzle, respectively.
 
 %The effectiveness of preferred operators may inversely correlate with the quality of the heuristic function. When the heuristic function is nearly optimal, the inclusion of preferred operators can potentially interfere with the search process. In \cref{sec:other-heuristic-functions}, we explore the outcomes observed when using different logic-based heuristics with varying levels of quality.
 
@@ -1118,9 +1117,9 @@ In this experiment, we use GBFS guided by the learned heuristic \hnn and compare
 
 \input{tables/learning_discovered_pos}
 
-By increasing the sample set size, the number of arcs in the graph $G'$ expands, leading to the discovery of new shortest paths. As expected, the performance of the learned discovered preferred operators \pog improves as the sample set size increases, reaching a plateau after $20\,\%$. However, Rovers shows an exception where the learned preferred operators result in increased expansions after $5\,\%$. In this domain, both the logic-based preferred operators \poff and the learned heuristic \hnn with \pog trained on a $1\,\%$ sample set size yield worse results compared to \hnn alone. This suggests that in Rovers, preferred operators may not be helpful since \hnn already approaches optimality ($13.4$ vs. $10.3$), as shown in~\cref{tab:learning_perfect_pos}.
+By increasing the sample set size, the number of arcs in the shortest path graph $G'$ expands, leading to the discovery of new shortest paths. As expected, the performance of the learned discovered preferred operators \pog improves as the sample set size increases, reaching a plateau after $20\,\%$. However, Rovers shows an exception where the learned preferred operators result in increased expansions after $5\,\%$. In this domain, both the logic-based preferred operators \poff and the learned heuristic \hnn with \pog trained on a $1\,\%$ sample set size yield worse results compared to \hnn alone. This suggests that in Rovers, preferred operators may not be helpful since \hnn already approaches optimality ($13.4$ vs. $10.3$), as shown in~\cref{tab:learning_perfect_pos}.
 
-As shown in~\cref{sec:background-preferred-operators}, in Fast Downward, repeated generated states are not added to the preferred queue. This occurs in all domains but is more significant on Rovers and Blocks World. Furthermore, this happens more frequently when training with larger sample sets, as multiple preferred operators are predicted more frequently. To address this, we can select only the preferred operator with the highest output value from the NN. With this approach, Blocks World and Rovers stabilize from $10\,\%$ onward at approximately $27$ and $12$ expansions, respectively, while the other domains do not experience significant changes. %Alternatively, we can also disable boosting, but the search performance degrades.
+As shown in~\cref{sec:background-preferred-operators}, in Fast Downward, repeated generated states are not added to the preferred queue. This occurs in all domains but is more significant on Rovers and Blocks World. Furthermore, this happens more frequently when training with larger sample sets, as multiple preferred operators are predicted more frequently. To address this, we can select only the preferred operator with the highest output value from the NN. With this approach, Blocks World and Rovers stabilize from $10\,\%$ onward at approximately $27$ and $12$ expansions, respectively, while the other domains do not experience significant changes.\pp{I dunno what to do in this paragraph. It's a hack and we don't know a priori when to use this hack.} %Alternatively, we can also disable boosting, but the search performance degrades.
 
 Training with $5\,\%$ of the sample set size is sufficient to achieve fewer expansions on average compared to \poff. The learned preferred operators \pog can outperform logic-based ones given a large enough sample set size. Specifically, with $5\,\%$, we achieve better results than \poff except in Grid ($53.0$ vs. $32.7$) and Scanalyzer ($18.1$ vs. $17.1$). However, as the sample size increases, we eventually surpass \poff in all domains. Moreover, the use of logic-based preferred operators \poff leads to degraded performance in N-Puzzle compared to \hnn, while using \pog with a $1\,\%$ sample set substantially improves it.
 
