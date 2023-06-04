@@ -1035,7 +1035,7 @@ We extract the predicted preferred operators from the NN by selecting the operat
 
 \subsection{Dataset}
 \label{sec:exp-dataset}
-Our dataset consists of planning tasks with state spaces ranging from $40$\,K to $1$\,M states, which is identical to the dataset used by~\citet{Bettker.etal/2022}. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task. The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The input neurons are determined by the number of facts.
+Our dataset consists of planning tasks with state spaces ranging from $40$\,K to $1$\,M states, which is identical to the dataset used by~\citet{Bettker.etal/2022}. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task, and~\vref{cha:tasks_each_domain} contains a small description of each domain. The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The input neurons are determined by the number of facts.
 
 
 We evaluate the results based on the number of expanded states since all planning tasks are solved. Each FSS has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
@@ -1188,6 +1188,22 @@ Overall, this study opens up new possibilities for improving heuristic search in
 
 \chapter{Source Code}
 Available here. TBA.
+
+\chapter{Tasks of Each Domain}
+\label{cha:tasks_each_domain}
+The Blocks World domain involves manipulating blocks on a table to achieve a desired configuration through a sequence of actions. We used a planning task with $7$ blocks.
+
+In the Grid domain, an agent traverses a grid, capable of holding a key, with certain cells being locked and requiring specific keys to open. Prior to entering a locked cell. We used a planning task with a $4 \times 4$ grid, four locked cells, and three keys with two possible shapes, circle or square.
+
+The N-Puzzle domain consists of a square grid with numbered tiles. The objective is to rearrange the tiles from their initial scrambled state to a desired goal state. We used a planning task with a $3 \times 3$ grid.
+
+The Rovers domain involves rovers navigating a grid-based environment with missions like exploration or resource gathering. Each rover has specific capabilities and limitations, including movement range, sensing, and interaction abilities. We used a planning task with two rovers, each with one storage capacity and one camera, and four waypoints with different objectives.
+
+The Scanalyzer domain models automated greenhouse logistics, using imaging facilities to collect plant data and conveyor belts to transport plants between smart greenhouses and imaging facilities. We use a planning task with six conveyor belts and six batches of plants.
+
+The Transport domain consists of transporting packages from one location to another using trucks with specific capacities. We use a planning task with nine cities, two trucks, and four packages.
+
+The VisitAll domain consists of a robot that needs to visit all the cells of a grid once. We use a planning task with a $4 \times 4$ grid.
 
 
 \chapter{Discovered Preferred Operators Without Boosting}
