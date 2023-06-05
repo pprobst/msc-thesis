@@ -370,7 +370,8 @@ Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed}
 We also use the \sas representation to describe classical planning tasks independent of any particular domain.
 
 \begin{definition}[\sas Planning Task]\label{def:sas}
-A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition. %where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
+A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition.
+  % where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
 %the expression $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$ means that the domain of $\mathcal{D}$ is the union of the domains of all the elements in $\mathcal{V}$. That is, the set of values that $\mathcal{D}$ can take is the combination of all the values that each element in $\mathcal{V}$ can take.
 \end{definition}
 
@@ -426,7 +427,7 @@ In other words, $X_{\text{F}}(\Pi)$ is defined as the subset of states and trans
 The backward state space (BSS), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be explored backward from the goal state towards the initial state~(\cref{background-regression}).
 
 \begin{definition}[Backward State Space of $\Pi$]
- The backward state space of a planning task $\Pi$ is denoted as $X_{\text{B}}(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
+The backward state space of a planning task $\Pi$ is denoted as $X_{\text{B}}(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
 \end{definition}
 
 
@@ -442,12 +443,12 @@ A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}
 \end{itemize}
 
 Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map of some state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
-\ppi{The paragraph below needs to change a bit since it's too similar to Rafael's.}
-A propositional representation of a state is better suited for learning heuristic functions over states. For this purpose, consider a planning task denoted as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$. Here, $\mathcal{V}=\{v_1,\ldots,v_n\}$ represents a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ represents the domains of variable $v_i$, with $i\in[n]$. To represent any state $s$, we use a sequence of facts denoted as
-% The domain consists of possible values that $v_i$ can take. The values are represented as $d_{i1}$ to $d_{i,s_i}$, where $s_i$ indicates the number of possible values for $v_i$.
-$$\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n}),$$ where each fact $f_{ij}=[s(v_i)=d_{ij}]$ indicates whether variable $v_i$ assumes the value $d_{ij}$ in state $s$. It is important to note that the facts $\mathcal{F}_i=\{f_{i1},\ldots,f_{i,s_i}\}$ corresponding to variable $v_i$ adhere to the consistency condition $\sum_{f\in \mathcal{F}_i} f\leq 1$, as each variable can take at most one value, and $\sum_{f\in \mathcal{F}_i} f=0$ only when $v_i$ is undefined.
 
-For example, let $\mathcal{P}$ be a set of propositions, and let $p_i, p_j \in \mathcal{P}$ be two propositions. We say that $p_i$ and $p_j$ are mutex (mutually exclusive) if $\neg(p_i \land p_j)$ holds, i.e., $p_i$ and $p_j$ cannot both be true at the same time in any valid state of the planning problem. More generally, we express $\mutex(\mathcal{P})$ when the constraint $\sum_{p\in \mathcal{P}} [p]\leq 1$ must be satisfied within the states of $\Pi$. Planning systems can typically deduce mutexes from the description of the planning task $\Pi$~\cite{Helmert/2009}.
+In this study, we use a propositional representation of a state to learn heuristic functions and preferred operators. Consider a planning task denoted as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$. Here, $\mathcal{V}=\{v_1,\ldots,v_n\}$ represents a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ represents the domains of variable $v_i$, with $i\in[n]$. We represent a state $s$ as a sequence of facts
+% The domain consists of possible values that $v_i$ can take. The values are represented as $d_{i1}$ to $d_{i,s_i}$, where $s_i$ indicates the number of possible values for $v_i$.
+$\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n})$, where each fact $f_{ij}=[s(v_i)=d_{ij}]$ corresponds to a variable $v_i$ taking on a specific value $d_{ij}$ in state $s$. The fact $f_{ij}$ is true if and only if the variable $v_i$ has the assigned value $d_{ij}$ in state $s$. The facts $\mathcal{F}_i=\{f_{i1},\ldots,f_{i,s_i}\}$ corresponding to variable $v_i$ adhere to the consistency condition $\sum_{f\in \mathcal{F}_i} f\leq 1$, as each variable can take at most one value, and $\sum_{f\in \mathcal{F}_i} f=0$ only when $v_i$ is undefined.
+
+For example, let $\mathcal{F}$ be a set of facts, and let $f_i, f_j \in \mathcal{F}$ be two facts. We say that $f_i$ and $f_j$ are mutex (mutually exclusive) if $\neg(f_i \land f_j)$ holds, i.e., $f_i$ and $f_j$ cannot both be true at the same time in any valid state of the planning problem. In general, we express $\mutex(\mathcal{F})$ when the constraint $\sum_{f\in \mathcal{F}} [f]\leq 1$ must be satisfied within the states of $\Pi$. Planning systems can typically deduce mutexes from the description of the planning task $\Pi$~\cite{Helmert/2009}.
 
 
 \section{Greedy Best-First Search}
@@ -496,7 +497,7 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 \begin{algorithmic}[1]
 \Procedure{RelaxedPlanningGraph}{relaxed planning task $\Pi^{+}$}
   \State $P_{0} \gets s_{0}$ \textcolor{gray}{\# \emph{Initial proposition layer}.}
-  \State $k \gets 0$ \textcolor{gray}{\# \emph{Index of current layer}.}
+  \State $k \gets 0$ \textcolor{gray}{\# \emph{Index of the current layer}.}
   \While{$s^{*} \nsubseteq P_{k}$}
     \State $k \gets k + 1$
     \State \textcolor{gray}{\# \emph{Computes the action layer $O_{k}$ at layer $k$, i.e., all the actions}}
@@ -530,8 +531,8 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
   %\If{$s^{*} \nsubseteq P_{l}$}
   %  \State \textbf{return} failure
   %\EndIf
-  \State Initialize empty set $plan$
-  \State \textcolor{gray}{\# \emph{firstlayer($x$,$Y$) returns the number of the first layer at which $x$ appears in $Y$.}}
+  \State $plan \gets \emptyset$
+  \State \textcolor{gray}{\# \emph{firstlayer($x$,$y$) returns the number of the first layer at which $x$ appears in $y$.}}
   \State \textcolor{gray}{\# \emph{M = maximum(index of the first layer where each fact of $s^{*}$ first appears in $P$).}}
   \State $M \gets$ $\max \{\text{firstlayer}(s_{i}^{*}, P) \mid s_{i}^{*} \in s^{*}\}$
   \For{$k \gets 0$ \textbf{to} $M$}
