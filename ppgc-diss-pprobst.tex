@@ -1257,7 +1257,8 @@ For more details, see the tasks in the directory \texttt{tasks/experiments}.
 \input{tables/bfsss_pct}
 
 \chapter{Training Details}
-\cref{tab:training_info} presents the mean training information for the learned preferred operators \pog networks across $25$ different seed runs for each domain, trained over sample sets of distinct sizes. The table shows the size of the sample set in relation to the forward state space, the epoch associated with the minimum validation loss, the value of the minimum validation loss, the elapsed time required to train an NN, and the number of preferred operators per sample. All the networks converged.
+
+\cref{tab:training_info_hnn} presents the mean training information for the regression networks used to learn the heuristic \hnn across $25$ different seed runs for each task, trained over $1\,\%$ sample set size. The table shows the epoch associated with the minimum validation loss, the value of the minimum validation loss, and the elapsed time required to train the NN. \cref{tab:training_info} has the same information, but for learning \pog with classification networks using varied sample set sizes, and also showing the number of preferred operators per sample. All the networks early-stopped.
 
 \input{tables/training_info}
 
