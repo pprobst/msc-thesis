@@ -194,15 +194,15 @@ Lastly, I want to express my deep gratitude to my mother for being the only fami
 
 % abstract in english
 \begin{abstract}
-In a planning task, an agent must choose the most appropriate action from a potentially large set of actions at each step. Logic-based (or symbolic-based) planners use preferred operators to reduce the number of actions significantly. This work presents a method for sampling and learning preferred operators, ensuring their applicability across the entire state space of a planning task. We demonstrate that these learned preferred operators outperform the current best logic-based approach.
-We aim to identify ideal preferred operators, which are situated along the shortest paths leading to some goal. However, due to the huge size of search state spaces, we introduce a novel sampling strategy tailored for extracting preferred operators. Our research shows that high-quality preferred operators can be obtained from a sample set covering only a fraction of the state space. Furthermore, a small neural network trained on these samples can effectively approximate ideal preferred operators.
+In a planning task, an agent must choose the most appropriate action from a potentially large set of actions at each step. Logic-based (or symbolic-based) planners use preferred operators to reduce the number of actions significantly. This work presents a method for sampling and learning preferred operators, aiming for their applicability across the entire state space of a planning task. We demonstrate that these learned preferred operators have close results compared to the current best logic-based approach.
+Our objective is to identify ideal preferred operators, which are situated along the shortest paths leading to some goal. However, due to the huge size of search state spaces, we introduce a novel sampling strategy tailored for extracting preferred operators. Our research shows that high-quality preferred operators can be obtained from a sample set covering only a fraction of the state space.
 To gain insights into this new category of preferred operators, we conduct controlled experiments: we systematically compare them to baselines, evaluate the effectiveness of preferred operators learned from several sample sizes, and assess their performance when combined with different heuristic functions.
 \end{abstract}
 
 % abstract in portuguese
 \begin{translatedabstract}
-Em uma tarefa de planejamento, um agente deve escolher a ação mais adequada de um conjunto potencialmente grande de ações em cada passo. Planejadores lógicos (ou simbólicos) usam operadores preferidos para reduzir significativamente o número de ações. Este trabalho apresenta um método para amostragem e aprendizagem de operadores preferidos, garantindo sua aplicabilidade em todo o espaço de estados de uma tarefa de planejamento. Demonstramos que esses operadores preferidos aprendidos superam a melhor abordagem lógicos atual.
-Nosso objetivo é identificar os operadores preferidos ideais, que estão situados ao longo dos caminhos mais curtos que levam a algum objetivo. No entanto, devido ao enorme tamanho dos espaços de estado, apresentamos uma nova estratégia de amostragem adaptada para extrair operadores preferidos. Nossa pesquisa mostra que operadores preferidos de alta qualidade podem ser obtidos de um conjunto de amostras que abrange apenas uma fração do espaço de estados. Além disso, uma pequena rede neural treinada nessas amostras pode aproximar com eficácia os operadores preferidos ideais.
+Em uma tarefa de planejamento, um agente deve escolher a ação mais adequada de um conjunto potencialmente grande de ações em cada passo. Planejadores lógicos (ou simbólicos) usam operadores preferidos para reduzir significativamente o número de ações. Este trabalho apresenta um método para amostragem e aprendizagem de operadores preferidos, visando sua aplicabilidade em todo o espaço de estados de uma tarefa de planejamento. Demonstramos que esses operadores preferidos aprendidos têm resultados próximos à melhor abordagem lógica atual.
+Nosso objetivo é identificar os operadores preferidos ideais, que estão situados ao longo dos caminhos mais curtos que levam a algum objetivo. No entanto, devido ao enorme tamanho dos espaços de estado, apresentamos uma nova estratégia de amostragem adaptada para extrair operadores preferidos. Nossa pesquisa mostra que operadores preferidos de alta qualidade podem ser obtidos de um conjunto de amostras que abrange apenas uma fração do espaço de estados.
 Para obter uma compreensão mais aprofundada sobre essa nova categoria de operadores preferidos, realizamos experimentos controlados: nós os comparamos sistematicamente com \textit{baselines}, avaliamos a eficácia dos operadores preferidos aprendidos com vários tamanhos de amostra e avaliamos seu desempenho quando combinados com diferentes funções heurísticas.
 \end{translatedabstract}
 
@@ -213,11 +213,11 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 \begin{listofabbrv}{SPMD}
         \item[BCE] Binary Cross-Entropy
         \item[BFS] Breadth-First Search
-        \item[\bfsrs] Breadth Random Successors \pp{Needs a cooler/descriptive (but short) name. Accepting suggestions!}
-        \item[BSS] Backward State Space
+        \item[\bfsrs] Expansion from Random Successors
+        \item[\bsp] Backward State Space
         \item[DFS] Depth-First Search
         \item[DTG] Domain Transition Graph
-        \item[FSS] Forward State Space
+        \item[\fsp] Forward State Space
         \item[FF] Fast-Forward
         %\item[FSM] Flying Spaghetti Monster
         \item[GBFS] Greedy Best-First Search
@@ -229,6 +229,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
         \item[ResNet] Residual Network
         \item[\sai] Sample Improvement
         \item[\sas] Simplified Action Structures Plus
+        \item[SAT] Propositional Satisfiability Problem
         %\item[SD] Standard Deviation
         %\item[SPG] Shortest Path Graph
         \item[STRIPS] Stanford Research Institute Problem Solver
@@ -240,7 +241,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
        %\item[$G'$] Shortest path sample set graph
        \item[$d^{*}$] Longest distance between the goal state and any potential initial state
        \item[\h] Heuristic
-       \item[\hstar] Optimal heuristic
+       \item[\hstar] Perfect heuristic
        \item[\hnn] Learned heuristic
        \item[\hadd] Add heuristic
        \item[\hff] FF heuristic
@@ -271,7 +272,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 %
 \chapter{Introduction}
 \label{cha:introduction}
-In planning, preferred operators act in conjunction with heuristic functions and help reduce the number of expanded states during the planning process by prioritizing states closer to a goal condition.
+In planning, preferred operators act in conjunction with heuristic functions and help reduce the number of expanded states during the planning process by prioritizing states considered advantageous.
 This study introduces a novel approach to deriving preferred operators in planning tasks. Unlike the traditional logic-based methods, we use a sample-based approach to discover preferred operators. By training a neural network (NN) with a sample set consisting of pairs of states and their preferred operators discovered during the sampling procedure, the NN learns to generalize preferred operators for the given planning task.
 
 \section{Planning}
@@ -301,24 +302,25 @@ For example, in a Blocks World task, consider the initial state (left) and the g
 \label{fig:intro-blocks}
 \end{figure}
 
-Planning tasks are solved by planners, which are software systems designed to find plans for given planning problems. Planners use several algorithms and techniques to explore the search space of possible operators and states in order to find an optimal or satisfactory plan. Planners typically take as input a formal representation of the planning problem, including the initial state, goal condition, and a set of available operators. The formal representation of a planning task can be specified using various notations~(\cref{sec:background-planning-notation}).
+Planners are software systems specifically designed to find plans for planning tasks. Planners that do not rely on reasoning about SAT formulas may use several algorithms and techniques to explore the search space of possible operators and states in order to find an optimal or satisfactory plan, and typically take as input a formal representation of the planning problem, including the initial state, goal condition, and a set of available operators. The formal representation of a planning task can be specified using various notations~(\cref{sec:background-planning-notation}).
 
 \section{Heuristic Search}
 \label{sec:intro-heuristic-search}
 %To solve planning tasks, planners commonly use a best-first search algorithm, which uses a function~$f$ to guide the search. The function $f$ combines the current cost $g(s)$ of a partial sequence of operations initiated from the initial state and reaching state $s$, along with a heuristic function $h(s)$~(\cref{sec:background-heuristics}) that provides an estimate of the cost-to-goal (also known as heuristic value or $h$-value) from state $s$.
 
-Most planners are based on a best-first search algorithm such as greedy best-first search (GBFS)~\cite{Doran.Michie/1966}. GBFS arranges states in a priority queue based on their cost-to-goal estimate (also known as heuristic value or $h$-value) provided by the heuristic function. It explores states with the lowest cost-to-goal estimate first in order to find a solution. Various domain-independent heuristics effectively calculate the cost-to-goal estimate of a state by using domain logic, which has information that permits reasoning about operators and other rules, such as mutexes that indicate infeasible states. These heuristics are based mainly on techniques such as abstractions~\cite{Culberson.Schaeffer/1998}, delete relaxation~\cite{Hoffmann.Nebel/2001}, and landmarks~\cite{Hoffmann.etal/2004,Helmert.Domshlak/2009}. The heuristic function is the most important component of a planner since it guides the search.
+Most planners are based on a best-first search algorithm such as greedy best-first search (GBFS)~\cite{Doran.Michie/1966}. GBFS arranges states in a priority queue based on their cost-to-goal estimate (also known as heuristic value or $h$-value) provided by the heuristic function. It expands states with the lowest cost-to-goal estimate first in order to find a solution. Various domain-independent heuristics effectively calculate the cost-to-goal estimate of a state by using domain logic, which has information that permits reasoning about operators and other rules, such as mutexes that indicate infeasible states. These heuristics are based mainly on techniques such as abstractions~\cite{Culberson.Schaeffer/1998}, delete relaxation~\cite{Hoffmann.Nebel/2001}, and landmarks~\cite{Hoffmann.etal/2004,Helmert.Domshlak/2009}. The heuristic function is the most important component of a planner since it guides the search.
 
 \section{Preferred Operators}
 \label{sec:intro-preferred-ops}
 Operators that are considered advantageous for specific reasons, such as generating states that are closer to the goal, are referred to as preferred operators~\cite{Helmert/2006,Richter.Helmert/2009}. These operators are used alongside heuristic functions to assist planners in minimizing the number of expanded states when solving a planning task.
 By prioritizing the expansion of states generated by preferred operators, planners benefit from additional guidance, often resulting in a higher success rate for solving tasks compared to only relying on the heuristic function. Learning preferred operators shares similarities with learning policies, as both involve the selection of actions that are more likely to result in desirable outcomes. The existing methods for identifying preferred operators are currently limited to logic-based approaches. The most effective approach used at present involves using the preferred operators calculated alongside the Fast-Forward (FF) heuristic~\cite{Hoffmann.Nebel/2001}, as implemented in the Fast Downward planning system~\cite{Helmert/2006}. Planners incorporating preferred operators emerged as winners in the satisficing track of the International Planning Competition (IPC) in the years 2004, 2008, 2011, and 2018~\cite{Helmert/2006,Richter.lama.etal/2011,Richter.lama.etal/2011,Seipp-fast.etal/2018}.
 
-\section{Deep Learning}
+\section{Learning with Neural Networks}
 \label{sec:intro-deep-learning}
-Deep learning is a subfield of machine learning that focuses on the design and training of NNs with multiple layers~\cite{Goodfellow.etal/2016}. It revolves around the concept of learning hierarchical representations of data, where each layer in the network progressively extracts more complex and abstract features. Through the use of NNs, learning algorithms can automatically discover and capture patterns from large-scale datasets in a variety of tasks, including image classification, speech recognition, and natural language processing.
+Learning with NNs refers to a machine learning approach that involves the design and training of interconnected layers of artificial neurons, known as neural networks, inspired by the biological brain.
+It involves the concept of learning hierarchical representations of data, where each layer in the network progressively extracts more complex and abstract features. Through the use of NNs, learning algorithms can automatically discover and capture patterns from large-scale datasets in a variety of tasks, including image classification, speech recognition, and natural language processing.
 
-Deep learning models can learn in different ways. This study focuses on supervised learning, which involves using labeled datasets to classify or make predictions. In this case, a dataset used to train an NN can be represented as multiple pairs in the format $(y, x)$. Here, the target $y$ refers to the desired output or label associated with a specific input instance $x$. Learning models can effectively learn and generalize from the provided labeled data to make accurate predictions or classify new, unseen inputs.
+Learning models based on NNs can learn in different ways. This study focuses on supervised learning, which involves using labeled datasets to classify or make predictions. In this case, a dataset used to train an NN can be represented as multiple pairs in the format $(y, x)$. Here, the target $y$ refers to the desired output or label associated with a specific input instance $x$. With supervised learning, an NN can effectively learn and generalize from the provided labeled data to make accurate predictions or classify new, unseen inputs.
 
 \section{Learning in Planning}
 \label{sec:intro-learning-planning}
@@ -347,30 +349,33 @@ This chapter provides essential information for comprehending the subsequent cha
 \section{Classical Planning Notation}
 \label{sec:background-planning-notation}
 In this section we present three ways to represent a classical planning task. The first one, STRIPS~\cite{Fikes.Nilsson/1971}, represents a planning task using propositional facts (Boolean variables). The second way, \sas~\cite{Backstrom.Nebel/1995}, represents a planning task using multi-valued state variables. The third way, PDDL~\cite{Ghallab.etal/1998}, is based on predicate logic and is commonly used for writing planning tasks to be used as input for planners.
+\ppi{TODO restrictions for STRIPS and \sas.}
 
 \subsection{STRIPS}
 \label{sec:background-strips}
 % A planning task in STRIPS is defined as $\Pi = \langle F, O, I, G\rangle$ where $F$ is a set of facts (Boolean variables), $O$ is a set of operators or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$, $I \subseteq F$ is the initial state, and $G \subseteq F$ is a a set of goal facts that must be satisfied. We say that operators $O(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$. We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false. Finally, a sequence of operators $\pi=(o_1,\ldots,o_k)$ applicable to the initial state is called a plan.
 \begin{definition}[STRIPS Planning Task]\label{def:strips}
-A planning task in STRIPS representation is defined by~$\Pi=\langle\mathcal{P},\mathcal{O},s_{0},s^{*}\rangle$, where $\mathcal{P}$~is a set of propositions, $\mathcal{O}$~is a set of operators,~$s_{0} \subseteq \mathcal{P}$ is an initial state, and~$s^{*}$ is the goal condition.
+A planning task in STRIPS representation is defined by~$\Pi=\langle\mathcal{P},\mathcal{O},s_{0},s^{*}\rangle$, where~$\mathcal{P}$ has all the possible propositions that can be used to describe a state, $\mathcal{O}$~is a set of operators,~$s_{0} \subseteq \mathcal{P}$ is an initial state, and~$s^{*} \subseteq \mathcal{P}$ is the goal condition that specifies the propositions that should be true to solve the task.
 A state $s$ is defined as $s \subseteq \mathcal{P}$, where each proposition in $s$ can be true ($p \in s$) or false ($p \notin s$). %The set~$\mathcal{S}$ of all states over $\mathcal{P}$ is the state space.
-An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its preconditions, add-effects and delete-effects, respectively.
+An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its precondition, add-effects and delete-effects, respectively.
 \end{definition}
 
 In STRIPS, we say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $\del(o)$ to false and in $\add(o)$ to true. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
+
+STRIPS formulas use conjunction of propositions with logical connectives (AND, OR, NOT) to express compound preconditions and effects. Also, it is not possible to directly specify conditional effects, where the effect of an action depends on the initial state. However, we can simulate conditional effects by creating new operators in the planning task.
 
 \begin{definition}[Plan]\label{def:plan}
 A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan $\pi^{*}$. An optimal plan is the shortest plan that successfully achieves the goal state from the initial state.
 \end{definition}
 
-Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed} version of the planning task. A relaxed planning task in STRIPS is defined as $\Pi^{+}=\langle\mathcal{P},\mathcal{O'},s_{0},s^{*}\rangle$, where $\mathcal{O'} = \{ \langle \pre(o), \add(o), \emptyset \rangle \,|\, o \in O \}$, i.e., the delete-effects of the planning task are ignored. Relaxed tasks can be solved efficiently even though finding the optimal solution is $\mathcal{NP}$-hard~\cite{Bylander/1994}. For example, the heuristic \hadd approximates the optimal heuristic value for a state $s$ as the sum of the costs of achieving each proposition in $s^{*}$ independently of the others.
+Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed} version of the planning task. A relaxed planning task in STRIPS is defined as $\Pi^{+}=\langle\mathcal{P},\mathcal{O'},s_{0},s^{*}\rangle$, where $\mathcal{O'} = \{ \langle \pre(o), \add(o), \emptyset \rangle \,|\, o \in O \}$, i.e., the delete-effects of the planning task are ignored. Relaxed tasks can be solved efficiently even though finding the optimal solution is $\mathcal{NP}$-hard~\cite{Bylander/1994}. For example, the heuristic \hadd approximates the perfect heuristic value for a state $s$ as the sum of the costs of achieving each proposition in $s^{*}$ independently of the others.
 
 \subsection{\sas}
 \label{sec:background-sas}
-We also use the \sas representation to describe classical planning tasks independent of any particular domain.
+We also use the \sas representation to describe classical planning tasks independent of any particular domain. \sas shares similarities with STRIPS, but it allows for state variables to have an arbitrary and potentially non-binary finite domain.
 
 \begin{definition}[\sas Planning Task]\label{def:sas}
-A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents a set of mutually exclusive propositions called mutexes (variables from different domains can also be mutexes), $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition.
+A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents the possible values of each variable, $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition.
   % where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
 %the expression $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$ means that the domain of $\mathcal{D}$ is the union of the domains of all the elements in $\mathcal{V}$. That is, the set of values that $\mathcal{D}$ can take is the combination of all the values that each element in $\mathcal{V}$ can take.
 \end{definition}
@@ -379,9 +384,11 @@ An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its precondition
 % A sequence of operators $\pi=(o_1,\ldots,o_k)$, where $o_i\in \mathcal{O}$, is considered valid for the initial state $s_0$ if, for $i\in[k]$, operator $o_i$ can be applied to $s_{i-1}$, and produces $s_i=\sucs(s_{i-1},o_i)$. %A plan refers to a valid sequence $\pi$ for $s_0$ such that $s^* \subseteq s_k$. In this work, all operators have unit costs, so the plan length is $|\pi| = k$.
 %If $s$ is a partial state, it would be incorrect to write $\pre(o) \subseteq s$. The expression $\pre(o) \subseteq s$ implies that the preconditions of the operator $o$ are fully satisfied by the state $s$. It is likely that $s$ only contains a subset of the conditions specified in $\pre(o)$.
 
+We can represent planning tasks in STRIPS using \sas by mapping the propositions in STRIPS to state variables in \sas and setting the domain of each one to true or false.
+
 \subsection{PDDL}
 \label{sec:background-pddl}
-We can also represent a classical planning task using PDDL. Tasks specified in PDDL are written in a Lisp-like syntax and are separated into two definitions, the domain, which specifies the operators and predicates, and the task, which specifies the objects, the initial state, and the goal condition.
+We can also represent a classical planning task using PDDL. Tasks specified in PDDL are written in a Lisp-like syntax and are separated into two definitions, the domain, which specifies the operators and predicates, and the task, which specifies the objects, the initial state, and the goal condition. The following definitions describe a restricted version of PDDL that encodes STRIPS-like planning tasks.
 
 \begin{definition}[PDDL Domain]\label{def:pddl-domain}
 A PDDL domain is defined as a tuple $D = (\mathcal{P}, \mathcal{O})$, where $\mathcal{P}$ is a set of predicates representing the state of the world. Each predicate $p \in \mathcal{P}$ can be true or false in a given state. The set of operators is defined as $\mathcal{O}$. Each operator $o \in \mathcal{O}$ has a pre-condition $\pre(o)$ and an effect $\eff(o)$.
@@ -412,35 +419,35 @@ If a valid regression sequence $\rho = (o_1, \ldots, o_k)$ is generated, it will
 \section{State Spaces}
 \label{background-state-spaces}
 
-Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be a goal state, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $X = \langle S, s_0, s^{*}, \sucs \rangle$.
+Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be a goal state, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $\spp=\langle S, s_0, s^{*}, \sucs \rangle$.
 \begin{definition}[State Space of $\Pi$]
-For any planning task $\Pi$ with states $S$, initial state $s_0$, goal state $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $X(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
+For any planning task $\Pi$ with states $S$, initial state $s_0$, goal state $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $\spp(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
 \end{definition}
 
-The forward state space (FSS) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be explored forward from the initial state towards the goal state.
+The forward state space (\fsp) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be reached forward from the initial state towards the goal state.
 
 \begin{definition}[Forward State Space of $\Pi$]
-The forward state space for a planning task $\Pi$ is denoted as $X_{\text{F}}(\Pi) = \langle S_{\text{F}}, s_0, s^{*}, \sucs \rangle$, where $S_{\text{F}}$ is the set of states reachable from the initial state, and $\sucs : S_{\text{F}} \to 2^{S_{\text{F}}}$ is the successor function that maps each state to a set of possible successor states and determines the available transitions in the forward direction.
+The forward state space for a planning task $\Pi$ is denoted as $\fsp(\Pi) = \langle S_{\text{F}}, s_0, s^{*}, \sucs \rangle$, where $S_{\text{F}}$ is the set of states reachable from the initial state, and $\sucs : S_{\text{F}} \to 2^{S_{\text{F}}}$ is the successor function that maps each state to a set of possible successor states and determines the available transitions in the forward direction.
 \end{definition}
 
-In other words, $X_{\text{F}}(\Pi)$ is defined as the subset of states and transitions within $X$ that are relevant to the planning task $\Pi$ and the forward exploration towards the goal state. The FSS is explored when solving a task, for example by using a best-first search algorithm.
+In other words, $\fsp(\Pi)$ is defined as the subset of states and transitions within $\spp$ that are relevant to the planning task $\Pi$ and the forward expansion towards the goal state. The \fsp is expanded when solving a task, for example by using a best-first search algorithm.
 
-The backward state space (BSS), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be explored backward from the goal state towards the initial state~(\cref{background-regression}).
+The backward state space (\bsp), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be reached backward from the goal state towards the initial state~(\cref{background-regression}).
 
 \begin{definition}[Backward State Space of $\Pi$]
-The backward state space of a planning task $\Pi$ is denoted as $X_{\text{B}}(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
+The backward state space of a planning task $\Pi$ is denoted as $\bsp(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
 \end{definition}
 
 
 \section{Heuristic Functions}
 \label{sec:background-heuristics}
-A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}$ estimates the optimal plan length from a state $s$ to the goal $s^*$, where the optimal heuristic function is defined as $\hstar(s) = |\pi_{s}^{*}|$, i.e., the length of the optimal plan from $s$ to $s^{*}$. Heuristic functions are used to guide search algorithms, optimization techniques, or decision-making processes by providing informed estimates or approximations based on available information or problem-specific knowledge. The goal of a heuristic function is to efficiently guide the search or decision-making process towards more promising paths or solutions, even in the absence of complete or perfect information. A heuristic function can have several properties that indicate its quality, such as:
+A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}$ estimates the optimal plan length from a state $s$ to the goal $s^*$, where the perfect heuristic function is defined as $\hstar(s) = |\pi_{s}^{*}|$, i.e., the length of the optimal plan from $s$ to $s^{*}$. Heuristic functions are used to guide search algorithms, optimization techniques, or decision-making processes by providing informed estimates or approximations based on available information or problem-specific knowledge. The goal of a heuristic function is to efficiently guide the search or decision-making process towards more promising paths or solutions, even in the absence of complete or perfect information. A heuristic function can have several properties that indicate its quality, such as:
 
 \begin{itemize}
         \item Admissibility: $h(s) \le \hstar{(s)}$, i.e., the heuristic never overestimates the true cost-to-goal.
         \item Consistency (or monotonicity): $h(s) \le h(s') + cost(o)$ for all transitions from a state $s$ to a successor $s'$, i.e., $s \xrightarrow{o} s'$, where $cost(o)$ is the cost of applying operator $o$ to reach $s'$ from $s$.
         \item Goal-awareness: $h(s) = 0$ for all goal states.
-        \item Safeness: all states have $h(s) = \infty$ if $\hstar (s) = \infty$, for example in dead-ends.
+        \item Safeness: $h(s) = \infty$ implies $\hstar (s) = \infty$, for example in dead-ends.
 \end{itemize}
 
 Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map of some state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
@@ -454,7 +461,7 @@ For example, let $\mathcal{F}$ be a set of facts, and let $f_i, f_j \in \mathcal
 
 \section{Greedy Best-First Search}
 \label{sec:background-gbfs}
-Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorithm typically used by planners to solve planning tasks by exploring the FSS. GBFS organizes states in a priority queue based on their cost-to-goal estimate, which is determined by the heuristic function. GBFS explores states with the \emph{lowest} cost-to-goal estimate first in order to find a solution. Since GBFS typically only considers the cost-to-goal estimate of a state to guide the search, it is commonly used to verify the quality of a heuristic function.
+Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorithm typically used by planners to solve planning tasks by exploring the \fsp. GBFS organizes states in a priority queue based on their cost-to-goal estimate, which is determined by the heuristic function. GBFS expands states with the \emph{lowest} cost-to-goal estimate first in order to find a solution. Since GBFS typically only considers the cost-to-goal estimate of a state to guide the search, it is commonly used to verify the quality of a heuristic function.
 
 \begin{algorithm}[tb]
 \caption{Greedy best-first search (GBFS)}
@@ -734,7 +741,7 @@ There are multiple techniques available to generate a sample set for training NN
 
 \section{Sampling for Learning Heuristic Functions}
 \label{sec:sample-learn-h}
-To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the BSS. Specifically, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple rollouts RW, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
+To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the \bsp. Specifically, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple rollouts RW, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
 
 A regression rollout refers to a sequence of partial state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the depth limit $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the depth limit $L$, whereas BFS has a single rollout. Repeated states are discarded during each RW rollout to avoid cycles during backward search. However, repeated states are permitted between rollouts.
 \citet{Bettker.etal/2022} set the regression limit to $L=\ceil{\facts/\overline{\eff}}$ where $\overline{\eff}=\sum_{o\in \mathcal{O}} |\eff(o)|/|\mathcal{O}|$, i.e.,~the number of facts per mean number of effects in the operators of the input task. Unlike using a fixed $L$~\cite{Yu.etal/2020, OToole/2022}, this adaptive $L$ aims to approximate the longest distance $d^{*}$ between the goal state and any potential initial state.
@@ -939,7 +946,7 @@ Furthermore, a state can have multiple discovered preferred operators if it has 
 
 \section{Sampling for Learning Preferred Operators}
 \label{sec:sample-learn-po}
-The sample generation approach described in~\cref{sec:sample-learn-h} is not suitable for learning preferred operators due to the presence of duplicate samples within rollouts. This leads to a sample set that contains numerous repeated samples, which offer no additional value when constructing the shortest path graph $G'$ for identifying preferred operators. Consequently, this approach fails to effectively explore the state space and identify additional preferred operators. To address this limitation, we have developed an alternative sample generation method specifically designed to discover preferred operators, dubbed~\bfsrs, divided into two phases.
+The sample generation approach described in~\cref{sec:sample-learn-h} is not suitable for learning preferred operators due to the presence of duplicate samples within rollouts. This leads to a sample set that contains numerous repeated samples, which offer no additional value when constructing the shortest path graph $G'$ for identifying preferred operators. Consequently, this approach fails to effectively expand the state space and identify additional preferred operators. To address this limitation, we have developed an alternative sample generation method specifically designed to discover preferred operators, dubbed~\bfsrs, divided into two phases.
 
 Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases of~\bfsrs, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ distinct samples. Let $k_1$ and $k_2$ be variables satisfying $k_1 + k_{2} = 1$.
 In the first phase of the algorithm, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
@@ -962,7 +969,7 @@ See \cref{alg:sampling-po}. The primary distinction between phases one and two i
   \State $S_{2} = \emptyset$
   \While{$|S_{2}| < k_{2}N$}
     \If{$open =  \emptyset$}
-      \State \textbf{return} $S_{1} \cup S_{2}$ (backward state space fully explored)
+      \State \textbf{return} $S_{1} \cup S_{2}$ (backward state space fully expanded)
     \EndIf
 
     \State $i \gets$ random index of $open$
@@ -1085,9 +1092,9 @@ We extract the predicted preferred operators from the NN by selecting the operat
 Our dataset consists of planning tasks with state spaces ranging from $40$\,K to $1$\,M states, which is identical to the dataset used by~\citet{Bettker.etal/2022}. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task, and~\vref{cha:tasks_each_domain} contains a small description of each domain. The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The input neurons are determined by the number of facts.
 
 
-We evaluate the results based on the number of expanded states since all planning tasks are solved. Each FSS has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
+We evaluate the results based on the number of expanded states since all planning tasks are solved. Each \fsp has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
 In the tables, each cell represents the mean value across $50$ planning tasks and $25$ seeds, i.e., $5$ sample seeds $\times$ $5$ network seeds. Each sample seed represents a different set of samples, while the network seeds are used to initialize the parameters of the NN.
-Additionally, when referring to a specific number of samples, we use the notation ``$n$ percent of the state space'' to denote a fraction of the FSS, e.g., $5\,\%$ of Block World's FSS is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
+Additionally, when referring to a specific number of samples, we use the notation ``$n$ percent of the state space'' to denote a fraction of the \fsp, e.g., $5\,\%$ of Block World's \fsp is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
 
 \input{tables/tasks_info}
 
@@ -1109,7 +1116,7 @@ Since in this work we are only interested in the effects of learned preferred op
 \section{Learning Preferred Operators}
 \label{sec:exp-learning-po}
 % Clear, objective description of this section
-This section compares task-solving performance with and without preferred operators using several configurations: \hstar, which represents the perfect heuristic; \hnn, which is a learned heuristic without preferred operators; \postartable, an oracle of ideal preferred operators; \postar, learned ideal preferred operators; \pogstar, discovered preferred operators using \hstar for shortest path distance calculation; and \pog, discovered preferred operators using Dijkstra's algorithm for shortest path distance calculation. The learned ideal preferred operators \postar were trained over the complete FSS of each task, while the discovered operators \pogstar and \pog were trained on a $1\,\%$ sample set obtained through regression.
+This section compares task-solving performance with and without preferred operators using several configurations: \hstar, which represents the perfect heuristic; \hnn, which is a learned heuristic without preferred operators; \postartable, an oracle of ideal preferred operators; \postar, learned ideal preferred operators; \pogstar, discovered preferred operators using \hstar for shortest path distance calculation; and \pog, discovered preferred operators using Dijkstra's algorithm for shortest path distance calculation. The learned ideal preferred operators \postar were trained over the complete \fsp of each task, while the discovered operators \pogstar and \pog were trained on a $1\,\%$ sample set obtained through regression.
 
 \input{tables/learning_perfect_pos}
 
@@ -1122,7 +1129,7 @@ The learned ideal preferred operators \postar outperform using only the learned 
 %The effectiveness of preferred operators may inversely correlate with the quality of the heuristic function. When the heuristic function is nearly optimal, the inclusion of preferred operators can potentially interfere with the search process. In \cref{sec:other-heuristic-functions}, we explore the outcomes observed when using different logic-based heuristics with varying levels of quality.
 
 % Particular comparisons and anomalies
-When comparing the discovered preferred operators \pogstar to \pog, both have close results despite \pogstar using the optimal heuristic \hstar to calculate the shortest paths in the sample set. The reason for this similarity is that the arcs in the shortest path graph $G'$ for \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods tend to have similar preferred operators, indicating that they are likely to have similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different preferred operators in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. As seen in \cref{tab:learning_perfect_pos}, this difference is negligible for Scanalyzer and VisitAll, where \pogstar and \pog differ by less than one expansion on average. This result indicates that extracting preferred operators from the shortest path graph $G'$ with quality similar to ideal preferred operators is possible even without \hstar-values.
+When comparing the discovered preferred operators \pogstar to \pog, both have close results despite \pogstar using the perfect heuristic \hstar to calculate the shortest paths in the sample set. The reason for this similarity is that the arcs in the shortest path graph $G'$ for \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods tend to have similar preferred operators, indicating that they are likely to have similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different preferred operators in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. As seen in \cref{tab:learning_perfect_pos}, this difference is negligible for Scanalyzer and VisitAll, where \pogstar and \pog differ by less than one expansion on average. This result indicates that extracting preferred operators from the shortest path graph $G'$ with quality similar to ideal preferred operators is possible even without \hstar-values.
 
 %Summary of the section
 In this experiment, we determined that learned heuristics can achieve a performance limit of approximately $50\,\%$ reduction in expansions when using preferred operators. We demonstrated the effectiveness of learning high-quality preferred operators that enhance sub-optimal heuristics. The ideal preferred operators \postar outperformed \hnn in all domains, while the learned discovered preferred operators \pog outperformed \hnn in five out of seven domains, improving the geometric mean by approximately $13\,\%$.
