@@ -216,7 +216,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
         \item[\bfsrs] Expansion from Random Successors
         \item[\bsp] Backward State Space
         \item[DFS] Depth-First Search
-        \item[DTG] Domain Transition Graph
+        %\item[DTG] Domain Transition Graph
         \item[\fsp] Forward State Space
         \item[FF] Fast-Forward
         %\item[FSM] Flying Spaghetti Monster
@@ -496,6 +496,7 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 
 \section{Preferred Operators}
 \label{sec:background-preferred-operators}
+
 Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to satisfy the goal condition when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation\pp{Answering Ritt: It does depend on implementation. The way we identify POs is very different from the delete-relaxation-based method from FF, and the results may not be the same.}, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
 Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. To extract the relaxed plan, the algorithm marks the goal facts that need to be achieved at each layer $k$ of the relaxed planning graph, then iterate from the last layer to the initial layer, marking the actions at layer $k$ that achieve the goal facts of the same layer. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state, and they contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determines if there is none, and FF restarts without preferred operators if they fail.\footnote{\cref{alg:computing-rpg,alg:extracting-relaxed-plan} were modified from~\citet{Wickler.etal/2015}.}
 %Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task (ignoring delete effects) in polynomial time, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. %The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
@@ -567,10 +568,10 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 \end{algorithm}
 
 
-The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs) instead of relaxed planning graphs, compatible with multi-valued planning tasks, where the preferred operators obtained with the calculation of the FF heuristic are the current best. A DTG is defined as follows. \ppi{Should I remove the definition of DTGs? Should I even mention DTGs? Or should I just say something like ``For more details on DTGs, see Helmert 2009''?}
+The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs -- compatible with \sas -- instead of relaxed planning graphs, where the preferred operators obtained with the calculation of the FF heuristic are the current best. %A DTG is defined as follows. \ppi{Should I remove the definition of DTGs? Should I even mention DTGs? Or should I just say something like ``For more details on DTGs, see Helmert 2009''?}
 
-Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
-To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
+%Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
+%To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
 
 To support preferred operators and assure the search is complete, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue. In Fast Downward, the first expansion of the search is always from the default queue. Also, there are cases where a preferred operators generates a successor state that has already been generated. Consequently, the state is not added to the preferred queue, which means it cannot be expanded first (as the preferred queue has higher priority), and another state, potentially further from the goal, is expanded instead.
 
@@ -875,7 +876,7 @@ Ideally, we want preferred operators that help solve a task with the least effor
   An ideal preferred operator generates a state with the shortest distance to the goal among all successors. Given a state $s$ and an operator~$o \in \mathcal{O}$ where $\sucs(s,o) = t$, $o$ is an ideal preferred operator if $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
 \end{definition}
 
-Every state $s$ that has a plan is associated with at least one preferred operator. These preferred operators generate successor states $t$ where $\hstarp{t} < \hstarp{s}$. Thus, only the goal states and dead-end states lack preferred operators.
+Every state $s$ that has a plan is associated with at least one preferred operator. These preferred operators generate successor states $t$ where $\hstarp{t} < \hstarp{s}$. Thus, only goal states and dead-end states lack preferred operators.
 
 \begin{property}
 \label{prop:ideal-optimal}
@@ -909,12 +910,12 @@ According to the definition of an ideal preferred operator, we have $\hstarp{t} 
 
 \section{Discovered Preferred Operators}
 \label{sec:sample-discovered-po}
-Obtaining ideal preferred operators is challenging for large tasks as we lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set of the state space, without relying on \hstar-values or logic-based methods such as computing relaxed planning graphs or DTGs. We construct a sample set graph $G$~(\vref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
+Obtaining ideal preferred operators is challenging for large tasks as we lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set of the state space, without relying on \hstar-values or logic-based methods such as computing relaxed planning graphs. We construct a sample set graph $G$~(\vref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
 
 In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal condition, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal condition. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal condition.
 
 \begin{definition}[Discovered Preferred Operators]\label{def:discovered_preferred_operators}
-Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has a shortest path of at least one vertex $v$ is inserted in $A'$.\pp{André: ``This is false right? For each vertex v all arcs star in v and that are part of path with shortest distance are included in A'.''} The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
+Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has a shortest path of at least one vertex $v$ is inserted in $A'$.\pp{André: ``This is false right? For each vertex v all arcs star in v and that are part of path with shortest distance are included in A'.'' Use a standard shortest DAG definition.} The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
 \end{definition}
 
 The quality of the discovered preferred operators depend on the quality of the shortest paths. The quality of these paths, in turn, relies on the accuracy of the $h$-values assigned to each sampled state.\pp{Need to expand this. Show how h-values are computed and show h-values in the example.}
@@ -1227,22 +1228,16 @@ Using the learned preferred operators \pog with the \hgc heuristic reduces the n
 Furthermore, the less informed the heuristic is, the less helpful \poff is. Remarkably, Blind with \pog reduces the number of expansions by approximately $99\,\%$, whereas \poff reduces the expansions by about $66\,\%$.
 
 
-\chapter{Limitations}
-\label{cha:limitations}
-A clear limitation of learned preferred operators is the number of samples required for training. Our experiments used small state spaces and a relatively simple NN as a first step to explore learning preferred operators. Consequently, we had access to the complete state space of a task. However, this is infeasible for harder tasks, as state spaces tend to grow exponentially in size as the amount of information needed to describe them increases, meaning that if computational resources are a concern, even sampling $1\,\%$ of the state space can be impractical. Another problem involves the size of the output tensor, where certain domains have of thousands of classes in larger tasks, which significantly affects training efficiency.
-
-Therefore, to improve learning efficiency, future research could focus on experimenting with other learning architectures that enable the generalization of preferred operators using a smaller number of samples, or an alternative representation of preferred operators as the output tensor.
-
 \chapter{Conclusion}
 \label{cha:conclusion}
-Extensive research has been conducted on learning heuristic functions for solving planning tasks. We explored for the first time the learning of preferred operators. The proposed approaches not only provide novel insights into planning but also have the potential for broader applications beyond planning, such as in reinforcement learning.
+Extensive research has been conducted on learning heuristic functions for solving planning tasks. In this study, we explored for the first time the learning of preferred operators.
 
 The findings suggest that learning-based approaches have a considerable potential to outperform logic-based methods. We demonstrate that learned preferred operators can surpass logic-based preferred operators like \poff in the considered planning tasks. Additionally, using less informed heuristics with preferred operators can lead to fewer expanded states compared to switching to more informed heuristics. The experiments highlight the ability to discover preferred operators and train an NN capable of generalizing for the entire task using only a small subset of the complete state space. Analysis between successor and predecessor states proved to be an effective method for discovering preferred operators from a limited sample set.
 
-Overall, this study opens up new possibilities for improving heuristic search in planning by learning preferred operators and showcases the potential for their application in diverse domains, including reinforcement learning.
+A limitation of learned preferred operators is the number of samples required for training. Our experiments used small state spaces and a relatively simple NN as a first step to explore learning preferred operators. Consequently, we had access to the complete state space of a task. However, this is infeasible for harder tasks, as state spaces tend to grow exponentially in size as the amount of information needed to describe them increases, meaning that if computational resources are a concern, even sampling $1\,\%$ of the state space can be impractical. Another problem involves the size of the output tensor, where certain domains have of thousands of classes in larger tasks, which significantly affects training efficiency.
+Therefore, to improve learning efficiency, future research could focus on experimenting with other learning architectures that enable the generalization of preferred operators using a smaller number of samples, or an alternative representation of preferred operators as the output tensor.
 
-\ppi{Unsatisfied with how we mention ``reinforcement learning''. Seems like we're trying to sell something for a domain which at least I don't understand that much.}
-
+Overall, this work opens up new possibilities for improving heuristic search in planning by learning preferred operators and showcases the potential for learning-based approaches using minimal domain logic.
 
 \bibliographystyle{abntex2-alf}
 \bibliography{biblio}
@@ -1289,7 +1284,7 @@ For more details, see the tasks in the directory \texttt{tasks/experiments}.
 
 \chapter{Training Details}
 
-\cref{tab:training_info_hnn} presents the mean training information for the regression networks used to learn the heuristic \hnn across $25$ different seed runs for each task, trained over $1\,\%$ sample set size. The table shows the epoch associated with the minimum validation loss, the value of the minimum validation loss, and the elapsed time required to train the NN. \cref{tab:training_info} has the same information, but for learning \pog with classification networks using varied sample set sizes, and also showing the number of preferred operators per sample. All the networks early-stopped.
+\cref{tab:training_info_hnn} presents the mean training information for the regression networks used to learn the heuristic~\hnn across $25$ different seed runs for each task, trained over $1\,\%$ sample set size. The table shows the epoch associated with the minimum validation loss, the value of the minimum validation loss, and the elapsed time required to train the NN.~\cref{tab:training_info} has the same information, but for learning~\pog with classification networks using varied sample set sizes, and also showing the number of preferred operators per sample. All the networks early-stopped.
 
 \input{tables/training_info}
 
