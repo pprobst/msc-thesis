@@ -1,0 +1,21 @@
+\begin{table}[!h]
+\centering
+\caption[Maximum regression depth in \bfsrs]{Maximum regression depth found in samples generated with \bfsrs on different sample set sizes, compared with the longest distance \distfarthest and the regression limit $L$.}
+\label{tab:regression-limits}
+\vspace{\baselineskip}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+           &     &        & \multicolumn{7}{c}{\bfsrs} \\
+\cmidrule(lr){4-10}
+Domain     & \distfarthest & $L$ & $1\,\%$ & $5\,\%$   & $10\,\%$ & $20\,\%$ & $30\,\%$ & $40\,\%$ & $50\,\%$ \\
+\midrule
+Blocks     & 24            & 17  & 20 & 22 & 23 & 24 & 25 & 25 & 26  \\
+Grid       & 32            & 44  & 15 & 19 & 21 & 23 & 24 & 24 & 25  \\
+N-Puzzle   & 31            & 41  & 21 & 26 & 28 & 31 & 32 & 33 & 34   \\
+Rovers     & 19            & 27  & 15 & 18 & 19 & 20 & 20 & 20 & 20   \\
+Scanalyzer & 15            & 20  & 10 & 14 & 15 & 16 & 17 & 16 & 17  \\
+Transport  & 17            & 35  & 12 & 16 & 17 & 19 & 20 & 20 & 20   \\
+VisitAll   & 15            & 17  & 11 & 14 & 16 & 17 & 17 & 18 & 18  \\
+\bottomrule
+\end{tabular}
+\end{table}
