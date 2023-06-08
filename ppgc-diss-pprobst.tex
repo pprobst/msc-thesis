@@ -250,8 +250,8 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
        \item[\postar] Learned ideal preferred operators
        \item[\poff] FF preferred operators
        \item[\pofsm] \bfsrw-based learned preferred operators
-       \item[\pog] shortest-path-graph-based learned preferred operators
-       \item[\pogstar] shortest-path-graph-based (with \hstar-values) learned preferred operators
+       \item[\pog] Shortest-path-graph-based learned preferred operators
+       \item[\pogstar] Shortest-path-graph-based (with \hstar-values) learned preferred operators
 \end{listofsymbols}
 
 \listoffigures
@@ -349,7 +349,7 @@ This chapter provides essential information for comprehending the subsequent cha
 \section{Classical Planning Notation}
 \label{sec:background-planning-notation}
 In this section we present three ways to represent a classical planning task. The first one, STRIPS~\cite{Fikes.Nilsson/1971}, represents a planning task using propositional facts (Boolean variables). The second way, \sas~\cite{Backstrom.Nebel/1995}, represents a planning task using multi-valued state variables. The third way, PDDL~\cite{Ghallab.etal/1998}, is based on predicate logic and is commonly used for writing planning tasks to be used as input for planners.
-\ppi{TODO restrictions for STRIPS and \sas.}
+\ppi{WIP restrictions for STRIPS and \sas.}
 
 \subsection{STRIPS}
 \label{sec:background-strips}
@@ -388,6 +388,7 @@ We can represent planning tasks in STRIPS using \sas by mapping the propositions
 
 \subsection{PDDL}
 \label{sec:background-pddl}
+\ppi{Should I remove this whole subsection? PDDL has zero relevance throughout the dissertation but in practice is used to define planning tasks as inputs. So it is only useful if the reader checks the source code.}
 We can also represent a classical planning task using PDDL. Tasks specified in PDDL are written in a Lisp-like syntax and are separated into two definitions, the domain, which specifies the operators and predicates, and the task, which specifies the objects, the initial state, and the goal condition. The following definitions describe a restricted version of PDDL that encodes STRIPS-like planning tasks.
 
 \begin{definition}[PDDL Domain]\label{def:pddl-domain}
@@ -566,7 +567,7 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 \end{algorithm}
 
 
-The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs) instead of relaxed planning graphs, compatible with multi-valued planning tasks, where the preferred operators obtained with the calculation of the FF heuristic are the current best. A DTG is defined as follows.
+The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs (DTGs) instead of relaxed planning graphs, compatible with multi-valued planning tasks, where the preferred operators obtained with the calculation of the FF heuristic are the current best. A DTG is defined as follows. \ppi{Should I remove the definition of DTGs? Should I even mention DTGs? Or should I just say something like ``For more details on DTGs, see Helmert 2009''?}
 
 Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
 To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
@@ -740,7 +741,7 @@ This chapter presents the methods we use to generate samples to train an NN that
 There are multiple techniques available to generate a sample set for training NNs in planning. These techniques include search methods like breadth-first search (BFS), depth-first search (DFS), and random walk (RW). In search methods, the generation of the sample set typically begins from a source node, which is commonly the initial state for forward search or the goal condition for backward search (regression). Random sampling of the state space can also be used to generate the sample set. Unlike search methods, random sampling produces independent samples, as each state is generated without relying on previous samples. Sample distribution influences NN generalization~\cite{Ferber.etal/2020a}, and this influence varies depending on the choice of sampling algorithm~\cite{Bettker.etal/2022}.
 
 \section{Generating Samples with FSM}
-\label{cha:sample-learn-h}
+\label{sec:sample-learn-h}
 To learn heuristic functions, states are labeled with a cost-to-goal estimate during sampling. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal. To generate samples, we use regression to expand the backward state space \bsp. Specifically, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple rollouts RW, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
 
 A regression rollout refers to a sequence of partial state expansions, which concludes under two conditions: either when the last expanded state has no predecessors or when it reaches the regression limit (depth) $L$. The process of generating samples halts once the desired number of samples $N$ has been attained. Random walks can have multiple rollouts due to the regression limit $L$, whereas BFS has a single rollout. Repeated states are not sampled and expanded during each RW rollout to avoid cycles during backward search, and the current rollout is ended abruptly if only repeated states are available to continue the search. However, repeated states are permitted between rollouts.
@@ -862,9 +863,9 @@ Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all
 To complete partial states, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in a random order and assign them random values that do not violate the mutexes. If, after $10$\,K attempts, we are unable to complete the state, we leave the corresponding facts undefined, setting them to false.%\footnote{In practice, this situation is extremely rare, occurring in only about $0.1\,\%$ of the samples.}
 
 
-\section{Proposed Approach}
+\chapter{Proposed Approach}
 \label{cha:proposed-approach}
-In this chapter, we introduce the proposed approach for identifying preferred operators within an existing sample set. Additionally, we present a sampling algorithm designed for discovering preferred operators.
+In this chapter, we first introduce ideal preferred operators, then show the proposed approach for identifying preferred operators within an existing sample set. Finally, we present a sampling algorithm designed for discovering preferred operators.
 
 \section{Ideal Preferred Operators}
 \label{sec:sample-ideal-po}
@@ -913,10 +914,10 @@ Obtaining ideal preferred operators is challenging for large tasks as we lack ac
 In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal states, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal state. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal state.
 
 \begin{definition}[Discovered Preferred Operators]\label{def:discovered_preferred_operators}
-Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has a shortest path of at least one vertex $v$ is inserted in $A'$. The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
+Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has a shortest path of at least one vertex $v$ is inserted in $A'$.\pp{André: ``This is false right? For each vertex v all arcs star in v and that are part of path with shortest distance are included in A'.''} The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
 \end{definition}
 
-The quality of the discovered preferred operators depend on the quality of the shortest paths. The quality of these paths, in turn, relies on the accuracy of the $h$-values assigned to each sampled state.
+The quality of the discovered preferred operators depend on the quality of the shortest paths. The quality of these paths, in turn, relies on the accuracy of the $h$-values assigned to each sampled state.\pp{Need to expand this. Show how h-values are computed and show h-values in the example.}
 Furthermore, a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$.
 
 \begin{figure}[tb]
@@ -1106,7 +1107,7 @@ Additionally, when referring to a specific number of samples, we use the notatio
 
 \subsection{Training}
 \label{sec:exp-training}
-Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a}, and we use PyTorch 1.9.0~\cite{Paszke/2019} for defining and training the NNs. The experiments were conducted on Ubuntu~$20.04$~LTS~GNU/Linux machines with an AMD~Ryzen~$9$~$3900$X $12$-core processor ($4.2$~GHz) with a memory limit of $4$~GB and one core per process. The NNs were trained until convergence, with the most complex networks requiring approximately two hours of training~(see \cref{tab:training_info} in the appendix).\footnote{Source code available at \url{https://github.com/pprobst/NeuralFastDownward-PO}.}
+Sample generation is implemented in Neural Fast Downward~\cite{Ferber.etal/2020a}, and we use PyTorch 1.9.0~\cite{Paszke/2019} for defining and training the NNs. The experiments were conducted on Ubuntu~$20.04$~LTS~GNU/Linux machines with an AMD~Ryzen~$9$~$3900$X $12$-core processor ($4.2$~GHz) with a memory limit of $4$~GB and one core per process. The NNs were trained until convergence, with the most complex networks requiring approximately two hours of training~(see \cref{tab:training_info} in the appendix).\footnote{Source code available at \url{https://github.com/pprobst/NeuralFastDownward}.}
 
 \subsection{Evaluation}
 \label{sec:exp-evaluation}
@@ -1146,7 +1147,7 @@ In this experiment, we use GBFS guided by the learned heuristic \hnn and compare
 
 \input{tables/learning_discovered_pos}
 
-By increasing the sample set size, the number of arcs in the shortest path graph $G'$ expands, leading to the discovery of new shortest paths. As expected, the performance of the learned discovered preferred operators \pog improves as the sample set size increases, reaching a plateau after $20\,\%$. However, Rovers shows an exception where the learned preferred operators result in increased expansions after $5\,\%$. In this domain, both the logic-based preferred operators \poff and the learned heuristic \hnn with \pog trained on a $1\,\%$ sample set size yield worse results compared to \hnn alone. This suggests that in Rovers, preferred operators may not be helpful since \hnn already approaches optimality ($13.4$ vs. $10.3$), as shown in~\cref{tab:learning_perfect_pos}.
+By increasing the sample set size, the number of arcs and vertices in the shortest path graph $G'$ expands, leading to the discovery of new shortest paths. As expected, the performance of the learned discovered preferred operators \pog improves as the sample set size increases, reaching a plateau after $20\,\%$. However, Rovers shows an exception where the learned preferred operators result in increased expansions after $5\,\%$. In this domain, both the logic-based preferred operators \poff and the learned heuristic \hnn with \pog trained on a $1\,\%$ sample set size yield worse results compared to \hnn alone. This suggests that in Rovers, preferred operators may not be helpful since \hnn already approaches optimality ($13.4$ vs. $10.3$), as shown in~\cref{tab:learning_perfect_pos}.
 
 As shown in~\cref{sec:background-preferred-operators}, in Fast Downward, repeated generated states are not added to the preferred queue. This occurs in all domains but is more significant on Rovers and Blocks World. Furthermore, this happens more frequently when training with larger sample sets, as multiple preferred operators are predicted more frequently. To address this, we can select only the preferred operator with the highest output value from the NN. With this approach, Blocks World and Rovers stabilize from $10\,\%$ onward at approximately $27$ and $12$ expansions, respectively, while the other domains do not experience significant changes.\pp{I dunno what to do in this paragraph. It's a hack and we don't know a priori when to use this hack.} %Alternatively, we can also disable boosting, but the search performance degrades.
 
@@ -1206,6 +1207,7 @@ Training with $5\,\%$ of the sample set size is sufficient to achieve fewer expa
 
 \section{Comparison to Alternative Sampling Method}
 \label{sec:exp-comparison-sample-method}
+\ppi{WIP: needs more emphasis. Need to highlight that the \bfsrs is amazing.}
 %\citet{Bettker.etal/2022}~(\cref{sec:sample-learn-h}) propose a sampling generation technique to produce pairs of states and cost-to-goal estimates. Although the method yields satisfactory outcomes for learning heuristic functions, it falls short in acquiring preferred operators.
 %This limitation arises from the presence of numerous duplicate sampled states that do not contribute to constructing the shortest path graph $G'$. Consequently, we discover fewer preferred operators than would be possible otherwise.
 In this experiment, we compare the number of expansions between two methods for discovering operators. The first method is the sampling approach proposed in \cref{sec:sample-discovered-po}, while the second method is the one introduced by~\citet{Bettker.etal/2022} and described in \cref{sec:sample-learn-h} (differently from learning \hnn, we exclude randomly generated samples since they are not necessarily generated by applicable operators).
@@ -1216,6 +1218,7 @@ In this experiment, we compare the number of expansions between two methods for 
 
 \section{Using Learned Preferred Operators with Other Heuristic Functions}
 \label{sec:other-heuristic-functions}
+\ppi{WIP: needs more emphasis. Need to highlight that in this setting, our results compared with \poff are extraordinary.}
 We now examine the effects of using the learned preferred operators \pog, trained on a $1\,\%$ sample set size, on the performance of GBFS guided by different logic-based heuristic functions. Specifically, we use the more informed heuristics \hff and \hadd, the less informed heuristic \hgc (goal-count), and Blind search without information. We also compare our results with searches using \poff. The outcomes are summarized in \cref{tab:logic_heuristics_1pct}.
 
 \input{tables/logic_heuristics_1pct}
@@ -1247,7 +1250,7 @@ Overall, this study opens up new possibilities for improving heuristic search in
 
 \appendix
 
-\chapter{Maximum Regression Depth in Samples Generated with \bfsrs}
+\chapter{Maximum Regression Depth with \bfsrs}
 \label{cha:max_reg_depth}
 
 \cref{tab:regression-limits} shows the maximum regression depth reached ($h$-value) found in samples generated with \bfsrs using different sample set sizes, compared with the longest distance \distfarthest between the goal condition and any potential initial state in the forward state space, and the regression limit $L$ by \citet{Bettker.etal/2022}.

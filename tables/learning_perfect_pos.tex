@@ -1,13 +1,13 @@
 \begin{table}[tb]
 \centering
-\caption[Expansions of \hstar, \hnn, \postartable, \postar, \pogstar, and \pog]{Expanded states for various approaches using GBFS. The ``Baseline'' approach refers to searches using only the perfect heuristic \hstar and the learned heuristic \hnn. The ``Ideal'' approach represents searches using \hnn with ideal preferred operators, while the ``$G'$'' refers to searches guided by \hnn with shortest-path-graph-based preferred operators.}
+\caption[Expansions of \hstar, \hnn, \postartable, \postar, \pogstar, and \pog]{Expanded states with GBFS guided by \hstar, \hnn, and \hnn with ideal preferred operators and discovered preferred operators.}
 \label{tab:learning_perfect_pos}
 \vspace{\baselineskip}
 \begin{tabular}{lrrrrrr}
 \toprule
-           & \multicolumn{2}{c}{Baseline} & \multicolumn{2}{c}{Ideal} & \multicolumn{2}{c}{$G'$} \\
-           \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-Domain     & \hstar & \hnn & \postartable & \postar & \pogstar & \pog \\ \midrule
+           & \multicolumn{1}{c}{\hstar} & \multicolumn{5}{c}{\hnn} \\
+           \cmidrule(lr){2-2}\cmidrule(lr){3-7}
+Domain     & - & - & \postartable & \postar & \pogstar & \pog \\ \midrule
 Blocks     & 19.4   & 57.0 & 21.0          & 42.1     & 43.0   & 43.0  \\
 Grid       & 20.8   & 66.5 & 23.1          & 23.2     & 70.4   & 67.4  \\
 N-Puzzle   & 22.6   & 80.9 & 23.9          & 28.0     & 53.3   & 53.3  \\
