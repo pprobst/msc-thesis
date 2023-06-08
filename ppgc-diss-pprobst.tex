@@ -225,7 +225,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
         \item[MSE] Mean Squared Error
         \item[MLP] Multi-Layer Perceptron
         \item[NN]  Neural Network
-        \item[PDDL] Planning Domain Definition Language
+        %\item[PDDL] Planning Domain Definition Language
         \item[ResNet] Residual Network
         \item[\sai] Sample Improvement
         \item[\sas] Simplified Action Structures Plus
@@ -239,7 +239,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 \begin{listofsymbols}{$\alpha\beta\pi\omega$}
        %\item[$G$] Sample set graph
        %\item[$G'$] Shortest path sample set graph
-       \item[$d^{*}$] Longest distance between the goal state and any potential initial state
+       \item[$d^{*}$] Longest distance between the goal condition and any potential initial state
        \item[\h] Heuristic
        \item[\hstar] Perfect heuristic
        \item[\hnn] Learned heuristic
@@ -277,7 +277,7 @@ This study introduces a novel approach to deriving preferred operators in planni
 
 \section{Planning}
 \label{sec:intro-planning}
-Planning involves determining a series of operators (or actions) that transform a given initial state to a desired goal state.
+Planning involves determining a series of operators (or actions) that transform a given initial state to satisfy a goal condition.
 In a classical planning task, the agent acts in a fully-observable environment, i.e., with access to all relevant information of the current state of the world, such as the positions of objects and the values of variables. The agent starts in a initial state and needs to fulfill a specific goal condition. This is achieved by using deterministic operators to modify the current state of the world. A solution plan for the planning task can be defined as a sequence of operators that, when applied to the initial state, successfully satisfy the goal condition. A state expansion involves the application of all relevant operators to a given state, thereby generating its successor states.
 
 For example, in a Blocks World task, consider the initial state (left) and the goal state (right) shown in Figure \ref{fig:intro-blocks}. The agent needs to apply a sequence of operators to reach the goal state from the initial state. We can define operators such as ``pick up block X'', ``put block X on block Y'', and ``put block X on the table.'' In this example, the agent can find one of the possible plans by applying the following operators: pick up block G, put block G on the table, pick up block B, put block B on block G, and put block R on block B. %Applying each of these operators generate a successor state.
@@ -348,16 +348,16 @@ This chapter provides essential information for comprehending the subsequent cha
 
 \section{Classical Planning Notation}
 \label{sec:background-planning-notation}
-In this section we present three ways to represent a classical planning task. The first one, STRIPS~\cite{Fikes.Nilsson/1971}, represents a planning task using propositional facts (Boolean variables). The second way, \sas~\cite{Backstrom.Nebel/1995}, represents a planning task using multi-valued state variables. The third way, PDDL~\cite{Ghallab.etal/1998}, is based on predicate logic and is commonly used for writing planning tasks to be used as input for planners.
+In this section we present two ways to represent a classical planning task. The first one, STRIPS~\cite{Fikes.Nilsson/1971}, represents a planning task using propositional facts (Boolean variables). The second way, \sas~\cite{Backstrom.Nebel/1995}, represents a planning task using multi-valued state variables. %The third way, PDDL~\cite{Ghallab.etal/1998}, is based on predicate logic and is commonly used for writing planning tasks to be used as input for planners.
 \ppi{WIP restrictions for STRIPS and \sas.}
 
 \subsection{STRIPS}
 \label{sec:background-strips}
-% A planning task in STRIPS is defined as $\Pi = \langle F, O, I, G\rangle$ where $F$ is a set of facts (Boolean variables), $O$ is a set of operators or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$, $I \subseteq F$ is the initial state, and $G \subseteq F$ is a a set of goal facts that must be satisfied. We say that operators $O(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$. We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false. Finally, a sequence of operators $\pi=(o_1,\ldots,o_k)$ applicable to the initial state is called a plan.
+
 \begin{definition}[STRIPS Planning Task]\label{def:strips}
-A planning task in STRIPS representation is defined by~$\Pi=\langle\mathcal{P},\mathcal{O},s_{0},s^{*}\rangle$, where~$\mathcal{P}$ has all the possible propositions that can be used to describe a state, $\mathcal{O}$~is a set of operators,~$s_{0} \subseteq \mathcal{P}$ is an initial state, and~$s^{*} \subseteq \mathcal{P}$ is the goal condition that specifies the propositions that should be true to solve the task.
-A state $s$ is defined as $s \subseteq \mathcal{P}$, where each proposition in $s$ can be true ($p \in s$) or false ($p \notin s$). %The set~$\mathcal{S}$ of all states over $\mathcal{P}$ is the state space.
-An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its precondition, add-effects and delete-effects, respectively.
+A planning task in STRIPS representation is defined by~$\Pi=\langle\mathcal{F},\mathcal{O},s_{0},s^{*}\rangle$, where~$\mathcal{F}$ has all the possible facts (propositions) that can be used to describe a state, $\mathcal{O}$~is a set of operators,~$s_{0} \subseteq \mathcal{F}$ is an initial state, and~$s^{*} \subseteq \mathcal{F}$ is the goal condition that specifies the facts that should be true to solve the task.
+A state $s$ is defined as $s \subseteq \mathcal{F}$, where each fact in $s$ can be true ($f \in s$) or false ($f \notin s$). %The set~$\mathcal{S}$ of all states over $\mathcal{P}$ is the state space.
+An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\del(o)\rangle$ that specifies its precondition, add-effects and delete-effects, respectively, which are denoted as sets of facts.
 \end{definition}
 
 In STRIPS, we say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $\del(o)$ to false and in $\add(o)$ to true. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
@@ -365,14 +365,14 @@ In STRIPS, we say that operator $o$ is applicable to state $s$ if its preconditi
 STRIPS formulas use conjunction of propositions with logical connectives (AND, OR, NOT) to express compound preconditions and effects. Also, it is not possible to directly specify conditional effects, where the effect of an action depends on the initial state. However, we can simulate conditional effects by creating new operators in the planning task.
 
 \begin{definition}[Plan]\label{def:plan}
-A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan $\pi^{*}$. An optimal plan is the shortest plan that successfully achieves the goal state from the initial state.
+A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan $\pi^{*}$. An optimal plan is the shortest plan that successfully achieves the goal condition from the initial state.
 \end{definition}
 
 Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed} version of the planning task. A relaxed planning task in STRIPS is defined as $\Pi^{+}=\langle\mathcal{P},\mathcal{O'},s_{0},s^{*}\rangle$, where $\mathcal{O'} = \{ \langle \pre(o), \add(o), \emptyset \rangle \,|\, o \in O \}$, i.e., the delete-effects of the planning task are ignored. Relaxed tasks can be solved efficiently even though finding the optimal solution is $\mathcal{NP}$-hard~\cite{Bylander/1994}. For example, the heuristic \hadd approximates the perfect heuristic value for a state $s$ as the sum of the costs of achieving each proposition in $s^{*}$ independently of the others.
 
 \subsection{\sas}
 \label{sec:background-sas}
-We also use the \sas representation to describe classical planning tasks independent of any particular domain. \sas shares similarities with STRIPS, but it allows for state variables to have an arbitrary and potentially non-binary finite domain.
+We also use the \sas representation to describe classical planning tasks independent of any particular domain. \sas shares similarities with STRIPS, but it allows for state variables to have an arbitrary and potentially non-binary finite domain. These multi-valued variables can express mutexes that are not explicitly recognized in STRIPS. For example, in a Blocks World task, a possible mutex is that a block cannot be simultaneously on the table and being held, i.e., in a state, only one of these propositions can be true.
 
 \begin{definition}[\sas Planning Task]\label{def:sas}
 A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents the possible values of each variable, $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition.
@@ -384,28 +384,28 @@ An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its precondition
 % A sequence of operators $\pi=(o_1,\ldots,o_k)$, where $o_i\in \mathcal{O}$, is considered valid for the initial state $s_0$ if, for $i\in[k]$, operator $o_i$ can be applied to $s_{i-1}$, and produces $s_i=\sucs(s_{i-1},o_i)$. %A plan refers to a valid sequence $\pi$ for $s_0$ such that $s^* \subseteq s_k$. In this work, all operators have unit costs, so the plan length is $|\pi| = k$.
 %If $s$ is a partial state, it would be incorrect to write $\pre(o) \subseteq s$. The expression $\pre(o) \subseteq s$ implies that the preconditions of the operator $o$ are fully satisfied by the state $s$. It is likely that $s$ only contains a subset of the conditions specified in $\pre(o)$.
 
-We can represent planning tasks in STRIPS using \sas by mapping the propositions in STRIPS to state variables in \sas and setting the domain of each one to true or false.
+We can represent planning tasks in STRIPS using~\sas by converting each fact to a state variable with domain true and false. On the other hand, \sas can be represented in STRIPS by converting each possible variable assignment to a fact.
 
-\subsection{PDDL}
-\label{sec:background-pddl}
-\ppi{Should I remove this whole subsection? PDDL has zero relevance throughout the dissertation but in practice is used to define planning tasks as inputs. So it is only useful if the reader checks the source code.}
-We can also represent a classical planning task using PDDL. Tasks specified in PDDL are written in a Lisp-like syntax and are separated into two definitions, the domain, which specifies the operators and predicates, and the task, which specifies the objects, the initial state, and the goal condition. The following definitions describe a restricted version of PDDL that encodes STRIPS-like planning tasks.
+%\subsection{PDDL}
+%\label{sec:background-pddl}
+%\ppi{Should I remove this whole subsection? PDDL has zero relevance throughout the dissertation but in practice is used to define planning tasks as inputs. So it is only useful if the reader checks the source code.}
+%We can also represent a classical planning task using PDDL. Tasks specified in PDDL are written in a Lisp-like syntax and are separated into two definitions, the domain, which specifies the operators and predicates, and the task, which specifies the objects, the initial state, and the goal condition. The following definitions describe a restricted version of PDDL that encodes STRIPS-like planning tasks.
 
-\begin{definition}[PDDL Domain]\label{def:pddl-domain}
-A PDDL domain is defined as a tuple $D = (\mathcal{P}, \mathcal{O})$, where $\mathcal{P}$ is a set of predicates representing the state of the world. Each predicate $p \in \mathcal{P}$ can be true or false in a given state. The set of operators is defined as $\mathcal{O}$. Each operator $o \in \mathcal{O}$ has a pre-condition $\pre(o)$ and an effect $\eff(o)$.
-\end{definition}
+%\begin{definition}[PDDL Domain]\label{def:pddl-domain}
+%A PDDL domain is defined as a tuple $D = (\mathcal{P}, \mathcal{O})$, where $\mathcal{P}$ is a set of predicates representing the state of the world. Each predicate $p \in \mathcal{P}$ can be true or false in a given state. The set of operators is defined as $\mathcal{O}$. Each operator $o \in \mathcal{O}$ has a pre-condition $\pre(o)$ and an effect $\eff(o)$.
+%\end{definition}
 
-In PDDL, effects are not explicitly separated into add-effects and delete-effects, instead, delete-effects are represented by negating the predicates.
+%In PDDL, effects are not explicitly separated into add-effects and delete-effects, instead, delete-effects are represented by negating the predicates.
 
-\begin{definition}[PDDL Task]\label{def:pddl-domain}
-A PDDL task is a triple $T = (D, s_{0}, s^{*})$, where $D$ is the domain definition associated with the problem, $s_{0}$ is the initial state, represented as $s_{0} = \{p_1, p_2, \ldots, p_n\}$, where $p_i \in \mathcal{P}$, and $s^{*}$ is the goal condition, denoted as $s^{*} = \{q_1, q_2, \ldots, q_m\}$, where $q_i \in \mathcal{P}$ represents the desired state of predicate $q_i$ to be achieved.
-\end{definition}
+%\begin{definition}[PDDL Task]\label{def:pddl-domain}
+%A PDDL task is a triple $T = (D, s_{0}, s^{*})$, where $D$ is the domain definition associated with the problem, $s_{0}$ is the initial state, represented as $s_{0} = \{p_1, p_2, \ldots, p_n\}$, where $p_i \in \mathcal{P}$, and $s^{*}$ is the goal condition, denoted as $s^{*} = \{q_1, q_2, \ldots, q_m\}$, where $q_i \in \mathcal{P}$ represents the desired state of predicate $q_i$ to be achieved.
+%\end{definition}
 
 %Actions represent the possible operations or transformations that can be performed, while predicates describe the properties or conditions that can be true or false within the domain. Objects are the entities involved in the planning task, while the initial state describes the starting configuration or state of the objects. The goal condition defines the desired state that a planner aims to achieve.
 
-As an example, consider Blocks World, where $(ontable~?x)$ represents a predicate that indicates if a block $x$ is on the table or not, and $(pickup~?x)$ is an action that defines the act of picking up block $x$. This action is further specified by a set of preconditions $(and~(clear~?x)~(ontable~?x)~(handempty))$ that must hold true before $(pickup~?x)$ is applied, i.e., $x$ must be clear (no other block above it), $x$ must be on the table, and the hand must be empty. The effects of applying $(pickup~?x)$ are $$(and~(not~(ontable~?x))~(not~(clear~?x))~(not~(handempty))~(holding~?x)),$$
+%As an example, consider Blocks World, where $(ontable~?x)$ represents a predicate that indicates if a block $x$ is on the table or not, and $(pickup~?x)$ is an action that defines the act of picking up block $x$. This action is further specified by a set of preconditions $(and~(clear~?x)~(ontable~?x)~(handempty))$ that must hold true before $(pickup~?x)$ is applied, i.e., $x$ must be clear (no other block above it), $x$ must be on the table, and the hand must be empty. The effects of applying $(pickup~?x)$ are $$(and~(not~(ontable~?x))~(not~(clear~?x))~(not~(handempty))~(holding~?x)),$$
 
-that is, $x$ is not on the table, $x$ is not clear, the hand is not empty, and the hand is holding $x$.
+%that is, $x$ is not on the table, $x$ is not clear, the hand is not empty, and the hand is holding $x$.
 
 \section{Regression}
 \label{background-regression}
@@ -413,30 +413,30 @@ that is, $x$ is not on the table, $x$ is not clear, the hand is not empty, and t
 The predecessor of a partial state $s$ under operator $o$, denoted $\pred(s,o)$, can be obtained through a process called backward search or regression. Regression involves determining predecessor states that can lead to the current partial state by applying the operator $o$. An operator $o$ is considered relevant for partial state $s$ if $\eff_r = \dom(\eff(o)) \cap \dom(s) \neq \emptyset$, i.e., at least one defined effect in $o$ overlaps with $s$, and consistent if $s \subseteq \eff(o)|_{\eff_r}$, i.e., the operator agrees with the defined effects in $s$. An operator $o$ is said to be \emph{backward applicable} in partial state $s$ if it is both relevant and consistent with $s$, and it leads to a predecessor $r$ given by $r=\pre(o)\circ (s|_{\dom(s)\setminus\eff_r})$. Also, $s \subseteq \sucs(r,o)$ can differ from $s$, i.e., applying an operator to a predecessor state may result in a subset of the current partial state, but it does not necessarily cover all the possible states represented by $s$.
 % $(s|_{\dom(s)\setminus\eff_r})$: This part refers to the restriction or projection of the current partial state $s$ onto the variables in its domain ($\dom(s)$) that are not affected by the effects of operator $o$ ($\eff_r$). In other words, it selects the values of the variables in $s$ that are not modified by $o$.
 A partial state $s$ has predecessors $\pred(s)=\{{\pred(s,o)\mid o\in \mathcal{O}}\}$ where $o$ is backward applicable to $s$, and a regression sequence from state $s_0$ is valid if $o_i$ can be applied to $s_{i-1}$ and produces $s_i=\pred(s_{i-1},o_i)$. All partial states~$s_k$ can reach a partial state $s_{0} \subseteq s$ in at most $k$ forward applications of the reversed operator sequence.
-If a valid regression sequence $\rho = (o_1, \ldots, o_k)$ is generated, it will produce a sequence of partial states that can reach the goal state $s^*$ within a maximum of $k$ steps.
+If a valid regression sequence $\rho = (o_1, \ldots, o_k)$ is generated, it will produce a sequence of partial states that can reach the goal condition $s^*$ within a maximum of $k$ steps.
 
 
 
 \section{State Spaces}
 \label{background-state-spaces}
 
-Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be a goal state, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $\spp=\langle S, s_0, s^{*}, \sucs \rangle$.
+Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be the goal condition, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $\spp=\langle S, s_0, s^{*}, \sucs \rangle$.
 \begin{definition}[State Space of $\Pi$]
-For any planning task $\Pi$ with states $S$, initial state $s_0$, goal state $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $\spp(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
+For any planning task $\Pi$ with states $S$, initial state $s_0$, goal condition $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $\spp(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
 \end{definition}
 
-The forward state space (\fsp) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be reached forward from the initial state towards the goal state.
+The forward state space (\fsp) refers to the set of states that can be reached from the initial state $s_0$ by applying the successor function $\sucs$ in the forward direction. It represents the states that can be reached forward from the initial state towards the goal condition.
 
 \begin{definition}[Forward State Space of $\Pi$]
 The forward state space for a planning task $\Pi$ is denoted as $\fsp(\Pi) = \langle S_{\text{F}}, s_0, s^{*}, \sucs \rangle$, where $S_{\text{F}}$ is the set of states reachable from the initial state, and $\sucs : S_{\text{F}} \to 2^{S_{\text{F}}}$ is the successor function that maps each state to a set of possible successor states and determines the available transitions in the forward direction.
 \end{definition}
 
-In other words, $\fsp(\Pi)$ is defined as the subset of states and transitions within $\spp$ that are relevant to the planning task $\Pi$ and the forward expansion towards the goal state. The \fsp is expanded when solving a task, for example by using a best-first search algorithm.
+In other words, $\fsp(\Pi)$ is defined as the subset of states and transitions within $\spp$ that are relevant to the planning task $\Pi$ and the forward expansion towards the goal condition. The \fsp is expanded when solving a task, for example by using a best-first search algorithm.
 
-The backward state space (\bsp), on the other hand, refers to the set of states that can be reached from the goal state $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be reached backward from the goal state towards the initial state~(\cref{background-regression}).
+The backward state space (\bsp), on the other hand, refers to the set of states that can be reached from the goal condition $s^{*}$ by applying a predecessor function $\pred$. It represents the states that can be reached backward from the goal condition towards the initial state~(\cref{background-regression}).
 
 \begin{definition}[Backward State Space of $\Pi$]
-The backward state space of a planning task $\Pi$ is denoted as $\bsp(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal state and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
+The backward state space of a planning task $\Pi$ is denoted as $\bsp(\Pi) = \langle S_{\text{B}}, s_{0}, s^{*}, \pred \rangle$, where $S_{\text{B}}$ is the set of states reachable from the goal condition and $\pred : S_{\text{B}} \to 2^{S_{\text{B}}}$ is a predecessor function that maps each state to a set of possible predecessor states and determines the available transitions in the backward direction.
 \end{definition}
 
 
@@ -476,7 +476,7 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
   \While{$Q$ is not empty}
     \State $s \gets$ state with the highest priority in $Q$
 
-    \If{$s$ satisfies the goal state $s^{*}$}
+    \If{$s$ satisfies the goal condition $s^{*}$}
       \State \textbf{return} the solution
     \EndIf
 
@@ -496,7 +496,7 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 
 \section{Preferred Operators}
 \label{sec:background-preferred-operators}
-Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to lead to the goal state when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation\pp{Answering Ritt: It does depend on implementation. The way we identify POs is very different from the delete-relaxation-based method from FF, and the results may not be the same.}, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
+Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors that are more likely to satisfy the goal condition when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators depend on implementation\pp{Answering Ritt: It does depend on implementation. The way we identify POs is very different from the delete-relaxation-based method from FF, and the results may not be the same.}, the first approach was introduced in the original Fast-Forward (FF) planner~\cite{Hoffmann.Nebel/2001}, where preferred operators are calculated alongside the FF heuristic.
 Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. To extract the relaxed plan, the algorithm marks the goal facts that need to be achieved at each layer $k$ of the relaxed planning graph, then iterate from the last layer to the initial layer, marking the actions at layer $k$ that achieve the goal facts of the same layer. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state, and they contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determines if there is none, and FF restarts without preferred operators if they fail.\footnote{\cref{alg:computing-rpg,alg:extracting-relaxed-plan} were modified from~\citet{Wickler.etal/2015}.}
 %Specifically, the FF planner returns a relaxed Graphplan~\cite{Blum.etal/1997} from the relaxed task (ignoring delete effects) in polynomial time, and the cost-to-goal estimate for a state $s$ is defined as the length of the plan obtained for $s$, while the preferred operators for state $s$ are the operators of the plan applicable in $s$. %The Graphplan algorithm is a planning algorithm that operates on a graph representation of a planning problem. It constructs a layered planning graph by expanding a state and applying actions to generate subsequent layers. It checks if the goal state is reachable and, if so, extracts a valid plan from the graph.
 
@@ -852,7 +852,7 @@ In addition to sampling the same states, it is common to sample neighboring stat
 A sample set graph is a directed and labeled graph~$G = (V, A)$ defined by the states obtained in the sampling. Each vertex is labeled by a sampled partial state, i.e., $V = \{s_i \mid i \in [N]\}$. (Note that the undefined variables of a partial state can typically be completed in multiple ways, so each vertex represents a set of complete states.) Set $A$ contains an arc $(s,t)$ for each operator $o \in \mathcal{O}$ where $\sucs(s,o) \subseteq t$.
 \end{definition}
 
-When dealing with partial states generated by regression, we can always find at least one successor, except for the goal state $s^{*}$. We proceed by computing the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Subsequently, we update the cost-to-goal estimates of each state accordingly. This process is called ``successor improvement'' (\sui).
+When dealing with partial states generated by regression, we can always find at least one successor, except for the goal $s^{*}$. We proceed by computing the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Subsequently, we update the cost-to-goal estimates of each state accordingly. This process is called ``successor improvement'' (\sui).
 
 
 \section{Sample Completion}
@@ -911,7 +911,7 @@ According to the definition of an ideal preferred operator, we have $\hstarp{t} 
 \label{sec:sample-discovered-po}
 Obtaining ideal preferred operators is challenging for large tasks as we lack access to the complete search state space, and computing the \hstar-values for all states may be intractable. To address this, we compute the preferred operators within a sample set of the state space, without relying on \hstar-values or logic-based methods such as computing relaxed planning graphs or DTGs. We construct a sample set graph $G$~(\vref{def:graph}) by mapping operators that transition between two samples and then determine the operators that contribute to the shortest path to the goal.
 
-In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal states, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal state. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal state.
+In the graph $G$, each arc represents an applicable operator between two sampled states. Every sample, except for the goal condition, has at least one successor, so it is feasible to trace multiple paths from a sampled state to a goal condition. By selecting the operators associated with the shortest path, we can identify the preferred operators for reaching a goal condition.
 
 \begin{definition}[Discovered Preferred Operators]\label{def:discovered_preferred_operators}
 Let $G = (V, A)$ be the sample set graph and $G' = (V, A')$ be the shortest path sample set graph. We run Dijkstra's algorithm on $G$ to find the shortest path to each vertex $v \in V$. Every arc of $A$ that has a shortest path of at least one vertex $v$ is inserted in $A'$.\pp{André: ``This is false right? For each vertex v all arcs star in v and that are part of path with shortest distance are included in A'.''} The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
@@ -955,7 +955,7 @@ Furthermore, a state can have multiple discovered preferred operators if it has 
 The sample generation approach described in~\cref{sec:sample-learn-h} is not suitable for learning preferred operators due to the presence of duplicate samples within rollouts. This leads to a sample set that contains numerous repeated samples, which offer no additional value when constructing the shortest path graph $G'$ for identifying preferred operators. Consequently, this approach fails to effectively expand the state space and identify additional preferred operators. To address this limitation, we have developed an alternative sample generation method specifically designed to discover preferred operators, dubbed~\bfsrs, divided into two phases.
 
 Let $S_1$ and $S_2$ denote the sets of samples generated in the first and second phases of~\bfsrs, respectively. The complete sample set is represented by $S = S_1 \cup S_2$, consisting of $N$ distinct samples. Let $k_1$ and $k_2$ be variables satisfying $k_1 + k_{2} = 1$.
-In the first phase of the algorithm, we use BFS by applying backward applicable operators from the goal state until expanding $k_1N$ states, which are then added to $S_1$.
+In the first phase of the algorithm, we use BFS by applying backward applicable operators from the goal condition until expanding $k_1N$ states, which are then added to $S_1$.
 In the second phase, we maintain two queues first initialized during BFS: an open queue, containing states generated but not yet expanded, and a closed set, comprising states that have been expanded and already sampled. During each iteration, we randomly select a state from the open queue, move it to the closed set, add it to the sample set $S_2$, and insert its predecessors into the open queue if they are not already present in open or closed. The sampling process continues until $|S_2| = k_2N$.
 See \cref{alg:sampling-po}. The primary distinction between phases one and two is the selection process for expanding states from the open queue. Unlike phase one, where the first-in, first-out approach of BFS is used, phase two involves randomly selecting a state from the open queue for expansion. We do not use a regression limit $L$ as in \bfsrw, but in practice our maximum regression depth remained close to $d^{*}$~(\vref{cha:max_reg_depth}).
 %Note that this algorithm has a single rollout, so no maximum regression limit $L$ is used.
@@ -1099,7 +1099,7 @@ We extract the predicted preferred operators from the NN by selecting the operat
 Our dataset consists of planning tasks with state spaces ranging from $40$\,K to $1$\,M states, which is identical to the dataset used by~\citet{Bettker.etal/2022}. To generate samples, we use one task in each of the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll. \cref{tab:tasks_info} has relevant information regarding each task, and~\vref{cha:tasks_each_domain} contains a small description of each domain. The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The input neurons are determined by the number of facts.
 
 
-We evaluate the results based on the number of expanded states since all planning tasks are solved. Each forward state space \fsp has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal state. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
+We evaluate the results based on the number of expanded states since all planning tasks are solved. Each forward state space \fsp has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal condition. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
 In the tables, each cell represents the mean value across $50$ planning tasks and $25$ seeds, i.e., $5$ sample seeds $\times$ $5$ network seeds. Each sample seed represents a different set of samples, while the network seeds are used to initialize the parameters of the NN.
 Additionally, when referring to a specific number of samples, we use the notation ``$n$ percent of the state space'' to denote a fraction of the \fsp, e.g., $5\,\%$ of Block World's \fsp is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
 
@@ -1208,10 +1208,9 @@ Training with $5\,\%$ of the sample set size is sufficient to achieve fewer expa
 \section{Comparison to Alternative Sampling Method}
 \label{sec:exp-comparison-sample-method}
 \ppi{WIP: needs more emphasis. Need to highlight that the \bfsrs is amazing.}
-%\citet{Bettker.etal/2022}~(\cref{sec:sample-learn-h}) propose a sampling generation technique to produce pairs of states and cost-to-goal estimates. Although the method yields satisfactory outcomes for learning heuristic functions, it falls short in acquiring preferred operators.
-%This limitation arises from the presence of numerous duplicate sampled states that do not contribute to constructing the shortest path graph $G'$. Consequently, we discover fewer preferred operators than would be possible otherwise.
 In this experiment, we compare the number of expansions between two methods for discovering operators. The first method is the sampling approach proposed in \cref{sec:sample-discovered-po}, while the second method is the one introduced by~\citet{Bettker.etal/2022} and described in \cref{sec:sample-learn-h} (differently from learning \hnn, we exclude randomly generated samples since they are not necessarily generated by applicable operators).
-\cref{tab:comparison_sample} shows the results. The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onwards) and VisitAll. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average.
+
+\cref{tab:comparison_sample} shows the results. The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onwards) and VisitAll. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average. Considering $5\,\%$ sample set size with samples while partial states (without completion), $100\,\%$ of the states generated by \bfsrs in all domains are unique, while for \bfsrw, $72\,\%$ in Blocks World, $84\,\%$ in Grid, $96\,\%$ in N-Puzzle, $58\,\%$ in Rovers, $89\,\%$ in Scanalyzer, $96\,\%$ in Transport, and $86\,\%$ in VisitAll are unique.
 
 \input{tables/comparison_sample}
 
@@ -1225,7 +1224,7 @@ We now examine the effects of using the learned preferred operators \pog, traine
 
 Using the learned preferred operators \pog with the \hgc heuristic reduces the number of expansions from $124.9$ to $41.4$. This performance is competitive with the baseline \hff and \hadd heuristics, and it yields fewer expansions in Blocks World, N-Puzzle, and VisitAll. Also, when using \hgc with \pog trained on a $5\,\%$ sample set size, we achieve a geometric mean of $28.1$, which is about $25\,\%$ lower than the results obtained with the baseline \hff and \hadd heuristics. This highlights that using preferred operators can lead to more significant performance improvements in task-solving compared to changing to a more informed heuristic.
 
-Furthermore, the less informed the heuristic is, the less helpful \poff is. Notably, Blind with \pog reduces the number of expansions by approximately $99\,\%$, whereas \poff reduces the expansions by about $66\,\%$.
+Furthermore, the less informed the heuristic is, the less helpful \poff is. Remarkably, Blind with \pog reduces the number of expansions by approximately $99\,\%$, whereas \poff reduces the expansions by about $66\,\%$.
 
 
 \chapter{Limitations}
@@ -1263,7 +1262,7 @@ The Blocks World domain involves manipulating blocks on a table to achieve a des
 
 In the Grid domain, an agent capable of holding a key traverses a grid, with certain cells being locked and requiring specific keys to open. Prior to entering a locked cell. We used a planning task with a $4 \times 4$ grid, four locked cells, and three keys with two possible shapes, circle or square.
 
-The N-Puzzle domain consists of a square grid with numbered tiles. The objective is to rearrange the tiles from their initial scrambled state to a desired goal state. We used a planning task with a $3 \times 3$ grid.
+The N-Puzzle domain consists of a square grid with numbered tiles. The objective is to rearrange the tiles from their initial scrambled state to a desired goal condition. We used a planning task with a $3 \times 3$ grid.
 
 The Rovers domain involves rovers navigating a grid-based environment with missions like exploration or resource gathering. Each rover has specific capabilities and limitations, including movement range, sensing, and interaction abilities. We used a planning task with two rovers, each with one storage capacity and one camera, and four waypoints with different objectives.
 
@@ -1305,7 +1304,7 @@ For more details, see the tasks in the directory \texttt{tasks/experiments}.
 %principais contribuições e resultados do trabalho.
 
 No contexto de tarefas de planejamento, os agentes precisam a selecionar a melhor ação possível dentre um conjunto consideravelmente vasto de opções disponíveis em cada etapa. Planejadores lógicos têm sido usados para lidar com esse problema, aplicando operadores preferidos que reduzem significativamente a quantidade de ações a serem consideradas. Os planejadores lógicos que incorporam operadores preferidos na busca foram os vencedores da trilha \emph{satisficing} da \emph{International Planning Competition} (IPC) em 2004, 2008, 2011 e 2018~\cite{Helmert/2006,Richter.lama.etal/2011,Richter.lama.etal/2011,Seipp-fast.etal/2018}.
-No entanto, este trabalho apresenta um método que vai além dessas abordagens convencionais, introduzindo uma estratégia de amostragem e aprendizado de operadores preferidos com aplicabilidade em todo o espaço de estados de uma tarefa de planejamento.
+No entanto, este trabalho apresenta um método que vai além dessas abordagens convencionais, introduzindo uma estratégia de amostragem e aprendizado de operadores preferidos com o objetivo de generalização em todo o espaço de estados de uma tarefa de planejamento.
 
 O objetivo principal deste trabalho é identificar os operadores preferidos ideais, que se encontram nos caminhos mais curtos que levam a um objetivo específico. O desafio reside no fato de que os espaços de estado geralmente são extremamente grandes, o que dificulta a exploração completa de todas as possibilidades. Para contornar essa limitação, desenvolvemos uma nova abordagem de amostragem adaptada, projetada para extrair operadores preferidos de alta qualidade de um conjunto de amostras que representa apenas uma fração do espaço de estados completo. Os resultados demonstraram que essa abordagem reduzida ainda é capaz de alcançar excelentes desempenhos em tarefas de planejamento.
 
@@ -1313,11 +1312,11 @@ O objetivo principal deste trabalho é identificar os operadores preferidos idea
 
 Para fornecer uma análise mais abrangente dessa nova categoria de operadores preferidos, realizamos experimentos controlados. Comparamos sistematicamente os resultados com abordagens lógicas tradicionais como os operadores preferidos do Fast-Forward (FF)~\cite{Hoffmann.Nebel/2001, Helmert/2006}, avaliamos a eficácia dos operadores preferidos aprendidos em diferentes tamanhos de amostra e exploraramos seu desempenho ao serem combinados com diversas funções heurísticas, tanto aprendidas quanto lógicas. Essa investigação detalhada permite uma compreensão mais profunda das vantagens e limitações dos operadores preferidos aprendidos.
 
-Este estudo representa a primeira tentativa de descobrir operadores preferidos a partir de um conjunto de amostras e usar uma NN para aprendê-los. Apresentamos um novo método de amostragem e uma nova técnica para identificar operadores preferidos em amostras. A técnica de amostragem envolve regressão do estado objetivo, construindo um gráfico com estados amostrados que representam suas relações sucessor-predecessor e determinando, para cada estado, o conjunto de operadores usados para atingir o estado objetivo no menor caminho como operadores preferidos. Este estudo revela que uma rede neural pode aprender os operadores preferidos a partir de um subconjunto do espaço de estados e estender esse aprendizado de forma eficaz a todo o espaço de estados em diversos domínios de planejamento. A abordagem proposta supera o melhor método atual de operadores preferidos do FF nas tarefas de referência. Em particular, este trabalho apresenta:
+Este estudo representa a primeira tentativa de descobrir operadores preferidos a partir de um conjunto de amostras e usar uma NN para aprendê-los. Apresentamos um novo método de amostragem e uma nova técnica para identificar operadores preferidos em amostras. A técnica de amostragem envolve regressão do estado objetivo, construindo um grafo com estados amostrados que representam suas relações sucessor-predecessor e determinando, para cada estado, o conjunto de operadores usados para atingir o estado objetivo no menor caminho como operadores preferidos. Este estudo revela que uma rede neural pode aprender os operadores preferidos a partir de um subconjunto do espaço de estados e estender esse aprendizado de forma eficaz a todo o espaço de estados em diversos domínios de planejamento. A abordagem proposta supera o melhor método atual de operadores preferidos do FF nas tarefas de referência. Em particular, este trabalho apresenta:
 
 \begin{itemize}
 \item Um novo método de amostragem adaptado para descobrir operadores preferidos.
-\item Um novo método baseado em gráficos de caminho mais curto para descobrir operadores preferidos em um conjunto de amostras existente.
+\item Um novo método baseado em grafos de caminho mais curto para descobrir operadores preferidos em um conjunto de amostras existente.
 \item Uma análise da qualidade dos operadores preferidos aprendidos e uma comparação com os métodos baseados em símbolos existentes.
 \end{itemize}
 
