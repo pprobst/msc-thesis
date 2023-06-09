@@ -362,7 +362,7 @@ An operator~$o \in \mathcal{O}$ is defined by a triple~$\langle\pre(o),\add(o),\
 
 In STRIPS, we say that operator $o$ is applicable to state $s$ if its preconditions are satisfied by $s$, i.e., $\pre(o) \subseteq s$, and produces a successor state~$s' = \sucs(s,o) = (s \setminus \del(o)) \cup \eff(o)$. In other words, we progress a state $s$ with operator $o$ by setting the propositions in $\del(o)$ to false and in $\add(o)$ to true. The set of successor states of $s$ is denoted by~$\sucs(s)=\{\sucs(s,o)\mid o\in \mathcal{O}, \pre(o) \subseteq s\}$.
 
-STRIPS formulas use conjunction of propositions with logical connectives (AND, OR, NOT) to express compound preconditions and effects. Also, it is not possible to directly specify conditional effects, where the effect of an action depends on the initial state. However, we can simulate conditional effects by creating new operators in the planning task.
+STRIPS formulas use conjunction of propositions with logical connectives (AND, OR, NOT) to express compound preconditions and effects. Also, STRIPS has no negated preconditions, and it is not possible to directly specify conditional effects, where the effect of an action depends on the initial state. However, we can simulate conditional effects by creating new operators in the planning task.
 
 \begin{definition}[Plan]\label{def:plan}
 A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan $\pi^{*}$. An optimal plan is the shortest plan that successfully achieves the goal condition from the initial state.
@@ -372,19 +372,20 @@ Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed}
 
 \subsection{\sas}
 \label{sec:background-sas}
-We also use the \sas representation to describe classical planning tasks independent of any particular domain. \sas shares similarities with STRIPS, but it allows for state variables to have an arbitrary and potentially non-binary finite domain. These multi-valued variables can express mutexes that are not explicitly recognized in STRIPS. For example, in a Blocks World task, a possible mutex is that a block cannot be simultaneously on the table and being held, i.e., in a state, only one of these propositions can be true.
+We also use the \sas representation to describe classical planning tasks independent of any particular domain. \sas shares similarities with STRIPS, but it allows for state variables to have an arbitrary and potentially non-binary finite domain. These multi-valued variables can express mutually exclusive relations (mutexes) that are not explicitly recognized in STRIPS. Suppose we have a planning task with a robot in a grid with $n$ possible locations that it needs to visit. With STRIPS, we need $n$ facts to indicate all the possible locations where the robot can be, and the STRIPS representation does not explicitly capture the mutex that the robot cannot exist in multiple locations simultaneously. In \sas, this information can be naturally expressed using a multi-valued variable for the location of the robot. The variable has a finite domain consisting of the $n$ possible locations, enforcing that the robot can only occupy one location at a time. Thus, only one proposition out of the $n$ possibilities can be true in any state.
+% These multi-valued variables can express mutexes that are not explicitly recognized in STRIPS. For example, in a Blocks World task, a possible mutex is that a block cannot be simultaneously on the table and being held, i.e., in a state, only one of these propositions can be true.
 
 \begin{definition}[\sas Planning Task]\label{def:sas}
-A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents the possible values of each variable, $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$.  A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition.
-  % where $s_0, s^* \in \mathcal{S}$ and $\mathcal{S}$ is the set of all states (or state space).
-%the expression $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$ means that the domain of $\mathcal{D}$ is the union of the domains of all the elements in $\mathcal{V}$. That is, the set of values that $\mathcal{D}$ can take is the combination of all the values that each element in $\mathcal{V}$ can take.
+A \sas task is defined as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}$ is a set of state variables, and each variable $v\in \mathcal{V}$ has a finite domain~$\dom(v)$, that represents the possible mutually exclusive values of each variable, $\mathcal{O}$ is a set of operators where each operator $o \in \mathcal{O}$ is defined as a pair of preconditions and effects $(\pre(o),\eff(o))$, both partial states~$s$ defined as a partial function $s:\mathcal{V}\rightarrow \mathcal{D}$, where $\mathcal{D}=\cup_{v\in \mathcal{V}}\dom(v)$, such that $s(v)\in \dom(v)$ whenever $s(v)$ is defined. Otherwise, $s(v)$ is undefined and written as $s(v)=\bot$. Given a partial state $s$, $var(s) \in \mathcal{V}$ is a finite set which lists all variables assigned in $s$. A (complete) state $s$ is a partial state defined on all variables in~$\mathcal{V}$, i.e, $var(s) = \mathcal{V}$. The state~$s_0$ defines the initial state, and the partial state~$s^*$ defines the goal condition.
 \end{definition}
 
-An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its preconditions are fulfilled by $s$, denoted by $s \subseteq \pre(o)$, and it generates a successor state $s'=\sucs(s,o):=\eff(o)\circ s$. Here, $s'=t\circ s$ is defined as $s'(v)=t(v)$ for all $v$ such that $t(v)$ is defined, and for all other cases, $s'(v)=s(v)$. The set of all successor states resulting from state $s$ is denoted by $\sucs(s)=\{{\sucs(s,o)\mid o\in \mathcal{O}, s \subseteq \pre(o)}\}$.
+An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its preconditions are fulfilled by $s$, denoted by $s \subseteq \pre(o)$, and it generates a successor state $s'=\sucs(s,o):=\eff(o)\circ s$. Here, $s'=t\circ s$ is defined as $s'(v)=t(v)$ for all $v$ such that $t(v)$ is defined, and for all other cases, $s'(v)=s(v)$. The set of all successor states resulting from state $s$ is denoted by $\sucs(s)=\{{\sucs(s,o)\mid o\in \mathcal{O}, s \subseteq \pre(o)}\}$. A state variable can never be made undefined once made defined by an operator.
 % A sequence of operators $\pi=(o_1,\ldots,o_k)$, where $o_i\in \mathcal{O}$, is considered valid for the initial state $s_0$ if, for $i\in[k]$, operator $o_i$ can be applied to $s_{i-1}$, and produces $s_i=\sucs(s_{i-1},o_i)$. %A plan refers to a valid sequence $\pi$ for $s_0$ such that $s^* \subseteq s_k$. In this work, all operators have unit costs, so the plan length is $|\pi| = k$.
 %If $s$ is a partial state, it would be incorrect to write $\pre(o) \subseteq s$. The expression $\pre(o) \subseteq s$ implies that the preconditions of the operator $o$ are fully satisfied by the state $s$. It is likely that $s$ only contains a subset of the conditions specified in $\pre(o)$.
 
-We can represent planning tasks in STRIPS using~\sas by converting each fact to a state variable with domain true and false. On the other hand, \sas can be represented in STRIPS by converting each possible variable assignment to a fact.
+We can represent planning tasks in STRIPS using~\sas by converting each fact to a state variable with domain true and false. On the other hand, \sas can be represented in STRIPS by converting each possible variable assignment to a fact. Note that \sas supports partial assignments while STRIPS assumes that all states are complete (unmentioned facts are considered false).
+
+\sas tasks are more concise than STRIPS tasks. In STRIPS, if we have $n$ facts, the size of the state space would be $2^n$. In \sas,  with $n$ variables, the size of the state space would be $dom(v_{1}) \times dom(v_{2}) \times \ldots \times dom(v_{n})$.
 
 %\subsection{PDDL}
 %\label{sec:background-pddl}
@@ -462,7 +463,7 @@ For example, let $\mathcal{F}$ be a set of facts, and let $f_i, f_j \in \mathcal
 
 \section{Greedy Best-First Search}
 \label{sec:background-gbfs}
-Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorithm typically used by planners to solve planning tasks by expanding the \fsp. GBFS organizes states in a priority queue based on their cost-to-goal estimate, which is determined by the heuristic function. GBFS expands states with the \emph{lowest} cost-to-goal estimate first in order to find a solution. Unlike the \astar algorithm~\cite{Hart.etal/1968}, GBFS does not consider the cost of the path taken. This makes GBFS efficient when the heuristic function is accurate, but it sacrifices optimality guarantees, whereas~\astar is optimal when the heuristic used is both admissible and consistent.
+Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorithm typically used by planners to solve planning tasks by expanding the \fsp. GBFS organizes states in a priority queue based on their cost-to-goal estimate, which is determined by the heuristic function. GBFS expands states with the \emph{lowest} cost-to-goal estimate first in order to find a solution. Unlike the \astar algorithm~\cite{Hart.etal/1968}, GBFS does not consider the cost of the path taken ($g$-value). This makes GBFS efficient when the heuristic function is accurate, but it sacrifices optimality guarantees, whereas~\astar is optimal when the heuristic used is both admissible and consistent.
 
 \begin{algorithm}[tb]
 \caption{Greedy best-first search (GBFS)}
@@ -569,10 +570,8 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 
 
 The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs -- compatible with \sas -- instead of relaxed planning graphs, where the preferred operators obtained with the calculation of the FF heuristic are the current best. %A DTG is defined as follows. \ppi{Should I remove the definition of DTGs? Should I even mention DTGs? Or should I just say something like ``For more details on DTGs, see Helmert 2009''?}
-
 %Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
 %To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
-
 To support preferred operators and assure the search is complete, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue. In Fast Downward, the first expansion of the search is always from the default queue. Also, there are cases where a preferred operators generates a successor state that has already been generated. Consequently, the state is not added to the preferred queue, which means it cannot be expanded first (as the preferred queue has higher priority), and another state, potentially further from the goal, is expanded instead.
 
 \section{Neural Networks}
@@ -615,7 +614,7 @@ An example of a simple fully-connected NN is shown in~\cref{fig:neural-network}.
 \caption[A fully-connected neural network]{A neural network with $n$ input neurons, two hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
 \vspace{\baselineskip}
 \centering
-\begin{tikzpicture}[x=1.5cm,y=1.0cm,scale=0.75]
+\begin{tikzpicture}[x=1.5cm,y=1.0cm,scale=0.9]
 
 \foreach\i in {1,2,3}
   \node[input]  (x\i)  at (0,-1.5*\i)       {$x_\i$};
@@ -688,7 +687,7 @@ where $\mathcal{F}$ represents a residual function, typically implemented as a f
 \caption[A residual block]{A residual block with two hidden layers.}
 %\vspace{\baselineskip}
 \centering
-\begin{tikzpicture}[scale=0.70]
+\begin{tikzpicture}[scale=1.0]
   \node[fill=myorange!30] (l1) {layer 1};
   \node[blue!50!black, right=of l1, label={below:activation}] (act1) {$a(x)$};
   \node[fill=myblue!30, right=of act1] (l2) {layer 2};
@@ -880,17 +879,15 @@ Every state $s$ that has a plan is associated with at least one preferred operat
 
 \begin{property}
 \label{prop:ideal-optimal}
-In a task without dead-ends, GBFS only expands states on an optimal path if using a safe heuristic function, ideal preferred operators, tie-breaking by larger g-value, and starting with infinite boost (only states from the preferred queue are expanded during search).
+GBFS only expands states on an optimal path in dead-end-free tasks by using a safe heuristic function, ideal preferred operators, tie-breaking with larger $g$-value, and exclusively expanding states from the preferred queue.
 \end{property}
 
 \ppi{Sound? Also, since we're expanding by ideal POs, I don't think we need ``without dead-ends'' mentioned in the property. Isn't ``safe heuristic'' enough?}
 \begin{proof}
 We will prove this property by contradiction.
 
-Assume that during the search, GBFS with the specified conditions expands a state $t$ that is not on an optimal path from $s_0$ to $s^*$. %Let us denote this non-optimal path as $\pi_s$ and its length as $|\pi_s|$.
+Assume that during the search, GBFS with the specified conditions expands a state $t$ that is not on an optimal path from $s_0$ to $s^*$.
 Since we are only expanding by ideal preferred operators, $t$ was generated from a predecessor $s$, i.e., $\sucs(s, o) = t$. Therefore, we have $s \xrightarrow{o} t$.
-
-%Now, consider an ideal preferred operator $o$ that generates a successor state $t$ from $s$, i.e., $\sucs(s, o) = t$. Since $s$ is expanded during the search, it must have been generated by an operator $o'$ applied to some predecessor state $p$. Therefore, we have $p \xrightarrow{o'} s \xrightarrow{o} t$.
 
 According to the definition of an ideal preferred operator, we have $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$, i.e., successors generated via ideal preferred operators always have the minimum \hstar-value among all its siblings. Since $t$ is not on an optimal path, it must mean that (i) $t$ is not the successor of $s$ with minimum \hstar-value, or (ii) $s$ itself was already on a non-optimal path. Either way, this contradicts our initial assumption that GBFS with the conditions in~\cref{prop:ideal-optimal} expands states on a non-optimal path.
 \end{proof}
@@ -918,35 +915,40 @@ In the graph $G$, each arc represents an applicable operator between two sampled
 Let $G = (V, A)$ be a graph representing a set of samples, and let $G' = (V, A')$ be the shortest path directed acyclic graph generated using Dijkstra's algorithm. Dijkstra's algorithm is applied to $G$ to find the shortest path from the goal condition to each vertex $v \in V$. For each vertex $v$, the arcs in $A$ that belong to a shortest path to $v$ are included in $A'$. The discovered preferred operators of the set of states $s$ (since $s$ is a partial state with undefined variables) are the operators represented by the outgoing arcs $a \in A'$ of the vertex labeled by $s$.
 \end{definition}
 
-The quality of the discovered preferred operators depend on the quality of the shortest paths. The quality of these paths, in turn, relies on the accuracy of the $h$-values assigned to each sampled state.\pp{Need to expand this. Show how h-values are computed and show h-values in the example.}
-Furthermore, a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$.
+The quality of the shortest paths relies on the accuracy of the $h$-values assigned to each sampled state, since they influence the construction of the shortest path graph $G'$. If the $h$-values are accurate (close to \hstar), the algorithm is more likely to prioritize the paths that are truly the shortest to reach the goal condition. However, if the $h$-values are inaccurate, the algorithm may be misled and prioritize suboptimal paths, leading to lower-quality (or missing) discovered preferred operators.
+Furthermore, a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$. In the same example, suppose $s_{3}$ had an inaccurate $h$-value of $4$ instead of $2$. In this case, we would fail to ``discover'' operator $o_{2}$ as a preferred operator.
 
 \begin{figure}[tb]
-\caption[Example sample set graph with two shortest paths]{Example samplet set graph with two shortest paths (red, orange) from $s_{1}$ to the goal $s^{*}$.}
+\caption[Example sample set graph with two shortest paths]{Example samplet set graph with two shortest paths (red, orange) from $s_{1}$ to the goal $s^{*}$. The $h$-value of each state is in parenthesis.}
 \centering
 \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,semithick]
   \tikzstyle{state}=[circle,draw,minimum size=1cm]
 
-  \node[state] (s1) {$s_1$};
-  \node[state] (s2) [right of=s1] {$s_2$};
-  \node[state] (s3) [below right of=s1] {$s_3$};
-  \node[state] (s4) [right of=s2] {$s_4$};
-  \node[state] (s5) [right of=s3] {$s_5$};
-  \node[state] (s6) [below right of=s4] {$s_6$};
-  \node[state] (s7) [right of=s6] {$s_7$};
-  \node[state] (s8) [below left of=s7] {$s^*$};
+  \node[state] (s1) {$s_1$ (3)};
+  \node[state] (s2) [right of=s1] {$s_2$ (4)};
+  \node[state] (s3) [below right of=s1] {$s_3$ (2)};
+  \node[state] (s4) [below left of=s3] {$s_4$ (3)};
+  \node[state] (s5) [right of=s4] {$s_5$ (2)};
+  \node[state] (s6) [right of=s2] {$s_6$ (3)};
+  \node[state] (s7) [right of=s3] {$s_7$ (1)};
+  \node[state] (s8) [below right of=s6] {$s_8$ (2)};
+  \node[state] (s9) [right of=s8] {$s_9$ (1)};
+  \node[state] (s10) [below left of=s9] {$s^*$ (0)};
 
   \path (s1) edge node[above] {$o_{1}$} (s2);
   \path [->, color=myorange] (s1) edge node[left] {$o_{2}$} (s3);
-  \path [->, color=myred] (s1) edge [bend left=70] node[above] {$o_{3}$} (s6);
-  \path (s2) edge node[above] {$o_{4}$} (s4);
-  \path (s3) edge [draw=myorange] node[below] {$o_{5}$} (s5);
-  \path (s4) edge node[right] {$o_{6}$} (s6);
-  \path (s4) edge node[above] {$o_{7}$} (s3);
-  \path (s5) edge node[above] {$o_{8}$} (s6);
-  \path (s5) edge [draw=myorange] node[below] {$o_{9}$} (s8);
-  \path (s6) edge [draw=myred] node[above] {$o_{10}$} (s7);
-  \path (s7) edge [draw=myred] node[right] {$o_{11}$} (s8);
+  \path [->, color=myred] (s1) edge [bend left=70] node[above] {$o_{3}$} (s8);
+  \path (s2) edge node[above] {$o_{7}$} (s6);
+  \path (s3) edge [draw=myorange] node[below] {$o_{8}$} (s7);
+  \path (s3) edge node[left] {$o_{4}$} (s4);
+  \path (s4) edge node[below] {$o_{5}$} (s5);
+  \path (s5) edge node[right] {$o_{6}$} (s7);
+  \path (s6) edge node[right] {$o_{9}$} (s8);
+  \path (s6) edge node[above] {$o_{10}$} (s3);
+  \path (s7) edge node[above] {$o_{11}$} (s8);
+  \path (s7) edge [draw=myorange] node[below] {$o_{12}$} (s10);
+  \path (s8) edge [draw=myred] node[above] {$o_{13}$} (s9);
+  \path (s9) edge [draw=myred] node[right] {$o_{14}$} (s10);
 \end{tikzpicture}
 \label{fig:spg-example}
 \end{figure}
@@ -1126,21 +1128,24 @@ Since in this work we are only interested in the effects of learned preferred op
 % Clear, objective description of this section
 This section compares task-solving performance with and without preferred operators using several configurations: \hstar, which represents the perfect heuristic; \hnn, which is a learned heuristic without preferred operators; \postartable, an oracle of ideal preferred operators; \postar, learned ideal preferred operators; \pogstar, discovered preferred operators using \hstar for shortest path distance calculation; and \pog, discovered preferred operators using Dijkstra's algorithm for shortest path distance calculation. The learned ideal preferred operators \postar were trained over the complete \fsp of each task, while the discovered operators \pogstar and \pog were trained on a $1\,\%$ sample set obtained through regression.
 
+
+This section compares task-solving performance with several configurations. We present results using GBFS guided by the perfect heuristic \hstar and the learned heuristic \hnn, with and without preferred operators. We use two classes of preferred operators. The first class represents the ideal preferred operators \postartable and \postar, where \postartable is an oracle and \postar was trained over the complete \fsp of each task. The second class represents the proposed approach with learned discovered operators \pogstar and \pog, which were trained on a $1\,\%$ sample set obtained through regression, the only difference being that \pogstar has \hstar-values for each sample.
+
 \input{tables/learning_perfect_pos}
 
 % General comparison
 \cref{tab:learning_perfect_pos} shows that all approaches using preferred operators lead to fewer expansions compared to using only the learned heuristic \hnn. In particular, the ideal preferred operators \postartable and \postar closely approach the optimal expansion values with \hstar.
 The ideal preferred operators serve as performance limits, representing the best achievable results as defined in \cref{sec:sample-ideal-po}. When comparing the learned ideal preferred operators \postar with the oracle \postartable, we find that the NN can learn the preferred operators for the entire state space in all domains, except for Blocks World and N-Puzzle, where performance degrades but remains better than \hnn.
 
-The learned ideal preferred operators \postar outperform using only the learned heuristic \hnn in all domains. They significantly reduce the number of expansions by over $50\,\%$ in Grid, N-Puzzle, and Scanalyzer. Conversely, when we reduce the learned state space to $1\,\%$ and use the shortest path graph $G'$ to identify preferred operators, \pog exhibits an increase of approximately $73\,\%$ in the geometric mean of expanded states compared to ideal preferred operators \postar. However, the learned discovered preferred operators \pog expand fewer states than \hnn in all domains except Grid and Scanalyzer, with improvements in mean expansions of approximately $25\,\%$ and $34\,\%$ observed in Blocks World and N-Puzzle, respectively.
+The learned ideal preferred operators \postar outperform using only the learned heuristic \hnn in all domains. They significantly reduce the number of expansions by over $50\,\%$ in Grid, N-Puzzle, and Scanalyzer. Conversely, when we reduce the learned state space to $1\,\%$ and use the shortest path graph $G'$ to identify preferred operators, the proposed approach~\pog exhibits an increase of approximately $73\,\%$ in the geometric mean of expanded states compared to the learned ideal preferred operators \postar. Still, \hnn with \pog expand fewer states than using only \hnn in all domains except Grid and Scanalyzer, with improvements in mean expansions of approximately $25\,\%$ and $34\,\%$ observed in Blocks World and N-Puzzle, respectively.
 
 %The effectiveness of preferred operators may inversely correlate with the quality of the heuristic function. When the heuristic function is nearly optimal, the inclusion of preferred operators can potentially interfere with the search process. In \cref{sec:other-heuristic-functions}, we explore the outcomes observed when using different logic-based heuristics with varying levels of quality.
 
 % Particular comparisons and anomalies
-When comparing the discovered preferred operators \pogstar to \pog, both have close results despite \pogstar using the perfect heuristic \hstar to calculate the shortest paths in the sample set. The reason for this similarity is that the arcs in the shortest path graph $G'$ for \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods tend to have similar preferred operators, indicating that they are likely to have similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different preferred operators in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. As seen in \cref{tab:learning_perfect_pos}, this difference is negligible for Scanalyzer and VisitAll, where \pogstar and \pog differ by less than one expansion on average. This result indicates that extracting preferred operators from the shortest path graph $G'$ with quality similar to ideal preferred operators is possible even without \hstar-values.
+When comparing the discovered preferred operators \pogstar to \pog, both have close results despite \pogstar using the perfect heuristic \hstar to calculate the shortest paths in the sample set. The reason for this similarity is that the arcs in the shortest path graph $G'$ for \pog are largely retained when compared to \pogstar, and equivalent states in the sample sets of both methods tend to have similar preferred operators, indicating that they are likely to have similar shortest paths to follow. In particular, close to $100\,\%$ of the samples have the same set of preferred operators in \pogstar and \pog in all domains except Scanalyzer ($92\,\%$) and VisitAll ($68\,\%$). For all states with different preferred operators in all domains, the preferred operators of \pog are a subset of the preferred operators of \pogstar. As seen in \cref{tab:learning_perfect_pos}, this difference is negligible for Scanalyzer and VisitAll, where \pogstar and \pog differ by less than one expansion on average. This result indicates that discovering preferred operators from the shortest path graph $G'$ with quality similar to ideal preferred operators is possible even without \hstar-values.
 
 %Summary of the section
-In this experiment, we determined that learned heuristics can achieve a performance limit of approximately $50\,\%$ reduction in expansions when using preferred operators. We demonstrated the effectiveness of learning high-quality preferred operators that enhance sub-optimal heuristics. The ideal preferred operators \postar outperformed \hnn in all domains, while the learned discovered preferred operators \pog outperformed \hnn in five out of seven domains, improving the geometric mean by approximately $13\,\%$.
+In this experiment, we determined that learned heuristics can achieve a performance limit of approximately $50\,\%$ reduction in expansions when using preferred operators. We demonstrated the effectiveness of learning high-quality preferred operators that enhance sub-optimal heuristics. The learned ideal preferred operators \postar outperformed \hnn in all domains, while the proposed approach \pog outperformed \hnn in five out of seven domains, improving the geometric mean by approximately $13\,\%$.
 
 \section{Discovering Preferred Operators on Different Sample Set Sizes}
 \label{sec:exp-performance-po}
@@ -1154,10 +1159,10 @@ As shown in~\cref{sec:background-preferred-operators}, in Fast Downward, repeate
 
 Training with $5\,\%$ of the sample set size is sufficient to achieve fewer expansions on average compared to \poff. The learned preferred operators \pog can outperform logic-based ones given a large enough sample set size. Specifically, with $5\,\%$, we achieve better results than \poff except in Grid ($53.0$ vs. $32.7$) and Scanalyzer ($18.1$ vs. $17.1$). However, as the sample size increases, we eventually surpass \poff in all domains. Moreover, the use of logic-based preferred operators \poff leads to degraded performance in N-Puzzle compared to \hnn, while using \pog with a $1\,\%$ sample set substantially improves it.
 
-\cref{fig:errors} shows the standard deviations for the expansions in~\cref{tab:learning_discovered_pos}. Smaller sample sets generally exhibit higher variability in the number of expanded states. For instance, with a $1\,\%$ sample set size, Blocks World, Grid, N-Puzzle, and Scanalyzer have standard deviations of approximately $12$, $27$, $8$, and $10$, respectively. As the sample set size increases, the standard deviation decreases, except for Blocks World, which maintains a standard deviation of approximately $10$. Notably, all domains, except Blocks World, have standard deviation values close to one for sample set sizes of $20\,\%$ and above.
+\cref{fig:errors} shows the standard deviations for the expansions in~\cref{tab:learning_discovered_pos}. Smaller sample sets generally exhibit higher variability in the number of expanded states. For instance, with a $1\,\%$ sample set size, Blocks World, Grid, N-Puzzle, and Scanalyzer have standard deviations of approximately $12$, $27$, $8$, and $10$, respectively. As the sample set size increases, the standard deviation decreases, except for Blocks World, which maintains a standard deviation of approximately $10$. Notably, all domains, except Blocks World, have standard deviation values close to one for sample set sizes of $20\,\%$ and above. \citet{Bettker.etal/2022} also observed similar variability in their results.
 
 \begin{figure}[tb]
-  \caption[Standard deviation of expansions using \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by different heuristics with \pog trained using sample sets of different sizes.}
+  \caption[Standard deviation of expansions using \hnn with \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by \hnn with \pog trained using sample sets of different sizes.}
   \centering
   \vspace{\baselineskip}
   \begin{subfigure}{0.41\textwidth}
@@ -1210,7 +1215,7 @@ Training with $5\,\%$ of the sample set size is sufficient to achieve fewer expa
 \label{sec:exp-comparison-sample-method}
 In this experiment, we compare the number of expansions between two methods for discovering operators. The first method is the sampling approach proposed in \cref{sec:sample-discovered-po}, while the second method is the one introduced by~\citet{Bettker.etal/2022} and described in \cref{sec:sample-learn-h} (differently from learning \hnn, we exclude randomly generated samples since they are not necessarily generated by applicable operators).
 
-\cref{tab:comparison_sample} shows the results. The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onwards) and VisitAll. Considering all the sample set sizes, \pog has about $14\,\%$ fewer expansions on average. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average, highlighting the efficiency of \bfsrs in contrast to \bfsrw when it comes to learning preferred operators.
+\cref{tab:comparison_sample} shows the results. The learned preferred operators \pog consistently expands fewer states than \pofsm, except for Blocks World (from $20\,\%$ onward) and VisitAll. Considering all the sample set sizes, \pog has about $14\,\%$ fewer expansions on average. Notably, \pofsm needs ten times the number of samples (e.g., $50\,\%$ vs. $5\,\%$) to achieve comparable results to \pog on average, highlighting the efficiency of \bfsrs in contrast to \bfsrw when it comes to learning preferred operators.
 
 In~\vref{sec:sample-learn-po} we mention~\bfsrw has many repeated states, which are not considered when constructing the shortest path graph. To provide quantitative insights, we examined a sample set size of $5\,\%$ consisting of samples with partial states (no completion). While $100\,\%$ of the states generated by \bfsrs in all domains are unique, for \bfsrw the percentages of unique states are as follows: $72\,\%$ in Blocks World, $84\,\%$ in Grid, $96\,\%$ in N-Puzzle, $58\,\%$ in Rovers, $89\,\%$ in Scanalyzer, $96\,\%$ in Transport, and $86\,\%$ in VisitAll.
 
@@ -1225,7 +1230,37 @@ We now examine the effects of using the learned preferred operators \pog, traine
 
 Using the learned preferred operators \pog with the \hgc heuristic reduces the number of expansions from $124.9$ to $41.4$. This performance is competitive with the baseline \hff and \hadd heuristics, and it yields fewer expansions in Blocks World, N-Puzzle, and VisitAll. Also, when using \hgc with \pog trained on a $5\,\%$ sample set size, we achieve a geometric mean of $28.1$, which is about $25\,\%$ lower than the results obtained with the baseline \hff and \hadd heuristics. This highlights that using preferred operators can lead to more significant performance improvements in task-solving compared to changing to a more informed heuristic, as previously noted by~\citet{Correa.etal/2022}\pp{Unfortunately I just discovered that this is not really news as we previously thought.}.
 
-Furthermore, the less informed the heuristic is, the less helpful \poff is. Remarkably, Blind with \pog reduces the number of expansions by approximately $99\,\%$, whereas \poff reduces the expansions by about $66\,\%$. Overall, this demonstrates the greater flexibility of \pog with different heuristics.
+Furthermore, the less informed the heuristic is, the less helpful \poff is. Remarkably, Blind with \pog reduces the number of expansions by approximately $99\,\%$, whereas \poff reduces the expansions by about $66\,\%$. Overall, this demonstrates the greater flexibility of \pog with different heuristics. We show the standard deviation of expansions for each domain in~\cref{fig:errors-logic}, where we see that the heuristic function has greater influence over the standard deviation compared to~\pog.
+
+\begin{figure}[tb]
+  \caption[Standard deviation of expansions using logic-based heuristics with \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by different logic-based heuristics and \pog trained on a $1\,\%$ sample set size.}
+  \centering
+  \vspace{\baselineskip}
+  \begin{subfigure}{0.41\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hFF_poG_1pct.pdf}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.41\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hADD_poG_1pct.pdf}
+  \end{subfigure}
+
+  \vspace{0.5cm}
+
+  %\hfill
+  \begin{subfigure}{0.41\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_hGC_poG_1pct.pdf}
+  \end{subfigure}
+  \begin{subfigure}{0.41\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/error_blind_poG_1pct.pdf}
+  \end{subfigure}
+  %\hfill
+  \label{fig:errors-logic}
+\end{figure}
+
 
 \chapter{Conclusion}
 \label{cha:conclusion}
