@@ -448,10 +448,9 @@ A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}
 Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map of some state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
 
 In this study, we use a propositional representation of a state to learn heuristic functions and preferred operators. Consider a planning task denoted as $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$. Here, $\mathcal{V}=\{v_1,\ldots,v_n\}$ represents a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ represents the domains of variable $v_i$, with $i\in[n]$. We represent a state $s$ as a sequence of facts
-% The domain consists of possible values that $v_i$ can take. The values are represented as $d_{i1}$ to $d_{i,s_i}$, where $s_i$ indicates the number of possible values for $v_i$.
 $\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n})$, where each fact $f_{ij}=[s(v_i)=d_{ij}]$ corresponds to a variable $v_i$ taking on a specific value $d_{ij}$ in state $s$. The fact $f_{ij}$ is true if and only if the variable $v_i$ has the assigned value $d_{ij}$ in state $s$. The facts $\mathcal{F}_i=\{f_{i1},\ldots,f_{i,s_i}\}$ corresponding to variable $v_i$ adhere to the consistency condition $\sum_{f\in \mathcal{F}_i} f\leq 1$, as each variable can take at most one value, and $\sum_{f\in \mathcal{F}_i} f=0$ when $v_i$ is undefined.
 
-For example, let $\mathcal{F}$ be a set of facts, and let $f_i, f_j \in \mathcal{F}$ be two facts. We say that $f_i$ and $f_j$ are mutex if $\neg(f_i \land f_j)$ holds, i.e., $f_i$ and $f_j$ cannot both be true at the same time in any valid state of the planning problem. In general, we express $\mutex(\mathcal{F})$ when the constraint $\sum_{f\in \mathcal{F}} [f]\leq 1$ must be satisfied within the states of $\Pi$. Planning systems can typically deduce mutexes from the description of the planning task~\cite{Helmert/2009}.
+For example, let $\mathcal{F}$ be a set of facts, and let $f_i, f_j \in \mathcal{F}$ be two facts. We say that $f_i$ and $f_j$ are mutex if $\neg(f_i \land f_j)$ holds, i.e., $f_i$ and $f_j$ cannot both be true at the same time in any valid state of the planning problem. In general, we express $\mutex(\mathcal{F})$ when the constraint $\sum_{f\in \mathcal{F}} [f]\leq 1$ must be satisfied within the states of $\Pi$.
 
 
 \section{Greedy Best-First Search}
@@ -807,7 +806,7 @@ After finishing regression,~\citet{Bettker.etal/2022} improve the cost-to-goal e
 \label{sec:sample-completion}
 Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
 Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
-As~\citet{Bettker.etal/2022} and~\citet{Ferber.etal/2022}, to complete partial states, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in random order and assign them random values that do not violate the mutexes. If we cannot complete the state after $10$\,K attempts, we set the undefined variables to false.
+As~\citet{Bettker.etal/2022} and~\citet{Ferber.etal/2022}, to complete partial states, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in random order and assign them random values that do not violate the mutexes. If we cannot complete the state after $10$\,K attempts, we set the undefined variables to false. We use the mutexes deduced by Fast Downward~\cite{Helmert/2006,Helmert/2009}.
 
 \section{Improving Cost-to-Goal Estimates}
 \label{sec:sample-improving-h}
