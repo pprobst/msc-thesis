@@ -238,7 +238,7 @@ Para obter uma compreensão mais aprofundada sobre essa nova categoria de operad
 \begin{listofsymbols}{$\alpha\beta\pi\omega$}
        %\item[$G$] Sample set graph
        %\item[$G'$] Shortest path sample set graph
-       \item[$d^{*}$] Longest distance between the goal condition and any potential initial state
+       \item[$d^{*}$] Longest distance between the goal condition and any initial state
        \item[\h] Heuristic
        \item[\hstar] Perfect heuristic
        \item[\hnn] Learned heuristic
@@ -457,15 +457,15 @@ For example, let $\mathcal{F}$ be a set of facts, and let $f_i, f_j \in \mathcal
 
 \section{Greedy Best-First Search}
 \label{sec:background-gbfs}
-Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorithm typically used by planners to solve planning tasks by expanding the \fsp. GBFS organizes states in a priority queue based on their cost-to-goal estimate, which is determined by the heuristic function. GBFS expands states with the \emph{lowest} cost-to-goal estimate first in order to find a solution. Unlike the \astar algorithm~\cite{Hart.etal/1968}, GBFS does not consider the cost of the path taken ($g$-value). This makes GBFS efficient when the heuristic function is accurate, but it sacrifices optimality guarantees, whereas~\astar is optimal when the heuristic used is both admissible and consistent.
+Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorithm typically used by planners to solve planning tasks by expanding the \fsp. GBFS organizes states in a priority queue based on their cost-to-goal estimate, which is determined by a heuristic function $h$. GBFS expands states with the \emph{lowest} cost-to-goal estimate first in order to find a solution. Unlike the \astar algorithm~\cite{Hart.etal/1968}, GBFS does not consider the cost of the path taken ($g$-value). This makes GBFS efficient when the heuristic function is accurate, but it sacrifices optimality guarantees, whereas~\astar is optimal when the heuristic used is both admissible and consistent.
 
 \begin{algorithm}[tb]
-\caption{Greedy best-first search (GBFS)}
+\caption{Greedy best-first search}
 \label{alg:gbfs}
 \begin{algorithmic}[1]
-\Procedure{GBFS}{$\Pi, \text{heuristic function}~h$}
+\Procedure{GBFS}{$s_{0}, s^{*}, h$}
   \State $Q \gets$ priority queue ordered by lowest $h$
-  \If{$h(s') < \infty$}
+  \If{$h(s_{0}) < \infty$}
     \State Insert $s_0$ into $Q$ with priority $h(s_0)$
     \State Mark the initial state $s_0$ as visited
   \EndIf
@@ -496,7 +496,9 @@ Greedy Best-First Search (GBFS, \cref{alg:gbfs}) is a best-first search algorith
 \label{sec:background-preferred-operators}
 
 Preferred operators can be described as operators that, given a particular state $s$, tend to generate successors more likely to satisfy the goal condition when compared to other successors of $s$. Preferred operators provide a way to prioritize the expansion of certain states over others during the search. Although the method of identifying preferred operators varies,~\citet{Hoffmann.Nebel/2001} introduced the first approach in the original Fast-Forward (FF), where preferred operators are calculated alongside the FF heuristic.
-Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. To extract the relaxed plan, the algorithm marks the goal facts that need to be achieved at each layer $k$ of the relaxed planning graph, then iterate from the last layer to the initial layer, marking the actions at layer $k$ that achieve the goal facts of the same layer. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state and contribute to achieving at least one goal fact at the first layer of the relaxed plan. In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determine if there is none, and FF restarts without preferred operators if they fail.\footnote{\cref{alg:computing-rpg,alg:extracting-relaxed-plan} were modified from~\citet{Wickler.etal/2015}.}
+Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:computing-rpg}) that represents the relaxed task, i.e., ignoring delete-effects. From the relaxed planning graph, FF extracts the relaxed plan~(\cref{alg:extracting-relaxed-plan}) with its length as the cost-to-goal estimate for a state $s$. To extract the relaxed plan, the algorithm marks the goal facts that need to be achieved at each layer $k$ of the relaxed planning graph, then iterate from the last layer to the initial layer, marking the actions at layer $k$ that achieve the goal facts of the same layer. The preferred operators, then called \emph{helpful actions}, are defined as the set $\{o \mid pre(o) \subseteq s, add(o) \cap S_{k=1}^{*} \neq \emptyset \}$, where $S_{k=1}^{*}$ denotes the set of goal facts at layer $1$ of the relaxed plan. In summary, the preferred operators of the FF planner are a subset of all possible operators that satisfy two conditions: they can be applied given the current state and contribute to achieving at least one goal fact at the first layer of the relaxed plan.
+
+In the original implementation of the FF planner, the preferred operators prune the search space and only evaluate successors generated via preferred operators. However, this makes the search incomplete~\cite{Richter.Helmert/2009}, i.e., it does not guarantee a solution or determine if there is none, and FF restarts without preferred operators if they fail.\footnote{\cref{alg:computing-rpg,alg:extracting-relaxed-plan} were modified from~\citet{Wickler.etal/2015}.}
 
 \begin{algorithm}[tb]
 \caption{Computing the relaxed planning graph}
@@ -568,7 +570,9 @@ Specifically, the FF planner computes a relaxed planning graph~(\cref{alg:comput
 The current approach to extract preferred operators is the one implemented in the Fast Downward planning system~\cite{Helmert/2009}, based on so-called domain transition graphs -- compatible with \sas -- instead of planning graphs as previously described, where the preferred operators obtained with the calculation of the FF heuristic are the current best. %A DTG is defined as follows.
 %Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
 %To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
-To support preferred operators and assure the search is complete, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue. In Fast Downward, the first expansion of the search is always from the default queue. Also, there are cases where a preferred operators generates a successor state that has already been generated. Consequently, the state is not added to the preferred queue, which means it cannot be expanded first (as the preferred queue has higher priority), and another state, potentially further from the goal, is expanded instead.
+To support preferred operators and assure the search is complete, Fast Downward extends the textbook implementation of GBFS (\cref{alg:gbfs}) to use a dual-queue approach. In this setup, there are two queues: the ``default queue'' receives all generated states (representing the default behavior without preferred operators), and the ``preferred queue'' only accepts states generated by preferred operators. States are expanded from both queues in an alternating manner or may use \emph{boosting}~\cite{Richter.Helmert/2009}. With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
+
+In Fast Downward, the first expansion of the search is always from the default queue, so even if we have perfect preferred operators, the plan may not be optimal if the heuristic is inaccurate. Also, there are cases where a preferred operators generates a successor state that has already been generated. Consequently, the state is not added to the preferred queue, which means it cannot be expanded first (as the preferred queue has higher priority), and another state, potentially further from the goal, is expanded instead.
 
 \section{Neural Networks}
 \label{sec:background-neural-nets}
@@ -1182,7 +1186,7 @@ Using the learned preferred operators \pog with the \hgc heuristic significantly
 Furthermore, the less informed the heuristic is, the less helpful \poff is. Remarkably, Blind with \pog reduces the number of expansions by approximately $99\,\%$, whereas \poff reduces the expansions by about $66\,\%$. Overall, this demonstrates the greater flexibility of \pog with different heuristics. We also show the standard deviation of expanded states for each domain in~\cref{fig:errors-logic}, where we see that the heuristic function has greater influence over the standard deviation compared to~\pog, which remains fixed.
 
 \begin{figure}[tb]
-  \caption[Standard deviation of expansions using logic-based heuristics with \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by different logic-based heuristics and \pog trained on a $1\,\%$ sample set size.}
+  \caption[Standard deviation of expansions using logic heuristics with \pog]{Mean number of expansions and its standard deviation per domain for GBFS guided by different logic-based heuristics and \pog trained on a $1\,\%$ sample set size.}
   \centering
   \vspace{\baselineskip}
   \begin{subfigure}{0.41\textwidth}
@@ -1233,7 +1237,7 @@ Overall, this work opens up new possibilities for improving heuristic search in 
 \chapter{Maximum Regression Depth with \bfsrs}
 \label{cha:max_reg_depth}
 
-\cref{tab:regression-limits} shows the maximum regression depth reached ($h$-value) found in samples generated with \bfsrs using different sample set sizes, compared with the longest distance \distfarthest between the goal condition and any potential initial state in the forward state space, and the regression limit $L$ by \citet{Bettker.etal/2022}.
+\cref{tab:regression-limits} shows the maximum regression depth reached ($h$-value) found in samples generated with \bfsrs using different sample set sizes, compared to the longest distance \distfarthest between the goal condition and any potential initial state in the forward state space, and the regression limit $L$ by \citet{Bettker.etal/2022}.
 
 \input{tables/regression_depth}
 
