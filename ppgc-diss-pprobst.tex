@@ -854,7 +854,7 @@ We will prove this property by contradiction.
 Let $\mathcal{P}$ denote the set of all optimal paths from $s_{0}$ to $s^{*}$. Assume that when GBFS is run with the specified conditions, there exists a state $t$ that is expanded from the preferred queue but does not belong to any path $p \in \mathcal{P}$.
 Since we are only expanding by ideal preferred operators, $t$ was generated from a predecessor $s$, i.e., $\sucs(s, o) = t$. Therefore, we have $s \xrightarrow{o} t$.
 
-According to the definition of an ideal preferred operator, we have $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$, i.e., successors generated via ideal preferred operators always have the minimum \hstar-value among all its siblings. Since $t$ is not on an optimal path, it must mean that (i) $t$ is not the successor of $s$ with minimum \hstar-value, or (ii) $s$ itself was already on a non-optimal path. Either way, this contradicts our initial assumption that GBFS with the conditions in~\cref{prop:ideal-optimal} expands a state not a in any optimal path.
+According to the definition of an ideal preferred operator, we have $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$, i.e., successors generated via ideal preferred operators always have the minimum \hstar-value among all its siblings. Since $t$ is not on an optimal path, it must mean that (i) $t$ is not the successor of $s$ with minimum \hstar-value, or (ii) $s$ itself was already on a non-optimal path. Either way, this contradicts our initial assumption that GBFS with the conditions in~\cref{prop:ideal-optimal} expands a state not in any optimal path.
 \end{proof}
 
 %We will prove the property by contradiction.
