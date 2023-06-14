@@ -715,7 +715,7 @@ This set of approaches offers the advantage of requiring less computational reso
 Regarding sampling by backward search,~\citet{Yu.etal/2020} use depth-first search,~\citet{OToole/2022} use random walks, and~\citet{Bettker.etal/2022} use a combination of breadth-first search and random walks. In these cases, the cost-to-goal estimates are assigned as the lowest distance from the goal at which the states were generated.~\citet{Ferber.etal/2022} use a combination of backward and forward searches, using bootstrap learning~\cite{Arfaee.etal/2011}.
 Specifically,~\citet{Bettker.etal/2022} introduce several cost-to-goal improvement methods to enhance sample quality and emphasize that the effectiveness of learned heuristics relies on two crucial factors: a sample set that encompasses diverse regions of the state space and accurate cost-to-goal estimates; one without the other is insufficient.
 
-In this study, we aim to use minimal domain logic. As such, we use learned heuristic functions and learned preferred operators in most experiments. In particular, we follow the second set of approaches described previously. In the following sections, we introduce relevant concepts for our proposed approach in~\cref{cha:proposed-approach}.
+In this study, we aim to use minimal domain logic. As such, we use learned heuristic functions and learned preferred operators in most experiments. In particular, we follow the second set of approaches described previously. In the following sections, we introduce relevant concepts for the proposed approach to compute sample-based preferred operators in~\cref{cha:proposed-approach}.
 
 \subsection{Generating Samples with FSM}
 \label{sec:sample-learn-h}
