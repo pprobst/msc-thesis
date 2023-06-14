@@ -413,7 +413,6 @@ If a valid regression sequence $\rho = (o_1, \ldots, o_k)$ is generated, it will
 
 \section{State Spaces}
 \label{background-state-spaces}
-
 Let $S$ be a set of states, $s_0 \in S$ be an initial state, $s^{*} \in S$ be the goal condition, and $\sucs : S \to 2^S$ be a successor function, which maps each state to a set of possible successor states and determines the available transitions. A state space is a tuple $\spp=\langle S, s_0, s^{*}, \sucs \rangle$.
 \begin{definition}[State Space of $\Pi$]
 For any planning task $\Pi$ with states $S$, initial state $s_0$, goal condition $s^{*}$, and successor function $\sucs$, the corresponding state space of $\Pi$ is denoted as $\spp(\Pi) = \langle S, s_0, s^{*}, \sucs \rangle$.
@@ -716,24 +715,11 @@ This set of approaches offers the advantage of requiring less computational reso
 Regarding sampling by backward search,~\citet{Yu.etal/2020} use depth-first search,~\citet{OToole/2022} use random walks, and~\citet{Bettker.etal/2022} use a combination of breadth-first search and random walks. In these cases, the cost-to-goal estimates are assigned as the lowest distance from the goal at which the states were generated.~\citet{Ferber.etal/2022} use a combination of backward and forward searches, using bootstrap learning~\cite{Arfaee.etal/2011}.
 Specifically,~\citet{Bettker.etal/2022} introduce several cost-to-goal improvement methods to enhance sample quality and emphasize that the effectiveness of learned heuristics relies on two crucial factors: a sample set that encompasses diverse regions of the state space and accurate cost-to-goal estimates; one without the other is insufficient.
 
-This work follows the second set of approaches, and we generate samples by backward search.
+In this study, we aim to use minimal domain logic. As such, we use learned heuristic functions and learned preferred operators in most experiments. In particular, we follow the second set of approaches described previously. In the following sections, we introduce relevant concepts for our proposed approach in~\cref{cha:proposed-approach}.
 
-
-%
-% - - - - - - - - - - - - - - - -- - - - - -
-% sample generation
-% - - - - - - - - - - - - - - - -- - - - - -
-% now we talk about the stuff we're doing
-%
-\chapter{Sample Generation for Learning Heuristic Functions}
-\label{cha:sample-gen-h}
-In this study, we aim to use minimal domain logic. As such, we use learned heuristic functions and learned preferred operators in most experiments. In particular, we present the methods to generate samples to train an NN that predicts cost-to-goal estimates ($h$-values). We also introduce relevant concepts for our proposed approach in~\cref{cha:proposed-approach}.
-
-Multiple techniques are available to generate a sample set for training NNs in planning. These techniques include search methods like breadth-first search (BFS), depth-first search (DFS), and random walk (RW). In search methods, the generation of the sample set typically begins from a source node, which is commonly the initial state for forward search or the goal condition for backward search (regression). A random sampling of the state space can also be used to generate the sample set. Unlike search methods, random sampling produces independent samples, as each state is generated without relying on previous samples. Sample distribution influences NN generalization~\cite{Ferber.etal/2020a}, which varies depending on the choice of sampling algorithm~\cite{Bettker.etal/2022}.
-
-\section{Generating Samples with FSM}
+\subsection{Generating Samples with FSM}
 \label{sec:sample-learn-h}
-To learn heuristic functions, sampled states are labeled with a cost-to-goal estimate. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal condition. In this work, we generate samples by regression, expanding the backward state space \bsp. Precisely, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple RW rollouts, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
+To learn heuristic functions, sampled states are labeled with a cost-to-goal estimate. In regression-based methods, the value assigned to a sampled state is determined by its distance to the goal condition. In this work, we generate samples by regression, expanding states in the backward state space \bsp. Precisely, we follow the best-performing approach used by~\citet{Bettker.etal/2022}, using a combination of BFS with multiple RW rollouts, named \bfsrw, which aims to achieve good coverage near the goal (\bfs) while obtaining a diverse set of samples from the remaining state space (\rw).
 
 A regression rollout refers to a sequence of partial state expansions, concluding under two conditions: when the last expanded state has no predecessors or when it reaches the regression limit (depth) $L$. The process of generating samples halts once the desired number of samples $N$ is reached. Random walks can have multiple rollouts due to the regression limit $L$, whereas BFS has a single rollout. Repeated states are not sampled and expanded during each RW rollout to avoid cycles during a backward search, and the current rollout ends abruptly if only repeated states are available to continue the search. However, repeated states are permitted between rollouts.
 
@@ -802,23 +788,23 @@ After finishing regression,~\citet{Bettker.etal/2022} improve the cost-to-goal e
 %\end{algorithmic}
 %\end{algorithm}
 
-\section{Sample Completion}
+\subsection{Sample Completion}
 \label{sec:sample-completion}
 Regression sampling generates a set of partial states with undefined variables. However, during the search, the NN is trained on and expects complete states as input.
 Each partial state can be completed by assigning a value $s(v)\in\dom(v)$ to all fact pairs $(v,s(v))$ where $s(v)=\bot$.
-As~\citet{Bettker.etal/2022} and~\citet{Ferber.etal/2022}, to complete partial states, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable. However, we ensure that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in random order and assign them random values that do not violate the mutexes. If we cannot complete the state after $10$\,K attempts, we set the undefined variables to false. We use the mutexes deduced by Fast Downward~\cite{Helmert/2006,Helmert/2009}.
+As~\citet{Bettker.etal/2022} and~\citet{Ferber.etal/2022}, we use a method that assigns a random value $s(v) \in \dom(v)$ to each undefined variable to complete partial states, ensuring that the assigned values satisfy mutexes derived from the planning task. We process the undefined variables in random order and assign them random values that do not violate the mutexes. The undefined variables are set to false if we cannot complete the state after $10$\,K attempts. We use the mutexes automatically deduced by Fast Downward~\cite{Helmert/2006,Helmert/2009}.
 
-\section{Improving Cost-to-Goal Estimates}
+\subsection{Improving Cost-to-Goal Estimates}
 \label{sec:sample-improving-h}
 Better $h$-value estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates of each sampled state,~\citet{Bettker.etal/2022} developed two methods used in this study. The first method, called \sai, minimizes estimates across repeated samples, while the second method, named \sui, minimizes estimates across the successors of samples.
 
 
-\subsection{Sample Improvement}
+\subsubsection{Sample Improvement}
 \label{sec:sample-sai}
 It is possible to generate duplicate states with different estimates due to multiple random walk rollouts. Thus, we update the cost-to-goal estimate for each sampled state $s$ to the minimum estimate $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$.
 This procedure is called ``sample improvement'' (\sai), and is applied twice: first on partial states after regression is complete, and then on the completed states, as two partial states can be transformed into the same state.
 
-\subsection{Successor Improvement}
+\subsubsection{Successor Improvement}
 \label{sec:sample-sui}
 In addition to sampling the same states, sampling neighboring states in the state space is common, especially for states close to the goal. Using the following approach, we can leverage this to enhance the cost-to-goal estimates, starting by constructing a graph $G$ containing the relations between all states in the sample set.
 
@@ -828,6 +814,13 @@ A sample set graph is a directed and labeled graph~$G = (V, A)$ defined by the s
 
 When dealing with partial states generated by regression, we can always find at least one successor, except for the goal $s^{*}$. We compute the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Subsequently, we update the cost-to-goal estimates of each state accordingly. This process is called ``successor improvement'' (\sui) and is applied after regression, before completion.
 
+
+%
+% - - - - - - - - - - - - - - - -- - - - - -
+% proposed approach
+% - - - - - - - - - - - - - - - -- - - - - -
+% now we talk about the stuff we're doing
+%
 \chapter{Proposed Approach}
 \label{cha:proposed-approach}
 In this chapter, we first introduce ideal preferred operators, then show the proposed approach for identifying preferred operators within an existing sample set. Finally, we present a sampling algorithm designed for discovering preferred operators.
