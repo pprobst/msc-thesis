@@ -842,13 +842,6 @@ If GBFS is guided by a blind heuristic function (equal value for all the expande
 
 \ppi{!}
 \begin{proof}
-Initially, the only state in the preferred queue is the initial state $s_{0}$. GBFS expands states exclusively from the preferred queue. Since $s_{0}$ is in the preferred queue, GBFS will start by expanding $s_{0}$.
-
-By \cref{def:ideal_preferred_operator}, every ideal preferred operator generates a state with the shortest cost-to-goal estimate among all successors. Therefore, when expanding $s_{0}$, GBFS will select an ideal preferred operator that leads to a successor state $t$ such that $\hstarp{t} = \min_{s' \in \sucs(s_{0})} \hstarp{s'}$. Since the conditions state that all operators have a constant cost $c$, the $g$-value of $t$ will be larger than the $g$-value of $s_{0}$. This ensures that GBFS will prioritize expanding $t$ over any other successors of $s_{0}$.
-
-The process continues by expanding $t$. At each expansion step, GBFS selects the ideal preferred operator that leads to the successor state(s) with the minimum heuristic value among all successors. It expands this successor state next, using tie-breaking by larger $g$-value. This ensures that GBFS always expands states that are part of a unique optimal path. Otherwise, if there were multiple optimal paths, GBFS would have to expand states with lower $g$-values before expanding states with higher $g$-values, which contradicts the tie-breaking strategy.
-
-Since GBFS only expands states that are part of the optimal path, and it continues this process until it reaches a goal state, it will eventually find a solution along the unique optimal path. GBFS will not expand any other states that are not part of this path.
 \end{proof}
 
 \section{Discovered Preferred Operators}
