@@ -830,37 +830,26 @@ In this chapter, we first introduce ideal preferred operators, then show the pro
 Ideally, we want preferred operators that help solve a task with the least effort, which we call ideal preferred operators.
 
 \begin{definition}[Ideal Preferred Operator]\label{def:ideal_preferred_operator}
-  An ideal preferred operator generates a state with the shortest distance to the goal among all successors. Given a state $s$ and an operator~$o \in \mathcal{O}$ where $\sucs(s,o) = t$, $o$ is an ideal preferred operator if $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
+An ideal preferred operator generates a state with the shortest distance to the goal among all successors. Given a state $s$ and an operator~$o \in \mathcal{O}$ where $\sucs(s,o) = t$, $o$ is an ideal preferred operator if $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
 \end{definition}
 
 Every state $s$ that has a plan is associated with at least one preferred operator. These preferred operators generate successor states $t$ where $\hstarp{t} < \hstarp{s}$. Thus, only goal states and dead-end states lack preferred operators.
 
 \begin{property}
 \label{prop:ideal-optimal}
-GBFS in dead-end-free tasks only expands states on an optimal path by using a safe heuristic function, ideal preferred operators, tie-breaking by larger $g$-value, and exclusively expanding states from the preferred queue.
+If GBFS is guided by a blind heuristic function (equal value for all the expanded states but goal-aware), tie-breaks by larger $g$-value, uses ideal preferred operators, exclusively expands states from the preferred queue since the beginning of the search, includes the initial state $s_{0}$ in the preferred queue, and assumes all operators of the task have a constant cost $c \in \mathbb{R}^{>0}$, then GBFS only expands states part of a unique optimal path.
 \end{property}
 
-\ppi{Sound? Also, I don't think we need ``without dead-ends'' mentioned in the property. Isn't ``safe heuristic'' enough? Since GBFS does not expand states with infinite $h$-values.}
+\ppi{!}
 \begin{proof}
-We will prove this property by contradiction.
+Initially, the only state in the preferred queue is the initial state $s_{0}$. GBFS expands states exclusively from the preferred queue. Since $s_{0}$ is in the preferred queue, GBFS will start by expanding $s_{0}$.
 
-Let $\mathcal{P}$ denote the set of all optimal paths from $s_{0}$ to $s^{*}$. Assume that when GBFS is run with the specified conditions, there exists a state $t$ that is expanded from the preferred queue but does not belong to any path $p \in \mathcal{P}$.
-Since we are only expanding by ideal preferred operators, $t$ was generated from a predecessor $s$, i.e., $\sucs(s, o) = t$. Therefore, we have $s \xrightarrow{o} t$.
+By \cref{def:ideal_preferred_operator}, every ideal preferred operator generates a state with the shortest cost-to-goal estimate among all successors. Therefore, when expanding $s_{0}$, GBFS will select an ideal preferred operator that leads to a successor state $t$ such that $\hstarp{t} = \min_{s' \in \sucs(s_{0})} \hstarp{s'}$. Since the conditions state that all operators have a constant cost $c$, the $g$-value of $t$ will be larger than the $g$-value of $s_{0}$. This ensures that GBFS will prioritize expanding $t$ over any other successors of $s_{0}$.
 
-According to the definition of an ideal preferred operator, we have $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$, i.e., successors generated via ideal preferred operators always have the minimum \hstar-value among all its siblings. Since $t$ is not on an optimal path, it must mean that (i) $t$ is not the successor of $s$ with minimum \hstar-value, or (ii) $s$ itself was already on a non-optimal path. Either way, this contradicts our initial assumption that GBFS with the conditions in~\cref{prop:ideal-optimal} expands a state not in any optimal path.
+The process continues by expanding $t$. At each expansion step, GBFS selects the ideal preferred operator that leads to the successor state(s) with the minimum heuristic value among all successors. It expands this successor state next, using tie-breaking by larger $g$-value. This ensures that GBFS always expands states that are part of a unique optimal path. Otherwise, if there were multiple optimal paths, GBFS would have to expand states with lower $g$-values before expanding states with higher $g$-values, which contradicts the tie-breaking strategy.
+
+Since GBFS only expands states that are part of the optimal path, and it continues this process until it reaches a goal state, it will eventually find a solution along the unique optimal path. GBFS will not expand any other states that are not part of this path.
 \end{proof}
-
-%We will prove the property by contradiction.
-%
-%Suppose a state $s$ expanded by GBFS from the preferred queue is not on any optimal path.
-%Let $\pi^*$ be an optimal path from the initial state $s_0$ to the goal state $s^*$. Since $s$ is not on any optimal path, there must be another path $\pi = s_0,\ldots,s,\ldots,s^*$ greater than $\pi^*$.
-%Let $s'$ be the last state on the optimal path $\pi^*$ before diverging to $\pi$, and let $s''$ be the next state on $\pi$ after diverging from $\pi^*$, i.e., $s''$ is a successor of $s'$. Note that $h^*(s') < h^*(s'')$ because a lower $h$-value determines an optimal path.
-%
-%Now, consider the situation when the search reaches $s'$ during the expansion process. At this point, $s'$ has already been expanded, and all its successors have been generated. Since $s'$ is on the optimal path, the ideal preferred operator used to generate $s''$ must have the property that $h^*(s'') = \min_{t \in \sucs(s')} h^*{(t)}$. However, we have already established that $h^*(s') < h^*(s'')$. This contradicts the definition of an ideal preferred operator, as the operator used to generate $s''$ should have the smallest $h^*$ value among all successors of $s'$. Therefore, our assumption that there exists a state not on the optimal path expanded by GBFS is false.
-
-%Since GBFS expands states in a best-first manner using ideal preferred operators, tie-breaking by larger g-value, and infinite boosting where the first expansion is a state generated by preferred operators (meaning that only states generated by preferred operators are expanded), it only explores successors with the lowest $h^*$ values. As the optimal path consists of states with the lowest $h^*$ values, GBFS will expand states only on the optimal path, ultimately reaching the goal state.
-
-%\end{proof}
 
 \section{Discovered Preferred Operators}
 \label{sec:sample-discovered-po}
@@ -873,7 +862,7 @@ Let $G = (V, A)$ be a graph representing a set of samples, and let $G' = (V, A')
 \end{definition}
 
 The quality of the shortest paths relies on the accuracy of the $h$-values assigned to each sampled state, since they influence the construction of the shortest path graph $G'$. If the $h$-values are accurate (close to \hstar), the algorithm is more likely to prioritize the paths that are truly the shortest to reach the goal condition. However, if the $h$-values are inaccurate, the algorithm may be misled and prioritize suboptimal paths, leading to lower-quality (or missing) discovered preferred operators.
-Furthermore, a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$. In the same example, suppose $s_{3}$ had an inaccurate $h$-value of $4$ instead of $2$. In this case, we would fail to ``discover'' operator $o_{2}$ as a preferred operator.
+Furthermore, a state can have multiple discovered preferred operators if it has multiple shortest paths. \cref{fig:spg-example} has an example of a sample set graph $G$ with two shortest paths from the partial state $s_{1}$ to the goal $s^{*}$. The preferred operators of $s_{1}$ are thus $\{o_{2}, o_{3}\}$. In the same example, suppose $s_{3}$ had an inaccurate $h$-value of $4$ instead of $2$. In this case, we would fail to ``discover'' operator $o_{2}$ as a preferred operator, since $s_{3}$ would have a greater $h$-value than $s_{1}$.
 
 \begin{figure}[tb]
 \caption[Example sample set graph with two shortest paths]{Example samplet set graph with two shortest paths (red, orange) from $s_{1}$ to the goal $s^{*}$. The $h$-value of each state is in parenthesis.}
