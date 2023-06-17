@@ -1229,14 +1229,14 @@ Overall, these findings demonstrate the greater adaptability of \pog with differ
 Researchers have extensively investigated learning heuristic functions for solving planning tasks.
 However, in this study, we explored the sampling and learning of preferred operators for the first time.
 
-The findings suggest that learning-based approaches have a considerable potential to outperform logic-based methods. We demonstrate that learned preferred operators can surpass logic-based preferred operators like \poff over the considered planning tasks. Furthermore, the learned preferred operators have fewer expansions than \poff when paired uninformed and less informed heuristics, although further investigation is needed to understand this phenomenon fully.
+The findings suggest that learning-based approaches have a considerable potential to outperform logic-based methods. We demonstrate that learned preferred operators can surpass logic-based preferred operators like \poff over the considered planning tasks. Furthermore, the learned preferred operators have fewer expansions than \poff when paired with uninformed or less informed heuristics, although further investigation is needed to understand this phenomenon fully.
 The experiments highlight the ability to discover preferred operators and train an NN capable of generalizing for the entire task using a subset of the state space. Analysis between successor and predecessor states proved to be an effective method for discovering preferred operators from a limited sample set.
 
 A limitation of learned preferred operators is the number of samples required for training. Our experiments used small state spaces and a relatively simple NN as a first step to explore learning preferred operators. Consequently, we had access to the complete state space of a task. However, this is infeasible for harder tasks, as state spaces tend to grow exponentially as the amount of information needed to describe them increases, meaning that if computational resources are a concern, even sampling $1\,\%$ of the state space can be impractical.
 Another problem involves the size of the output tensor, where certain domains have thousands of classes in larger tasks, significantly affecting training efficiency.
 Therefore, to improve learning efficiency, future research could focus on experimenting with other learning architectures that enable the generalization of preferred operators using smaller sample sets, or an alternative representation of preferred operators as the output tensor.
 
-Overall, this research presents new opportunities for enhancing heuristic search in planning by using learned preferred operators, highlighting the potential of learning-based methods that require minimal domain logic.
+Overall, this research presents new opportunities for enhancing heuristic search in planning using learned preferred operators, highlighting the potential of learning-based methods requiring minimal domain logic.
 
 \bibliographystyle{abntex2-alf}
 \bibliography{biblio}
