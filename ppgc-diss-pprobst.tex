@@ -367,7 +367,7 @@ In STRIPS, we say that operator $o$ is applicable to state $s$ if its preconditi
 STRIPS formulas use conjunction of propositions with logical connectives (AND, OR, NOT) to express compound preconditions and effects. Also, STRIPS has no negated preconditions, and it is not possible to directly specify conditional effects, where the effect of an action depends on the initial state. However, we can simulate conditional effects by creating new operators in the planning task.
 
 \begin{definition}[Plan]\label{def:plan}
-A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan $\pi^{*}$. An optimal plan is the shortest plan that successfully achieves the goal condition from the initial state.
+A sequence of operators~$\pi=(o_1,\ldots,o_k)$ is valid for a state~$s_0$ if produces a sequence of states~$s_1,\ldots,s_k$ such that $s_i=\sucs(s_{i-1},o_i)$. A sequence~$\pi$ for the initial state~$s_{0}$ is called a plan if $s^{*} \subseteq s_{k}$. The plan length is defined as $|\pi|$. Among all the valid plans, the one with the minimum length is referred to as an optimal plan $\pi^{*}$. An optimal plan is the shortest plan that successfully achieves the goal condition from the initial state. Since in this work we only consider unitary cost operators, the plan cost is equal to the plan length.
 \end{definition}
 
 Heuristics based on delete-relaxation obtain the heuristic from a \emph{relaxed} version of the planning task. A relaxed planning task in STRIPS is defined as $\Pi^{+}=\langle\mathcal{P},\mathcal{O'},s_{0},s^{*}\rangle$, where $\mathcal{O'} = \{ \langle \pre(o), \add(o), \emptyset \rangle \,|\, o \in O \}$, i.e., the delete-effects of the planning task are ignored. Relaxed tasks can be solved efficiently even though finding the optimal solution is $\mathcal{NP}$-hard~\cite{Bylander/1994}. For example, the heuristic \hadd approximates the perfect heuristic value for a state $s$ as the sum of the costs of achieving each proposition in $s^{*}$ independently of the others.
@@ -385,7 +385,7 @@ An operator $o \in \mathcal{O}$ is applicable to a state $s$ if its precondition
 %If $s$ is a partial state, it would be incorrect to write $\pre(o) \subseteq s$. The expression $\pre(o) \subseteq s$ implies that the preconditions of the operator $o$ are fully satisfied by the state $s$. It is likely that $s$ only contains a subset of the conditions specified in $\pre(o)$.
 
 Planners typically convert an input task in STRIPS to~\sas or an equivalent multi-valued representation. We can represent planning tasks in STRIPS using~\sas by converting each fact to a state variable with domain true and false. On the other hand,~\sas can be represented in STRIPS by converting each possible variable assignment to a fact. Note that \sas supports partial assignments while STRIPS assumes all states are complete (unmentioned facts are considered false).
-Also,~\sas tasks are more concise than STRIPS tasks. In STRIPS, if we have $n$ facts, the size of the state space would be $2^n$. In~\sas,  with $n$ variables, the size of the state space would be $dom(v_{1}) \times dom(v_{2}) \times \ldots \times dom(v_{n})$.
+Also,~\sas tasks are more concise than STRIPS tasks. In STRIPS, if we have $n$ facts, the size of the set of states would be $2^n$. In~\sas, with $n$ variables, the size of the set of states would be $dom(v_{1}) \times dom(v_{2}) \times \ldots \times dom(v_{n})$.
 
 %\subsection{PDDL}
 %\label{sec:background-pddl}
@@ -451,7 +451,7 @@ A heuristic function $h:\mathcal{S}\rightarrow \mathbb{R}^{\geq 0}\cup\{\infty\}
 
 Heuristics are typically derived from a model of the task, such as the \sas model introduced earlier, but can also be obtained by learning the map of some state $s$ to its heuristic value $h(s)$, where the desired output of the NN can be either the direct cost-to-goal estimates or some form of encoding representing these estimates.
 
-In this study, we use a propositional representation of a state to learn heuristic functions and preferred operators~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}. %We use the following notation from~\citet{Bettker.etal/2022}.
+In this study, we use a propositional representation of a state to learn heuristic functions and preferred operators~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}. We use the following notation from~\citet{Bettker.etal/2022}.
 Consider a planning task $\Pi=\langle\mathcal{V},\mathcal{O},s_0,s^*\rangle$, where $\mathcal{V}=\{v_1,\ldots,v_n\}$ is a set of variables, and $D(v_i)=\{d_{i1},\ldots,d_{i,s_i}\}$ the domains of variable $v_i$, where $i\in[n]$.
 A state $s$ is represented as a sequence of facts $\mathcal{F}(s)=(f_{11},f_{12},\ldots,f_{1,s_1},\ldots,f_{n1},f_{n2},\ldots,f_{n,s_n})$. Each fact $f_{ij}=[s(v_i)=d_{ij}]$ corresponds to a variable $v_i$ taking on a specific value $d_{ij}$ in state $s$. If the variable $v_i$ has the assigned value $d_{ij}$ in state $s$, then the fact $f_{ij}$ is considered true.
 The facts $\mathcal{F}_{i}=\{f_{i1},\ldots,f_{i,s_i}\}$ associated with variable $v_i$ must adhere to the consistency condition $\sum_{f\in \mathcal{F}i} f\leq 1$. This means that each variable can take at most one value. When $v_i$ is undefined, $\sum_{f\in \mathcal{F}_i} f=0$.
@@ -575,7 +575,7 @@ The current approach to extract preferred operators is the one implemented in th
 %Let $\Pi = \langle \mathcal{V}, \mathcal{O}, s_0, s^* \rangle$ be a \sas planning task, and let $v \in \mathcal{V}$. The DTG of variable $v$ is the labeled directed graph $\text{DTG}(v, \Pi)$ with vertices $D_v$ and an arc $(d, d')$ labeled with operator $o \in \mathcal{O}$ whenever either $\pre_{o}(v) = d$ and $\eff_{o}(v) = d'$, or $\pre_{o}(v)$ is undefined and $\eff_{o}(v) = d'$. We refer to $(d, d')$ as a value transition of $v$. We write $d \xrightarrow{o} d'$ if there exists an operator $o$ that can modify the value of $v$ from $d$ to $d'$.
 %To summarize, the DTG of a variable $v$ shows all the possible values of $v$ as vertices, and the arcs with their corresponding operators represent the transitions between those values. Furthermore, in Fast Downward, ignoring delete-effects in a multi-valued task is equivalent to assume that each state variable can hold several values simultaneously.
 Fast Downward extends the traditional GBFS algorithm to support preferred operators and ensure completeness. This is achieved by introducing a dual-queue approach: the ``default queue'' receives all generated states (default behavior without preferred operators), while the ``preferred queue'' only accepts states generated by preferred operators. Expansion of states occurs alternately from both queues or may use boosting~\cite{Richter.Helmert/2009}.
-With a boost value $n$, when a state with a lower $h$-value than any previously expanded state is encountered during the search, the preferred queue is used for the next $n$ expansions, as long as it has elements. The boost value is cumulative, so when the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
+With a boost value $n$, when a state with a lower $h$-value than any previously expanded state is encountered during the search (meaning the search progresses) the preferred queue is used for the next $n$ expansions, as long as it has elements. The boost value is cumulative, so each time the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
 % With a boost value $n$, if the search expands a state with an $h$-value lower than all previously expanded states (indicating progress in the search), the preferred queue is used for the subsequent $n$ expansions, as long as it contains elements. Furthermore, the boost value is cumulative, meaning that whenever the search progresses, $n$ expansions are added to the remaining number of subsequent expansions from the preferred queue.
 
 In Fast Downward, the first expansion of the search is always from the default queue, so even if we have preferred operators that always generate a successor closest to the goal, the plan may not be optimal if the heuristic is inaccurate. Also, there are cases where a preferred operators generates a successor state that has already been generated. Consequently, the state is not added to the preferred queue, which means it cannot be expanded first (as the preferred queue has higher priority), and another state, potentially further from the goal, is expanded instead.
@@ -615,7 +615,7 @@ The activation of the $j$-th neuron in layer $l$ is then computed as:
 $$a^{l}_{j} = a^{l}(z^{l}_{j})$$
 \end{definition}
 
-An example of a simple fully-connected NN is shown in~\cref{fig:neural-network}. Some common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
+\cref{fig:neural-network} shows an example of a simple fully-connected NN. Common activation functions include sigmoid, rectified linear units (ReLU), and tanh~(\cref{fig:activation-functions}).
 
 \begin{figure}[tb]
 \caption[A fully-connected neural network]{A neural network with $n$ input neurons, two hidden layers with $m$ neurons, and an output layer with $k$ neurons.}
@@ -662,9 +662,9 @@ An example of a simple fully-connected NN is shown in~\cref{fig:neural-network}.
 \end{figure}
 
 The data ``feed'' to an NN is typically divided into two sets. The training dataset is used to train the model by adjusting its parameters based on input samples and corresponding target values. The validation dataset is used to evaluate the performance of the model and detect overfitting during training. Overfitting occurs when a model excessively fits the training data but fails to generalize to unseen data.
-Also, we can feed data to an NN during training in batches. A batch refers to a subset of training samples that are processed together during each iteration of an epoch. Instead of updating the network weights after processing each training sample (which is computationally inefficient), batches allow multiple examples to be processed simultaneously. Larger batch sizes can lead to more efficient parallel processing but may require more memory. Conversely, smaller batch sizes consumes less memory but may result in slower training convergence due to more frequent weight updates.
 
-An epoch is a complete iteration of the entire training dataset. It involves feeding each training sample through the network, updating weights based on the loss function, and performing forward and backward propagation for all training samples. Early stop, also called patience, monitors a metric such as validation loss, and ends the training process if the chosen metric fails to improve for a predefined number of consecutive epochs. Stopping the training early prevents overfitting and improves generalization by preserving the performance of the model at the point of best validation metric.
+An epoch is an iteration of the entire training dataset. It involves feeding each training sample through the network, updating weights based on the loss function, and performing forward and backward propagation for all training samples.
+Early stop, or patience, monitors a chosen metric (e.g., validation loss) and halts training if there is no improvement for a specified number of consecutive epochs. Early stopping prevents overfitting, enhances generalization, and preserves the performance of the model at the point of best validation metric.
 
 \begin{definition}[Early Stop]
 Let $M$ represent the chosen metric (e.g., validation loss) and $n$ denote the number of consecutive epochs without improvement allowed. Given the current epoch $t$, the training is stopped if the following condition is met:
@@ -673,6 +673,10 @@ $$M(t) > \min\{M(t-1), M(t-2), \ldots, M(t-n)\}$$
 
 where $M(t)$ represents the metric value at epoch $t$.
 \end{definition}
+
+We can feed data to an NN during training in batches, which are subsets of training samples processed together in each epoch iteration.
+This approach improves computational efficiency by allowing multiple samples to be processed simultaneously, rather than updating the network weights after processing each training sample (which is computationally inefficient).
+Larger batch sizes enable efficient parallel processing but require more memory, while smaller batch sizes consume less memory but may result in slower training convergence due to more frequent weight updates.
 
 Standard NNs may suffer from the vanishing gradient problem~\cite{Hochreiter/1991}. The gradients tend to diminish as they propagate backward through multiple layers, making it challenging for earlier layers to learn meaningful representations. This problem hampers the optimization process and restricts the overall performance of the network.
 
@@ -807,7 +811,7 @@ As~\citet{Bettker.etal/2022} and~\citet{Ferber.etal/2022}, we use a method that 
 
 \subsection{Improving Cost-to-Goal Estimates}
 \label{sec:sample-improving-h}
-Accurate cost-to-goal estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates of each sampled state,~\citet{Bettker.etal/2022} developed two methods used in this study. The first method, called \sai, minimizes estimates across repeated samples, while the second method, called \sui, minimizes estimates across the successors of samples.
+Accurate cost-to-goal estimates generally result in improved learned heuristics, leading to fewer expanded states during a search. However, this correlation is not always guaranteed~\cite{Holte/2010}. To enhance the cost-to-goal estimates of each sampled state,~\citet{Bettker.etal/2022} developed two methods used in this study. The first method, \sai, minimizes estimates across repeated samples, while the second method, \sui, minimizes estimates across the successors of samples.
 
 
 \subsubsection{Sample Improvement}
@@ -818,13 +822,13 @@ This procedure is called ``sample improvement'' (\sai), and is applied twice: fi
 
 \subsubsection{Successor Improvement}
 \label{sec:sample-sui}
-In addition to sampling the same states, sampling neighboring states in the state space is common, especially for states close to the goal. Using the following approach, we can leverage this to enhance the cost-to-goal estimates, starting by constructing a graph $G$ containing the relations between all states in the sample set.
+In addition to sampling the same states, sampling neighboring states in the state space is common, especially for states close to the goal. Using the following approach, we can leverage this to enhance the cost-to-goal estimates, starting by constructing a graph $G$ with the relations between all states in the sample set.
 
 \begin{definition}[Sample Set Graph]\label{def:graph}
 A sample set graph is a directed and labeled graph $G=(V,A)$ defined by the states obtained in the sampling. Each vertex is labeled by a sampled partial state, i.e., $V = \{s_i \mid i \in [N]\}$. (Note that the undefined variables of a partial state can typically be completed in multiple ways, so each vertex represents a set of complete states.) Set $A$ contains an arc $(s,t)$ for each operator $o \in \mathcal{O}$ where $\sucs(s,o) \subseteq t$.
 \end{definition}
 
-When dealing with partial states generated by regression, we can always find at least one successor, except for the goal $s^{*}$. We compute the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Subsequently, we update the cost-to-goal estimates of each state accordingly. This process is called ``successor improvement'' (\sui) and is applied after regression, before completion.
+When dealing with partial states generated by regression, we can always find at least one successor, except for the goal $s^{*}$. We compute the shortest paths to the goal in the graph $G$ using Dijkstra's algorithm. Afterward, we update the cost-to-goal estimates of each state accordingly. This process is called ``successor improvement'' (\sui) and is applied after regression, before completion.
 
 
 %
@@ -850,24 +854,27 @@ Every state $s$ that has a plan is associated with at least one preferred operat
 
 \begin{property}
 \label{prop:ideal-optimal}
-If GBFS is guided by a blind heuristic function (equal value for all the expanded states but goal-aware and safe), tie-breaks by larger $g$-value, uses ideal preferred operators, exclusively expands states from the preferred queue since the beginning of the search, includes the initial state $s_{0}$ in the preferred queue, then GBFS expands at most the number of states part of an optimal path.
+In a solvable planning task with unitary cost operators, if GBFS is guided by a blind heuristic function (equal value for all the expanded states but goal-aware and safe), tie-breaks by larger $g$-value, uses ideal preferred operators, only expands states from the preferred queue, and includes the initial state $s_{0}$ in the preferred queue, then the number of expansions made by GBFS will be equal to the number of states that are part of an optimal path.
 \end{property}
 
 \begin{proof}
-Assume the task is solvable and that all the operators are unitary. Hence, the length of an optimal path equals the number of expansions, and at each expansion, the $g$-value increases by one.
-We will prove the property using induction on the number of expansions performed by GBFS.
+%Assume the task is solvable and that all the operators are unitary.
+%We will prove the property using induction on the number of expansions performed by GBFS.
 
-\textit{Base case}: Initially, the only state in the preferred queue $\mathcal{Q}$ is the initial state $s_{0}$. GBFS expands states exclusively from the preferred queue. GBFS will start by expanding $s_{0}$. Since the task is solvable and GBFS does not ignore $s_{0}$ because the blind heuristic is safe, then $\hstarp{s_{0}} \neq \infty$. This expansion satisfies the property since $s_{0}$ is the only state expanded, and $s_{0}$ is part of any optimal path.
+\textit{Base case}: Initially, the only state in the preferred queue $\mathcal{Q}$ is the initial state $s_{0}$. GBFS expands states exclusively from the preferred queue. Since the task is solvable, we have $\hstarp{s_{0}} < \infty$,  and because the blind heuristic is safe, then $\hblind(s_{0}) < \infty$. Thus, GBFS does not ignore $s_{0}$. If $s_{0}$ is a goal state, then GBFS returns it. If not, GBFS expands $s_{0}$, and this expansion satisfies the property since $s_{0}$ is part of any optimal path.
 
-\textit{Inductive hypothesis}: Assume that after $k$ expansions, GBFS has only expanded states part of an optimal path.
+\textit{Inductive step}: Assume that after $k$ expansions, an optimal path exists such that only states from the optimal path were expanded. At the $k$-th expansion, GBFS expands a state $s$. Since the expansion occurred, $s$ is not a goal state and had the largest $g$-value $g_{s}$ in the queue $\mathcal{Q}$ before its removal. Given the blind heuristic, every state in $\mathcal{Q}$ has equal and finite $h$-values. Therefore, $s$ was removed from $\mathcal{Q}$ because GBFS tie-breaks by larger $g$-value. We must prove that the $(k+1)$-th state removed from the queue $\mathcal{Q}$ is a successor of $s$ and part of an optimal path.
 
-\textit{Inductive step:}
-By \cref{def:ideal_preferred_operator}, every ideal preferred operator generates a state with the shortest distance to the goal among all successors. Therefore, when expanding state $s$ at the $k$-th expansion step, GBFS will select an ideal preferred operator that leads to a successor state $t$ such that $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$, which is then inserted into $Q$. If there are multiple shortest paths, then the state $s$ may produce $n \in \mathbb{N}^{\ge 1}$ successors generated by ideal preferred operators, which are all inserted into $\mathcal{Q}$. The successors not generated by preferred operators are ignored.
+By \cref{def:ideal_preferred_operator}, every ideal preferred operator generates a state with the shortest distance to the goal among all successors. Thus, when expanding state $s$ at the $k$-th expansion step, GBFS will generate all successors of $s$, including \emph{all} successors generated by ideal preferred operators. Because state $s$ is part of an optimal path, $s$ has at least one successor $t$ generated by an ideal preferred operator that is also part of an optimal path, such that $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$, and $\hstarp{t} < \infty$. Also, since the blind heuristic is safe, $\hblind(t) < \infty$. Therefore, GBFS does not ignore $t$ and inserts it in the queue $\mathcal{Q}$.
+% If there are multiple shortest paths, then the state $s$ may produce $n > 1$ successors generated by ideal preferred operators, which are all inserted into $\mathcal{Q}$. The successors not generated by preferred operators are ignored.
 
-Now, consider the $(k+1)$-th expansion step. Since all the states in $\mathcal{Q}$ have equal and finite $h$-values, and GBFS tie-breaks by larger $g$-value, GBFS will expand one of the $n$ successors of $s$ generated by preferred operators over any other state in $\mathcal{Q}$, as they all have smaller or equal $g$-values than $g_{s}$. Of all the states in $\mathcal{Q}$, GBFS selects a state $t \in \mathcal{Q}$ to expand, one of the $n$ successors of $s$, with $g_{t} = g_{s} + 1$. Therefore, the perfect cost-to-goal estimate of state $s$ is $\hstarp{t} = \hstarp{s} - 1$, i.e., an expansion of a state generated by ideal preferred operators makes progress on an optimal path. %By the induction hypothesis, all states expanded in the first $k$ steps are part of an optimal path.
+%Now, consider the $(k+1)$-th expansion step. Since all the states in $\mathcal{Q}$ have equal and finite $h$-values, and GBFS tie-breaks by larger $g$-value, GBFS will prioritize expanding one of the $n$ successors of $s$, as they all have greater $g$-values than $g_{s}$. GBFS selects to expand $t \in \mathcal{Q}$ (one of the possible $n$ successors of $s$), with $g_{t} = g_{s} + 1$. Thus, the perfect cost-to-goal estimate of state $t$ is $\hstarp{t} = \hstarp{s} - 1$, i.e., an expansion of a state generated by an ideal preferred operator makes progress on an optimal path. %By the induction hypothesis, all states expanded in the first $k$ steps are part of an optimal path.
 
-By expanding $t$ from $\mathcal{Q}$, GBFS continues the search along an optimal path until the goal condition is satisfied since the blind heuristic is goal-aware.
-Given that the $(k+1)$-th expansion step satisfies the property, and we have shown the base case, we conclude that GBFS will expand at most the number of states part of an optimal path.
+The maximum $g$-value of a state in $\mathcal{Q}$ after the removal of $s$ and before the insertion of its successors is equal to $g_{s}$. If there was a larger $g$-value than $g_{s}$, then state $s$ would not be removed. Furthermore, all the successors of $s$ have $g$-values of $g_{s} + 1$.
+
+Consider the $(k+1)$-th removal from the queue $\mathcal{Q}$. Since all the states in $\mathcal{Q}$ have equal and finite $h$-values, and GBFS tie-breaks by larger $g$-values, GBFS will remove and expand one of the successors of state $s$ generated by ideal preferred operators, with a cost-to-goal estimate of $\hstarp{s} - 1$, i.e., an expansion of a state generated by an ideal preferred operator makes progress on an optimal path.
+
+Thus, since the $(k+1)$-th step satisfies the property, we conclude that the number of expansions made by GBFS will be equal to the number of states that are part of an optimal path, i.e., the length of the optimal path equals the number of expansions of GBFS.
 \end{proof}
 
 
