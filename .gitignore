@@ -1,6 +1,7 @@
 # LaTeX / latexmk
 *.aux
 *.bbl
+*.bcf
 *.blg
 *.fdb_latexmk
 *.fls
@@ -15,3 +16,5 @@
 *.nav
 *.snm
 *.vrb
+*.run.xml
+*.el
