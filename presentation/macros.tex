@@ -53,6 +53,7 @@
 
 \newcommand{\grey}[1]{\textcolor{lightgray}{#1}}
 \newcommand{\textred}[1]{{\color{red} #1}}
+\newcommand{\orange}[1]{{\color{orange} #1}}
 \newcommand{\textblue}[1]{{\color{blue} #1}}
 \newcommand{\textgreen}[1]{{\color{green} #1}}
 
@@ -68,12 +69,12 @@
 \newcommand{\true}{\ensuremath{\mathbf{T}}}
 \newcommand{\false}{\ensuremath{\mathbf{F}}}
 
-\newcommand{\pre}{\ensuremath{\textit{pre}}}
-\newcommand{\eff}{\ensuremath{\textit{eff}}}
+%\newcommand{\pre}{\ensuremath{\textit{pre}}}
+%\newcommand{\eff}{\ensuremath{\textit{eff}}}
 \newcommand{\cost}{\ensuremath{\textit{cost}}}
-\newcommand{\add}{\ensuremath{\textit{add}}}
-\newcommand{\del}{\ensuremath{\textit{del}}}
-\newcommand{\precond}{\ensuremath{\textit{prec}}}
+%\newcommand{\add}{\ensuremath{\textit{add}}}
+%\newcommand{\del}{\ensuremath{\textit{del}}}
+%\newcommand{\precond}{\ensuremath{\textit{prec}}}
 
 \newcommand{\applyop}[2]{#2\llbracket#1\rrbracket}
 \newcommand{\applyplan}[2]{#2\llbracket#1\rrbracket}
@@ -202,3 +203,87 @@
 
 \providecommand{\floor}[1]{\ensuremath{\left\lfloor #1\right\rfloor}}
 \providecommand{\ceil}[1]{\ensuremath{\left\lceil #1\right\rceil}}
+
+
+\providecommand{\multiset}[1]{\ensuremath{\{\!\!\{#1\}\!\!\}}}
+\providecommand{\sas}{\ensuremath{\text{SAS}^{+}}\xspace}
+\providecommand{\strips}{STRIPS\xspace}
+\providecommand{\astar}{\ensuremath{\text{A}^{*}}\xspace}
+\providecommand{\gbfs}{\ensuremath{\text{GBFS}}\xspace}
+\providecommand{\wida}{\ensuremath{\text{W-IDA}^{*}}\xspace}
+\providecommand{\ida}{\ensuremath{\text{IDA}^{*}}\xspace}
+\providecommand{\hvalue}[1]{\ensuremath{h^{#1}}\xspace}
+\providecommand{\hstarp}[1]{\ensuremath{h^*({#1})}\xspace}
+\providecommand{\hff}{\hvalue{\text{FF}}}
+\providecommand{\hgc}{\hvalue{\text{GC}}}
+\providecommand{\hstar}{\hvalue{*}}
+\providecommand{\hlmc}{\hvalue{\text{lm-c}}}
+\providecommand{\hmax}{\hvalue{\text{max}}}
+\providecommand{\hadd}{\hvalue{\text{add}}}
+\providecommand{\hblind}{\hvalue{\text{blind}}}
+\providecommand{\h}{$h$\xspace}
+\providecommand{\hnn}{$\hat h$\xspace}
+\providecommand{\hnrsl}{$\hat h^{\text{N-RSL}}$\xspace}
+\providecommand{\hboot}{$\hat h^{\text{Boot}}$\xspace}
+\providecommand{\hgc}{\hvalue{\text{gc}}}
+\providecommand{\hhgn}{\hvalue{\text{HGN}}}
+\providecommand{\unit}{/1\xspace}
+\providecommand{\sui}{\text{SUI}\xspace}
+\providecommand{\sai}{\text{SAI}\xspace}
+\providecommand{\rw}{{RW}\xspace}
+\providecommand{\bfs}{{BFS}\xspace}
+\providecommand{\dfs}{{DFS}\xspace}
+\providecommand{\bfsrw}{\text{FSM}\xspace}
+\providecommand{\bfsrs}{\text{XRS}\xspace}
+\providecommand{\nn}{{NN}\xspace}
+\providecommand{\spp}{{\text{SP}}\xspace}
+\providecommand{\fsp}{{\text{FSP}}\xspace}
+\providecommand{\bsp}{{\text{BSP}}\xspace}
+\providecommand{\hnnrs}{$\hat h{^{20\%}_\text{\meanfx}}$\xspace}
+\providecommand{\hnnrsfifty}{$\hat h{^{50\%}_\text{\meanfx}}$\xspace}
+\providecommand{\hffexp}{$h^{FF}_{exp}$}
+\providecommand{\hgcexp}{$h^{GC}_{exp}$}
+\providecommand{\hnnbase}{$\hat h_{0}$\xspace}
+\providecommand{\hnnbfs}{$\hat h_{\text{bfs}}$\xspace}
+\providecommand{\hnndfs}{$\hat h_{\text{dfs}}$\xspace}
+\providecommand{\hnnrw}{$\hat h_{\text{rw}}$\xspace}
+\providecommand{\hnnbfsrw}{$\hat h_\text{fsm}$\xspace}
+\providecommand{\hnnbfsrwl}[1]{\ensuremath{\hat h_{#1}}\xspace}
+\providecommand{\hnnnomutex}{\ensuremath{\hat h^{'}}\xspace}
+\providecommand{\hnnnomutexl}[1]{\ensuremath{\hat h^{'}_{#1}}\xspace}
+\providecommand{\hnnrsp}[1]{\ensuremath{\hat h_\text{fsm}/^{#1\%}_{\text{RS}}}\xspace}
+\providecommand{\hnnrslp}[2]{\ensuremath{\hat h_\text{fsm}^{#1}/^{#2\%}_{\text{RS}}}\xspace}
+\providecommand{\define}[1]{#1}
+\providecommand{\facts}{\ensuremath{L_F}\xspace}
+\providecommand{\meanfx}{\ensuremath{L_{\overline{F}}}\xspace}
+\providecommand{\default}{\ensuremath{L_{200}}\xspace}
+\providecommand{\distfarthest}{\ensuremath{d^*}\xspace}
+\providecommand{\po}[1]{\ensuremath{\hat po^{#1}}\xspace}
+\providecommand{\pot}[1]{\ensuremath{po^{#1}}\xspace}
+\providecommand{\pog}{\po{\text{G}}}
+\providecommand{\pofsm}{\po{\text{FSM}}}
+\providecommand{\pogthresh}{\po{\text{G-thresh}}}
+\providecommand{\pogmax}{\po{\text{G-max}}}
+\providecommand{\popfa}{\po{\text{PFA}}}
+\providecommand{\popfo}{\po{\text{PFO}}}
+\providecommand{\postar}{\po{*}}
+\providecommand{\postartable}{\pot{*}}
+\providecommand{\pogstar}{\po{\text{G}^*}}
+\providecommand{\pogstarthresh}{\po{\text{OPT-thresh}}}
+\providecommand{\pogstarmax}{\po{\text{OPT-max}}}
+\providecommand{\popf}{\po{\text{PF}}}
+\providecommand{\poff}{\pot{\text{FF}}}
+\providecommand{\pogc}{\po{\text{GC}}}
+
+%% mathematical definitions
+\ifcsname dom\endcsname\else\DeclareMathOperator{\dom}{dom}\fi
+\DeclareMathOperator{\pre}{pre}
+\DeclareMathOperator{\eff}{eff}
+\DeclareMathOperator{\sucs}{succ}
+\DeclareMathOperator{\pred}{pred}
+\DeclareMathOperator{\functioninitial}{initial\_state}
+\DeclareMathOperator{\functiongoal}{goal\_condition}
+\DeclareMathOperator{\mutex}{mutex}
+\DeclareMathOperator{\del}{del}
+\DeclareMathOperator{\add}{add}
+\ifcsname R\endcsname\else\newcommand{\R}{\ensuremath{\mathbb{R}}}\fi

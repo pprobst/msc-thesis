@@ -44,7 +44,7 @@
 \AtBeginSubsection[]
 {
 \begin{frame}[noframenumbering]
-    \frametitle{\insertsubsection}
+    \frametitle{\n}
     \tableofcontents[currentsection,currentsubsection]
 \end{frame}
 }
@@ -66,7 +66,7 @@
       {Discovering and Learning Preferred Operators for Classical Planning with Neural Networks}
 
 % Optional subtitle
-\subtitle{Defesa de Mestrado}
+%\subtitle{Defesa de Mestrado}
 
 \date{Julho de 2023}
 
@@ -79,34 +79,36 @@
 % Command to create title page
 \InfTitlePage
 
-\begin{frame}
+\begin{frame}{Outline}
   \frametitle{Agenda}
   \tableofcontents
 \end{frame}
 
 \section{Introdução}
-\begin{frame}{Introduction: Learners \& Solvers}
-\end{frame}
-
-\section{Planning}
-\begin{frame}{Introduction}
-\emph{Planning} has the goal of finding a \alert{sequence of actions} from a \alert{initial state} that satisfy the \alert{goal condition}.
-    \begin{exampleblock}{\strut Example: \emph{Classical} Planning}
-      \hilite{environment:}
+\subsection{Planejamento}
+\begin{frame}{Planejamento Clássico}
+\emph{Planejamento} tem o objetivo de encontrar uma \alert{sequência de ações} a partir de um \alert{estado inicial} que satisfaça as \alert{condições objetivo}.
+    \begin{exampleblock}{\strut Exemplo: Planejamento Clássico}
+      \hilite{ambiente}
       \begin{itemize}
-      \item \alert{static} vs.\ \grey{dynamic}
-      \item \alert{deterministic} vs.\ \grey{non-deterministic}
-        vs.\ \grey{stochastic}
-      \item \alert{fully observable}
-        vs.\ \grey{partially observable}
-        vs.\ \grey{not observable}
-      \item \alert{discrete} vs.\ \grey{continuous}
-      \item \alert{single-agent} vs.\ \grey{multi-agent}
+      \item \alert{estático} vs.\ \grey{dinâmico}
+        \pause
+      \item \alert{determinístico} vs.\ \grey{não determinístico}
+        vs.\ \grey{estocástico}
+        \pause
+      \item \alert{observável}
+        vs.\ \grey{parcialmente observável}
+        vs.\ \grey{não observável}
+        \pause
+      \item \alert{discreto} vs.\ \grey{contínuo}
+        \pause
+      \item \alert{agente único} vs.\ \grey{agentes multiplos}
       \end{itemize}
 
-      \hilite{problem solving method:}
+      \pause
+      \hilite{método de resolução}
       \begin{itemize}
-      \item \grey{problem-specific} vs.\ \alert{general} vs.\ \grey{learning}
+      \item \grey{específico por problema} vs.\ \alert{geral} vs.\ \orange{aprendizado}
       \end{itemize}
     \end{exampleblock}
 % ppi{Then briefly talk about non-deterministic planning.}
@@ -114,21 +116,21 @@
 \end{frame}
 
 \begin{frame}{STRIPS}
-  \begin{definition}[A planning problem in STRIPS]
-    $\Pi = \langle F, O, I, G\rangle$ where
+  \begin{definition}[Um problema de planejamento em STRIPS]
+    $\Pi = \langle F, O, s_{0}, s^{*}\rangle$ onde
     \begin{itemize}
-        \item $F$ is a set of boolean variables (\alert{facts}),
-        \item $O$ is a set of \alert{operators} or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$,
-        \item $I \subseteq F$ is the \alert{initial state}, and
-        \item $G \subseteq F$ is a a set of \alert{goal facts} that must be satisfied.
+        \item $F$ é um conjunto de variáveis booleanas (\alert{fatos ou proposições}),
+        \item $O$ é um conjunto de \alert{operadores} ou ações sobre $F$, onde $\langle pre(o), add(o), del(o) \rangle \subseteq F$,
+        \item $s_{0} \subseteq F$ é o conjunto de fatos que representa o \alert{estado inicial}, e
+        \item $s^{*} \subseteq F$ é o conjunto de fatos que devem ser satisfeitos (``\alert{gol}'').
     \end{itemize}
    \pause
-    We say that actions $A(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$.
+    As ações $A(s)$ são \alert{aplicáveis} em $s$ se elas satisfizerem $pre(o)$.
 
-    We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false.
+    Avançamos de um estado $s$ com o operador $o$ definindo as proposições em $add(o)$ como \alert{verdadeiras} e em $del(o)$ como \alert{falsas}.
     \pause
 
-    Finally, $\pi = a_{0}, a_{1},\ldots, a_{n}$ is called a \alert{plan} for $\Pi$ where $a_{i}$ is an applicable action.
+    Por fim, $\pi = o_{1}, o_{2},\ldots, o_{n}$ é chamado de \alert{plano} para $\Pi$, em que $o_{i}$ é um operador aplicável.
 \end{definition}
 %Planning tasks are usually formally described in PDDL files, following a Lisp-like structure.
 \end{frame}
@@ -137,43 +139,43 @@
 \begin{figure}
     \centering
     \includegraphics[width=7cm]{img/blocksworld1.png}
-    \caption{A task of the Blocksworld domain.}
+    \caption{Uma tarefa de planejamento do domínio Blocks World.}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Example: Blocksworld} 
+\begin{frame}{Exemplo: Blocksworld}
 % This is from Malte Helmert's slides, slightly modified.
-    \begin{exampleblock}{\strut Example: Blocksworld}
-      \hilite{$\Pi = \langle F, O, I, G\rangle$}
+    \begin{exampleblock}{\strut Exemplo: Blocks World}
+      \hilite{$\Pi = \langle F, O, s_{0}, s^{*}\rangle$}
       \begin{itemize}
       \item $F$ = \{on(a,b), on(a,c), on(b,a), on(b,c), on(c,a), on(c,b), on-table(a), on-table(b), on-table(c), clear(a), clear(b), clear(c)\}
 
        \item $O$ = \{move(a,b,c), move(a,c,b), move(b,a,c), move(b,c,a), move(c,a,b), move(c,b,a), to-table(a,b), to-table(a,c), to-table(b,a), to-table(b,c), to-table(c,a), to-table(c,b), from-table(a,b), from-table(a,c), from-table(b,a), from-table(b,c), from-table(c,a), from-table(c,b)\}
 
-        \item $I$ = \{on(c,a), on-table(a), on-table(b), clear(c), clear(b)\}
+        \item $s_{0}$ = \{on(c,a), on-table(a), on-table(b), clear(c), clear(b)\}
 
-         \item $G$ = \{on(a,b), on(b,c)\}
+         \item $s^{*}$ = \{on(a,b), on(b,c)\}
       \end{itemize}
     \end{exampleblock}
 \end{frame}
 
-\begin{frame}{Example: Blocksworld}
-    \begin{exampleblock}{\strut Example: Blocksworld}
+\begin{frame}{Exemplo: Blocks World}
+    \begin{exampleblock}{\strut Exemmplo: Blocks World}
       \begin{itemize}
       \item \emph{move}: move a block from one block to another.
       \begin{itemize}
         \item Pre(move(a,b,c)) = \{on(a,b), clear(a), clear(c)\}
         \item Add(move(a,b,c)) = \{on(a,c), clear(b)\}
         \item Del(move(a,b,c)) = \{on(a,b), clear(c)\}
-        \item From the initial state, is this action applicable? % No, it doesn't satisfy the preconditions.
+        \item Com base no estado inicial, essa ação é aplicável? % Não, ela não satisfaz as condições prévias.
       \end{itemize}
-      \item \emph{to-table}: move a block from a block to the table.
-      \item \emph{from-table}: move a block from the table to a block.
+      \item \emph{to-table}: mover um bloco de um bloco para a mesa.
+      \item \emph{from-table}: mover um bloco de um bloco para a mesa.
       \end{itemize}
     \end{exampleblock}
 \end{frame}
 
-\begin{frame}{State Space of Blocksworld with 3 Blocks}
+\begin{frame}{Espaço de estados do Blocks World com 3 blocos}
   \begin{center}
     \begin{pgfpicture}{-39mm}{-32.4mm}{39mm}{32.4mm}
       \pgfnodebox{RsGsB}[virtual]{\pgfpolar{0}{0cm}}{\RsGsB}{2pt}{2pt}
@@ -216,27 +218,93 @@
   \end{center}
 \end{frame}
 
-
-\section{Next}
-\begin{frame}{Crossing the Rubicon}
+\begin{frame}{\sas}
 \begin{itemize}
-    \item In the next set of slides, we'll present our novel sampling generation approach, in a model-free setting.
-    \item Previous work was inspiring, but many things are not explored.
-    \pause
-    \begin{itemize}
-        \item What's important to make sure the sampling set reflects a good heuristic after training?
-        \pause
-        %\item Number of samples vs. accuracy of each cost-to-goal estimate.
-        %\pause
-        \item Backward search with BFS vs. DFS vs. multiple RW.
-        \pause
-        %\item Previous approaches limited the backward search depth with a magic number -- we propose new methods to limit it.
-        \item New techniques to improve the cost-to-goal estimates.
-        \item Etc.
-    \end{itemize}
-    \pause
-    \item We have answers to these questions and, to the best of our knowledge, the \alert{best coverage results with a learned heuristic in a model-free setting.}
+\item \sas é similar a STRIPS, mas variáveis têm domínios finitos, não sendo necessariamente binárias.
+  \item O estado inicial $s^{*}$ é tipicamente um \alert{estado completo}, i.e., todas as variáveis estão definidas.
+  \item O gol $s^{*}$ é definido \alert{parcialmente}, com certas variáveis indefinidas ($\bot$).
 \end{itemize}
+\end{frame}
+
+\subsection{Busca Heurística}
+\begin{frame}{Busca heurística}
+\begin{itemize}
+  \item Planejadores tipicamente buscam satisfazer o gol \alert{priorizando} estados no espaço de estados com \alert{menor função heurística}.
+  \pause
+  \item Um estado $s$ tem uma função heurística $h(s)$, dado por uma função heurística $h$, que estima o \alert{custo de atingir o gol $s^{*}$} a partir de $s$.
+  \pause
+  \item Algoritmos ``best-first search'', e.g., greedy best-first serach (GBFS), \astar.
+\end{itemize}
+\end{frame}
+
+\subsection{Operadores Preferidos}
+\begin{frame}{Operadores preferidos (PO)}
+\begin{itemize}
+\item \alert{Operadores} considerados \alert{promissores} ``por alguma razão''.
+    \pause
+  \begin{itemize}
+  \item A definição não é fechada, mas tipicamente isso quer dizer ``operadores que levam a algum estado mais provável de satisfazer o gol''. % Helmert e eu.
+  \end{itemize}
+  \pause
+\item Usados em conjunto com funções heurísticas.
+  \begin{itemize}
+  \item Sozinhos, são equivalentes a políticas (policies).
+  \end{itemize}
+\pause
+\item No Fast Downward: usados em esquema ``\alert{dual-queue}''.
+  \begin{itemize}
+  \item Uma fila para todos os estados, outra para \alert{estados gerados exclusivamente via POs}.
+  \item Expansão alternada, ou não (\alert{boosting}).
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Operadores preferidos do FF}
+\end{frame}
+
+\subsection{Aprendendo Funções Heurísticas}
+\begin{frame}{Aprendizado de funções heurísticas}
+\end{frame}
+
+\section{Abordagem proposta}
+\begin{frame}{Como aprender operadores preferidos?}
+\end{frame}
+
+\subsection{Operadores Preferidos Ideais}
+\begin{frame}{Operadores preferidos ideais}
+\end{frame}
+
+\subsection{Operadores Preferidos Descobertos}
+\begin{frame}{Operadores preferidos descobertos}
+\end{frame}
+
+\subsection{Gerando Amostras com \bfsrs}
+\begin{frame}{Gerando amostras com \bfsrs}
+\end{frame}
+
+\section{Experimentos}
+\begin{frame}{Configuração}
+\end{frame}
+
+\subsection{Aprendendo Operadores Preferidos}
+\begin{frame}{}
+\end{frame}
+
+%\subsection{Conjuntos de Amostras de Diferentes Tamanhos}
+%\begin{frame}{}
+%\end{frame}
+
+\subsection{\bfsrs vs. \bfsrw}
+\begin{frame}{}
+\end{frame}
+
+\subsection{Operadores Preferidos com Funções Heurísticas Lógicas}
+\begin{frame}{}
+\end{frame}
+
+
+\section{Conclusão}
+\begin{frame}{Conclusão}
 \end{frame}
 
 \printbibliography
