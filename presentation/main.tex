@@ -1,0 +1,244 @@
+% -*- mode: latex; coding: utf-8 -*-
+\input{blocksworld.tex}
+
+%\documentclass{gkibeamer}
+\documentclass{beamer}
+
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{stmaryrd}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usetheme{Inf}
+
+\setbeamertemplate{footline}[frame number]
+
+\title[Discovering and Learning Preferred Operators]{Discovering and Learning Preferred Operators for Classical Planning with Neural Networks}
+\author{Pedro Probst Minini}
+
+\institute{Federal University of Rio Grande do Sul\\Institute of Informatics\\Department of Theoretical Informatics}
+\subject{AI}
+
+\input{macros}
+
+% #############################################################################################################
+%
+%% Needed for "Content of this Course" slide in most chapters:
+\usetikzlibrary{positioning, arrows.meta, patterns, automata}
+
+\usepackage[linesnumbered, ruled, vlined]{algorithm2e}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{comment}
+%\usepackage{natbib}
+\usepackage[citestyle=authoryear,maxnames=10,maxcitenames=1,giveninits=true,backend=biber,uniquelist=false]{biblatex}
+\usepackage[utf8]{inputenc}
+\usepackage[textsize=tiny,colorinlistoftodos,prependcaption]{todonotes}
+\addbibresource{biblio.bib}
+
+\newcommand{\pp}[2][noinline]{\todo[color=purple!50,linecolor={purple!100},#1,fancyline,author=Pedro]{#2}}
+\newcommand{\ppi}[2][inline]{\todo[color=purple!50,linecolor={purple!100},#1,fancyline,author=Pedro]{#2}}
+
+% #####################
+\AtBeginSubsection[]
+{
+\begin{frame}[noframenumbering]
+    \frametitle{\insertsubsection}
+    \tableofcontents[currentsection,currentsubsection]
+\end{frame}
+}
+% #####################
+
+% #############################################################################################################
+
+%\subtitle{Some title}
+%\date{}
+%\begin{document}
+
+%\begin{frame}{Outline}
+%\tableofcontents
+%\end{frame}
+
+% Define the title with \title[short title]{long title}
+% Short title is optional
+\title[Discovering and Learning Preferred Operators]
+      {Discovering and Learning Preferred Operators for Classical Planning with Neural Networks}
+
+% Optional subtitle
+\subtitle{Defesa de Mestrado}
+
+\date{Julho de 2023}
+
+% Author information
+\author{Pedro Probst Minini}
+\institute{Instituto de Informática --- UFRGS\\\texttt{inf.ufrgs.br/\~{}bmenegola}}
+
+\begin{document}
+
+% Command to create title page
+\InfTitlePage
+
+\begin{frame}
+  \frametitle{Agenda}
+  \tableofcontents
+\end{frame}
+
+\section{Introdução}
+\begin{frame}{Introduction: Learners \& Solvers}
+\end{frame}
+
+\section{Planning}
+\begin{frame}{Introduction}
+\emph{Planning} has the goal of finding a \alert{sequence of actions} from a \alert{initial state} that satisfy the \alert{goal condition}.
+    \begin{exampleblock}{\strut Example: \emph{Classical} Planning}
+      \hilite{environment:}
+      \begin{itemize}
+      \item \alert{static} vs.\ \grey{dynamic}
+      \item \alert{deterministic} vs.\ \grey{non-deterministic}
+        vs.\ \grey{stochastic}
+      \item \alert{fully observable}
+        vs.\ \grey{partially observable}
+        vs.\ \grey{not observable}
+      \item \alert{discrete} vs.\ \grey{continuous}
+      \item \alert{single-agent} vs.\ \grey{multi-agent}
+      \end{itemize}
+
+      \hilite{problem solving method:}
+      \begin{itemize}
+      \item \grey{problem-specific} vs.\ \alert{general} vs.\ \grey{learning}
+      \end{itemize}
+    \end{exampleblock}
+% ppi{Then briefly talk about non-deterministic planning.}
+% Classical Planning is an example of a "model".
+\end{frame}
+
+\begin{frame}{STRIPS}
+  \begin{definition}[A planning problem in STRIPS]
+    $\Pi = \langle F, O, I, G\rangle$ where
+    \begin{itemize}
+        \item $F$ is a set of boolean variables (\alert{facts}),
+        \item $O$ is a set of \alert{operators} or actions over $F$, where $\langle Pre(o), Add(o), Del(o) \rangle \subseteq F$,
+        \item $I \subseteq F$ is the \alert{initial state}, and
+        \item $G \subseteq F$ is a a set of \alert{goal facts} that must be satisfied.
+    \end{itemize}
+   \pause
+    We say that actions $A(s)$ are \emph{applicable} in $s$ if they satisfy $Pre(o)$.
+
+    We progress a state $s$ with operator $o$ by setting the propositions in $Add(o)$ to true and $Del(o)$ to false.
+    \pause
+
+    Finally, $\pi = a_{0}, a_{1},\ldots, a_{n}$ is called a \alert{plan} for $\Pi$ where $a_{i}$ is an applicable action.
+\end{definition}
+%Planning tasks are usually formally described in PDDL files, following a Lisp-like structure.
+\end{frame}
+
+\begin{frame}{Example: Blocksworld} 
+\begin{figure}
+    \centering
+    \includegraphics[width=7cm]{img/blocksworld1.png}
+    \caption{A task of the Blocksworld domain.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Example: Blocksworld} 
+% This is from Malte Helmert's slides, slightly modified.
+    \begin{exampleblock}{\strut Example: Blocksworld}
+      \hilite{$\Pi = \langle F, O, I, G\rangle$}
+      \begin{itemize}
+      \item $F$ = \{on(a,b), on(a,c), on(b,a), on(b,c), on(c,a), on(c,b), on-table(a), on-table(b), on-table(c), clear(a), clear(b), clear(c)\}
+
+       \item $O$ = \{move(a,b,c), move(a,c,b), move(b,a,c), move(b,c,a), move(c,a,b), move(c,b,a), to-table(a,b), to-table(a,c), to-table(b,a), to-table(b,c), to-table(c,a), to-table(c,b), from-table(a,b), from-table(a,c), from-table(b,a), from-table(b,c), from-table(c,a), from-table(c,b)\}
+
+        \item $I$ = \{on(c,a), on-table(a), on-table(b), clear(c), clear(b)\}
+
+         \item $G$ = \{on(a,b), on(b,c)\}
+      \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Example: Blocksworld}
+    \begin{exampleblock}{\strut Example: Blocksworld}
+      \begin{itemize}
+      \item \emph{move}: move a block from one block to another.
+      \begin{itemize}
+        \item Pre(move(a,b,c)) = \{on(a,b), clear(a), clear(c)\}
+        \item Add(move(a,b,c)) = \{on(a,c), clear(b)\}
+        \item Del(move(a,b,c)) = \{on(a,b), clear(c)\}
+        \item From the initial state, is this action applicable? % No, it doesn't satisfy the preconditions.
+      \end{itemize}
+      \item \emph{to-table}: move a block from a block to the table.
+      \item \emph{from-table}: move a block from the table to a block.
+      \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{State Space of Blocksworld with 3 Blocks}
+  \begin{center}
+    \begin{pgfpicture}{-39mm}{-32.4mm}{39mm}{32.4mm}
+      \pgfnodebox{RsGsB}[virtual]{\pgfpolar{0}{0cm}}{\RsGsB}{2pt}{2pt}
+
+      \pgfnodebox{RGsB}[virtual]{\pgfpolar{0}{16mm}}{\RGsB}{2pt}{2pt}
+      \pgfnodebox{RBsG}[virtual]{\pgfpolar{60}{16mm}}{\RBsG}{2pt}{2pt}
+      \pgfnodebox{BRsG}[virtual]{\pgfpolar{120}{16mm}}{\BRsG}{2pt}{2pt}
+      \pgfnodebox{RsBG}[virtual]{\pgfpolar{180}{16mm}}{\RsBG}{2pt}{2pt}
+      \pgfnodebox{RsGB}[virtual]{\pgfpolar{240}{16mm}}{\RsGB}{2pt}{2pt}
+      \pgfnodebox{GRsB}[virtual]{\pgfpolar{300}{16mm}}{\GRsB}{2pt}{2pt}
+
+      \pgfnodebox{BRG}[virtual]{\pgfpolar{0}{32mm}}{\BRG}{2pt}{2pt}
+      \pgfnodebox{GRB}[virtual]{\pgfpolar{50}{32mm}}{\GRB}{2pt}{2pt}
+      \pgfnodebox{GBR}[virtual]{\pgfpolar{130}{32mm}}{\GBR}{2pt}{2pt}
+      \pgfnodebox{RBG}[virtual]{\pgfpolar{180}{32mm}}{\RBG}{2pt}{2pt}
+      \pgfnodebox{RGB}[virtual]{\pgfpolar{230}{32mm}}{\RGB}{2pt}{2pt}
+      \pgfnodebox{BGR}[virtual]{\pgfpolar{310}{32mm}}{\BGR}{2pt}{2pt}
+
+      \pgfsetendarrow{\pgfarrowtriangle{5pt}}
+      \pgfsetstartarrow{\pgfarrowtriangle{5pt}}
+
+      \pgfnodeconnline{RsGsB}{RGsB}
+      \pgfnodeconnline{RsGsB}{RBsG}
+      \pgfnodeconnline{RsGsB}{BRsG}
+      \pgfnodeconnline{RsGsB}{RsBG}
+      \pgfnodeconnline{RsGsB}{RsGB}
+      \pgfnodeconnline{RsGsB}{GRsB}
+
+      \pgfnodeconnline{RGsB}{BRG}
+      \pgfnodeconnline{RBsG}{GRB}
+      \pgfnodeconnline{BRsG}{GBR}
+      \pgfnodeconnline{RsBG}{RBG}
+      \pgfnodeconnline{RsGB}{RGB}
+      \pgfnodeconnline{GRsB}{BGR}
+
+      \pgfnodeconnline{RGsB}{RBsG}
+      \pgfnodeconnline{BRsG}{RsBG}
+      \pgfnodeconnline{RsGB}{GRsB}
+    \end{pgfpicture}
+  \end{center}
+\end{frame}
+
+
+\section{Next}
+\begin{frame}{Crossing the Rubicon}
+\begin{itemize}
+    \item In the next set of slides, we'll present our novel sampling generation approach, in a model-free setting.
+    \item Previous work was inspiring, but many things are not explored.
+    \pause
+    \begin{itemize}
+        \item What's important to make sure the sampling set reflects a good heuristic after training?
+        \pause
+        %\item Number of samples vs. accuracy of each cost-to-goal estimate.
+        %\pause
+        \item Backward search with BFS vs. DFS vs. multiple RW.
+        \pause
+        %\item Previous approaches limited the backward search depth with a magic number -- we propose new methods to limit it.
+        \item New techniques to improve the cost-to-goal estimates.
+        \item Etc.
+    \end{itemize}
+    \pause
+    \item We have answers to these questions and, to the best of our knowledge, the \alert{best coverage results with a learned heuristic in a model-free setting.}
+\end{itemize}
+\end{frame}
+
+\printbibliography
+
+\end{document}
