@@ -10,15 +10,26 @@
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage[utf8]{inputenc}
-\usetheme{Inf}
+%\usetheme{Inf}
+%\usetheme{}
+\usecolortheme{rose}
 
-\setbeamertemplate{footline}[frame number]
+%\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=2ex]{author in head/foot}%
+    \usebeamerfont{author in head/foot}%
+    \hfill 
+    \hspace*{1em} \insertframenumber\hspace*{1em} % Only display current page number
+  \end{beamercolorbox}%
+}
+
+\setbeamertemplate{navigation symbols}{}
 
 \title[Discovering and Learning Preferred Operators]{Discovering and Learning Preferred Operators for Classical Planning with Neural Networks}
 \author{Pedro Probst Minini}
 
-\institute{Federal University of Rio Grande do Sul\\Institute of Informatics\\Department of Theoretical Informatics}
-\subject{AI}
+%\institute{Federal University of Rio Grande do Sul\\Institute of Informatics\\Department of Theoretical Informatics}
+%\subject{AI}
 
 \input{macros}
 
@@ -98,8 +109,13 @@
 
 \begin{document}
 
-% Command to create title page
-\InfTitlePage
+% Command to create title page (INF)
+%\InfTitlePage
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
 
 \begin{frame}{Outline}
   \frametitle{Agenda}
@@ -244,7 +260,7 @@
 \begin{frame}{\sas}
 \begin{itemize}
 \item \sas é similar a STRIPS, mas variáveis têm domínios finitos, não sendo necessariamente binárias.
-  \item O estado inicial $s^{*}$ é tipicamente um \alert{estado completo}, i.e., todas as variáveis estão definidas.
+  \item O estado inicial $s_{0}$ é tipicamente um \alert{estado completo}, i.e., todas as variáveis estão definidas.
   \item O gol $s^{*}$ é definido \alert{parcialmente}, com certas variáveis indefinidas ($\bot$).
 \end{itemize}
 \end{frame}
