@@ -59,6 +59,7 @@
 \usepackage{mathtools}
 \usepackage{booktabs}
 \usepackage{comment}
+\usepackage{multicol}
 %\usepackage{natbib}
 \usepackage[citestyle=authoryear,maxnames=10,maxcitenames=1,giveninits=true,backend=biber,uniquelist=false]{biblatex}
 \usepackage[utf8]{inputenc}
@@ -78,6 +79,15 @@
     \end{beamercolorbox}
     \tableofcontents[currentsection,currentsubsection]
 \end{frame}
+}
+
+\AtBeginSection[]{
+  \begin{frame}
+    \setbeamercolor{section title}{fg=beamer@blendedblue,bg=structure}
+    \usebeamercolor[fg]{section title}
+    \centering
+    \Huge\insertsectionhead
+  \end{frame}
 }
 % #####################
 
@@ -116,10 +126,27 @@
   \titlepage
 \end{frame}
 
-
 \begin{frame}{Outline}
   \frametitle{Agenda}
   \tableofcontents
+\end{frame}
+
+\section{Problema}
+\begin{frame}{O que queremos fazer?}
+\begin{itemize}
+  \item Queremos aprender \alert{ações} que tornem a busca mais \alert{eficiente} durante a resolução de uma tarefa de planejamento.
+  \pause
+  \item Abordagens existentes são baseadas em lógica (e.g. operadores preferidos do FF).
+  \pause
+  \item Vários métodos para o aprendizado de funções heurísticas usando redes neurais.
+  \begin{itemize}
+    \item Mas nada sobre aprender operadores preferidos.
+  \end{itemize}
+  \pause
+  \item Propomos um método para gerar amostras de estados, onde \alert{cada estado tem um conjunto de operadores preferidos}.
+  \pause
+  \item Usamos esses conjuntos de amostras gerados para \alert{treinar redes neurais} que, durante a busca, escolhem operadores preferidos para o estado atual.
+\end{itemize}
 \end{frame}
 
 \section{Introdução}
@@ -301,7 +328,7 @@
 \begin{frame}{Operadores preferidos do FF}
 \end{frame}
 
-\subsection{Aprendendo Funções Heurísticas}
+\subsection{Aprendizado de Funções Heurísticas}
 \begin{frame}{Como aprender funções heurísticas?}
 \begin{itemize}
   \item Abordagem que depende \alert{muito} da lógica do domínio.
@@ -327,7 +354,7 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
 \end{frame}
 
 
-\section{Abordagem proposta}
+\section{Abordagem Proposta}
 \begin{frame}{Como aprender operadores preferidos?}
 
 \end{frame}
@@ -371,14 +398,14 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
 
 \begin{frame}{Geração de samples}
 \begin{itemize}
-  \item Amostragem usando \bfsrs a partir do gol de uma tarefa de cada domínio.
+  \item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
   \pause
   \item Geramos $N$ samples, onde $N$ é a porcentagem do tamanho do espaço de estados (FSP) de cada tarefa.
     \begin{itemize}
       \item e.g. em Blocks, $5\,\%$ é $\lfloor 65990 \times 0.05 \rceil = 3300$ amostras.
     \end{itemize}
   \pause
-  \item Para cada tarefa, geramos $5$ conjuntos de amostras (\emph{seeds}).
+  \item Para cada tarefa, geramos \alert{$5$} conjuntos de amostras (\emph{seeds}).
   \pause
   \item Formato de cada amostra: $(h(s), \mathcal{F}(s), O_{pref} \subseteq O)$.
     \begin{itemize}
@@ -393,7 +420,7 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
   \pause
   \item $5$ net seeds ($= 5~\text{net seeds} \times 5~\text{sample seeds} = 25~\text{seeds}~\text{por tarefa}$).
   \pause
-  \item Treino até convergência (treino mais longo durou~$2$h).
+  \item Treino até \alert{early-stop} (treino mais longo durou~$2$h).
 \end{itemize}
 
 \pause
@@ -437,6 +464,37 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Legenda}
+\begin{multicols}{2}
+\begin{itemize}
+  \item \hstar
+    \begin{itemize}
+      \item heurística perfeita
+    \end{itemize}
+  \item \hnn
+    \begin{itemize}
+      \item heurística aprendida
+    \end{itemize}
+  \item \postartable
+    \begin{itemize}
+      \item POs perfeitos (oráculo)
+    \end{itemize}
+  \item \postar
+    \begin{itemize}
+      \item POs ideais (aprendidos)
+    \end{itemize}
+  \item \pogstar
+    \begin{itemize}
+      \item POs descobertos (\hstar)
+    \end{itemize}
+  \item \alert{\pog}
+    \begin{itemize}
+      \item POs descobertos
+    \end{itemize}
+
+\end{itemize}
+\end{multicols}
+\end{frame}
 
 \subsection{Aprendendo Operadores Preferidos}
 \begin{frame}{Conseguimos aprender algo?}
@@ -475,7 +533,7 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
 
 \begin{frame}{Trabalhos futuros}
 \begin{itemize}
-  \item Na arquitetura atual, mudar hiperparâmetros tem \alert{pouco efeito}.
+  \item Nossa abordagem é muito boa, mas pode melhorar.
   \pause
   \item Treinar sobre $5\,\%$ do espaço de estados para superar \poff ainda exige um número considerável de amostras. Aprender POs é uma tarefa \alert{difícil}.
   \begin{itemize}
