@@ -25,7 +25,24 @@
 % #############################################################################################################
 %
 %% Needed for "Content of this Course" slide in most chapters:
-\usetikzlibrary{positioning, arrows.meta, patterns, automata}
+\usetikzlibrary{positioning, calc, decorations.pathreplacing, arrows, arrows.meta, patterns, automata}
+\usepackage[outline]{contour} % glow around text
+\contourlength{1.4pt}
+\tikzset{>=latex} % for LaTeX arrow head
+\colorlet{myred}{red!80!black}
+\colorlet{myblue}{blue!80!black}
+\colorlet{mygreen}{green!60!black}
+\colorlet{myorange}{orange!70!red!60!black}
+\colorlet{mydarkred}{red!30!black}
+\colorlet{mydarkblue}{blue!40!black}
+\colorlet{mydarkgreen}{green!30!black}
+\tikzset{ % node styles, numbered for easy mapping with \nstyle
+  my nodes/.style={circle,inner sep=0,minimum size=8mm},
+  input/.style={my nodes,draw=mygreen,fill=mygreen!20,text=green!50!black},
+  hidden/.style={my nodes,draw=violet,fill=violet!20,text=violet},
+  output/.style={my nodes,draw=myred!60!black,fill=myred!20,text=red!60!black},
+  my text/.style={text=#1,text width=1cm,align=center}
+}
 
 \usepackage[linesnumbered, ruled, vlined]{algorithm2e}
 \usepackage{mathtools}
@@ -322,7 +339,6 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
   \item Redes neurais
   \begin{itemize}
     \item PyTorch 1.9.0~(\cite{Paszke/2019}).
-    \item Treino até convergência (treino mais longo durou~$2$h).
   \end{itemize}
   \item Máquinas Ubuntu~$20.04$~LTS~GNU/Linux
   \begin{itemize}
@@ -345,15 +361,64 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
     \begin{itemize}
       \item e.g. em Blocks, $5\,\%$ é $\lfloor 65990 \times 0.05 \rceil = 3300$ amostras.
     \end{itemize}
-    \pause
+  \pause
   \item Para cada tarefa, geramos $5$ conjuntos de amostras (\emph{seeds}).
+  \pause
+  \item Formato de cada amostra: $(h(s), \mathcal{F}(s), O_{pref} \subseteq O)$.
+    \begin{itemize}
+      \item $15;000000011110\ldots000100000001;27,26$
+    \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Treino}
+\begin{itemize}
+  \item Duas redes treinadas separadamente: \alert{regressão} com MSE para funções heurísticas, \alert{classificação} com BCE para POs.
+  \pause
+  \item $5$ net seeds ($= 5~\text{net seeds} \times 5~\text{sample seeds} = 25~\text{seeds}~\text{por tarefa}$).
+  \pause
+  \item Treino até convergência (treino mais longo durou~$2$h).
+\end{itemize}
+
+\pause
+\begin{figure}[tb]
+\caption[]{Tensor de saída de exmplo, com dois POs como ``target''.}
+\centering
+\begin{tikzpicture}[node distance=1cm]
+  % Operators
+  %\foreach \x in {1,...,10}
+  %  \node[draw, minimum width=1cm, minimum height=0.5cm] (op\x) at (\x,0) {$o_{\x}$};
+  \foreach \x in {1,...,10}{
+    \ifnum\x=2
+      \node[draw, minimum width=1cm, minimum height=0.5cm, fill=mygreen!30] (op\x) at (\x,0) {$o_{\x}$};
+    \else
+      \ifnum\x=5
+        \node[draw, minimum width=1cm, minimum height=0.5cm, fill=mygreen!30] (op\x) at (\x,0) {$o_{\x}$};
+      \else
+        \node[draw, minimum width=1cm, minimum height=0.5cm] (op\x) at (\x,0) {$o_{\x}$};
+      \fi
+    \fi
+  }
+  % Sampled state
+  \node[draw, minimum width=1cm, minimum height=0.5cm, above=of op2] (s) {$s$};
+
+  % Arrows
+  \draw[->] (s) -- (op2);
+  \draw[->] (s) -- (op5);
+\end{tikzpicture}
+\label{fig:po-tensor}
+\end{figure}
+
 \end{frame}
 
 \begin{frame}{Teste (aka busca)}
+\begin{itemize}
+  \item Para cada tarefa original, \alert{$50$ tarefas de teste} geradas via passeio aleatório a partir do estado inicial.
+  \pause
+  \item Buscas utilizando o GBFS implementado no Fast Downward, com limite de \alert{$5$ minutos} por tarefa.
+  \pause
+  \item Todas as tarefas têm cobertura total mesmo com busca cega, então o parâmetro de comparação escolhido é o \alert{número de estados expandidos}.
+\end{itemize}
 \end{frame}
 
 
