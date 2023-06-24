@@ -134,7 +134,7 @@
 \section{Problema}
 \begin{frame}{O que queremos fazer?}
 \begin{itemize}
-  \item Queremos aprender \alert{ações} que tornem a busca mais \alert{eficiente} durante a resolução de uma tarefa de planejamento.
+  \item Queremos aprender \alert{ações} que tornem a busca heurística mais \alert{eficiente} durante a resolução de uma tarefa de planejamento.
   \pause
   \item Abordagens existentes são baseadas em lógica (e.g. operadores preferidos do FF).
   \pause
@@ -334,29 +334,76 @@
   \item Abordagem que depende \alert{muito} da lógica do domínio.
     \begin{itemize}
       \item Arquitetura da rede reflete a lógica do domínio.
+      \item e.g. (hyper)graph neural networks, action schema networks.
     \end{itemize}
   \pause
   \item Abordagem que depende \alert{pouco} da lógica do domínio.
     \begin{itemize}
       \item Apenas usa lógica do domínio para extrair mutexes e operadores aplicáveis durante a amostragem.
-      \item Arquitetura da rede neural tende a ser simples (feedforward NN)
+      \item Rede neural genérica, e.g., feedforward NN.
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Como aprender funções heurísticas?}
-Em particular, este trabalho segue a segunda abordagem para o aprendizado de funções heurísticas e operadores preferidos.
+Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizado de funções heurísticas e operadores preferidos.
 \begin{itemize}
   \item Aprendizado supervisionado.
   \item Uso de lógica do domínio apenas para a derivação de mutexes e operadores aplicáveis durante o processo de amostragem.
-  \item Estratégia de \cite{Bettker.etal/2022}.
+  \item Estratégia de \alert{\cite{Bettker.etal/2022}}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Gerando amostras para aprender funções heurísticas}
+\begin{itemize}
+  \item A partir do gol, faz \alert{regressão} usando \alert{BFS} até conseguir $10\,\%$ do número de amostras $N$.
+  \pause
+  \item Obtém o restante das amostras fazendo rollouts de \alert{Random Walk} a partir dos \alert{estados-folha} do BFS.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Melhorando as estimativas das amostras}
+\begin{itemize}
+  \item \emph{Sample Improvement} (SAI):
+  \begin{itemize}
+    \item Para manter a consistência, \alert{estados repetidos} no conjunto de amostras ficam com o mesmo valor-$h$.
+  \end{itemize}
+\end{itemize}
+\begin{align*}
+\centering
+&(\text{valor-}h;\text{estado}) \\
+&\ldots \\
+&(\alert{12};0000000101011111\ldots10000010000100000) \\
+&\ldots \\
+\only<1>{&(\alert{14};0000000101011111\ldots10000010000100000) \\}
+\only<2>{&(\textgreen{12};0000000101011111\ldots10000010000100000) \\}
+&\ldots
+\end{align*}
+\end{frame}
+
+\begin{frame}{Melhorando as estimativas das amostras}
+\begin{itemize}
+  \item \emph{Successor Improvement} (SUI):
+  \begin{itemize}
+    \item Faz um grafo com todas as relações de predecessores-sucessores do conjunto de amostras.
+    \item \ppi{TODO}
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
 
+
 \section{Abordagem Proposta}
 \begin{frame}{Como aprender operadores preferidos?}
-
+\begin{itemize}
+  \item Ainda que POs sejam úteis, literatura sobre POs no geral é escassa, e sobre aprendizado de POs, inexistente.
+  \pause
+  \item A seguir, damos uma definição de \alert{operadores preferidos ideais},
+  \pause
+  \item mostramos \alert{como obter operadores preferidos} a partir de um conjunto de amostras, aproximando POs ideais,
+  \pause
+  \item e propomos um \alert{novo método de amostragem} mais propício para a descoberta de POs.
+\end{itemize}
 \end{frame}
 
 \subsection{Operadores Preferidos Ideais}
@@ -499,20 +546,51 @@ Em particular, este trabalho segue a segunda abordagem para o aprendizado de fun
 \subsection{Aprendendo Operadores Preferidos}
 \begin{frame}{Conseguimos aprender algo?}
 \input{tables/learning_perfect_pos.tex}
+\begin{itemize}
+\item Os POs ideais \postartable e \postar aproximam-se de \hstar.
+\pause
+\item Os POs descobertos \pogstar e \pog expandem o dobro de \hstar, mas superam uma busca só com a heurística aprendida \hnn.
+\pause
+  \begin{itemize}
+    \item Então sim: POs não são um delírio, e \alert{conseguimos aprender algo útil} mesmo treinando sobre amostras representando \alert{$1\,\%$ do espaço de estados}.
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{E treinando com mais amostras?}
 \input{tables/learning_discovered_pos.tex}
+\begin{itemize}
+  \item Melhora, mas os ganhos são menores a partir de $20\,\% - 30\,\%$.
+  \pause
+  \item Com um número de amostras equivalente a \alert{$5\,\%$} do espaço de estados, \alert{superamos \poff} em número de expansões.
+\end{itemize}
 \end{frame}
 
 \subsection{Comparando \bfsrs e \bfsrw}
 \begin{frame}{\bfsrs vs. \bfsrw}
 \input{tables/comparison_sample.tex}
+\begin{itemize}
+  \item Em média, \pog \alert{supera} \pofsm.
+  \pause
+  \item \alert{\pofsm precisa de $10\times$ mais samples} para ter resultados comparáveis a \pog.
+    \begin{itemize}
+      \item \pofsm $50\,\%$: $22.5$.
+      \item \pog $5\,\%$: $22.4$.
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \subsection{Operadores Preferidos com Funções Heurísticas Lógicas}
 \begin{frame}{POs com heurísticas lógicas}
-  \input{tables/logic_heuristics_1pct.tex}
+\input{tables/logic_heuristics_1pct.tex}
+\begin{itemize}
+  \item \pog \alert{supera} \poff em todos os casos.
+  \pause
+  \item Usar bons POs pode ser \alert{melhor} do que trocar de função heurística.
+    \begin{itemize}
+       \item \hgc + \pog tem expansões próximas de \hff e \hadd.
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 
