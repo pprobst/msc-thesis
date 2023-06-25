@@ -133,21 +133,27 @@
 
 \section{Problema}
 \begin{frame}{O que queremos fazer?}
+Planejadores \alert{lógicos} que usam operadores preferidos para \alert{priorizar a expansão de estados mais promissores} foram os vencedores da trilha \emph{satisficing} da \emph{International Planning Competition} (IPC) em \alert{2004}~(\cite{Helmert/2006}), \alert{2008}~(\cite{Richter.lama.etal/2010}), \alert{2011}~(\cite{Richter.lama.etal/2011}), and \alert{2018}~(\cite{Seipp-fast.etal/2018}).
+
+\pause
 \begin{itemize}
-  \item Queremos aprender \alert{ações} que tornem a busca heurística mais \alert{eficiente} durante a resolução de uma tarefa de planejamento.
+  \item Abordagens existentes para a derivação de operadores preferidos são baseadas em lógica (e.g. operadores preferidos do FF).
   \pause
-  \item Abordagens existentes são baseadas em lógica (e.g. operadores preferidos do FF).
-  \pause
-  \item Vários métodos para o aprendizado de funções heurísticas usando redes neurais.
+  \item Há vários métodos para o aprendizado de funções heurísticas usando redes neurais.
   \begin{itemize}
     \item Mas nada sobre aprender operadores preferidos.
   \end{itemize}
-  \pause
-  \item Propomos um método para gerar amostras de estados, onde \alert{cada estado tem um conjunto de operadores preferidos}.
-  \pause
-  \item Usamos esses conjuntos de amostras gerados para \alert{treinar redes neurais} que, durante a busca, escolhem operadores preferidos para o estado atual.
 \end{itemize}
 \end{frame}
+
+\begin{frame}{O que queremos fazer?}
+\begin{itemize}
+  \item Propomos um método para gerar amostras de estados, onde \alert{cada estado tem um conjunto de operadores preferidos}.
+  \pause
+  \item Usamos esses conjuntos de amostras gerados para \alert{treinar redes neurais} que, durante a resolução de um problema de planejamento, escolhem operadores preferidos para o estado atual.
+\end{itemize}
+\end{frame}
+
 
 \section{Introdução}
 
@@ -194,9 +200,8 @@
     As ações $A(s)$ são \alert{aplicáveis} em $s$ se elas satisfizerem $pre(o)$.
 
     Avançamos de um estado $s$ com o operador $o$ definindo as proposições em $add(o)$ como \alert{verdadeiras} e em $del(o)$ como \alert{falsas}.
-    \pause
-
-    Por fim, $\pi = o_{1}, o_{2},\ldots, o_{n}$ é chamado de \alert{plano} para $\Pi$, em que $o_{i}$ é um operador aplicável.
+    %\pause
+    %Por fim, $\pi = o_{1}, o_{2},\ldots, o_{n}$ é chamado de \alert{plano} para $\Pi$, em que $o_{i}$ é um operador aplicável.
 \end{definition}
 %Planning tasks are usually formally described in PDDL files, following a Lisp-like structure.
 \end{frame}
@@ -241,7 +246,7 @@
     \end{exampleblock}
 \end{frame}
 
-\begin{frame}{Espaço de estados do Blocks World com 3 blocos}
+\begin{frame}{Espaço de Estados do Blocks World com 3 Blocos}
   \begin{center}
     \begin{pgfpicture}{-39mm}{-32.4mm}{39mm}{32.4mm}
       \pgfnodebox{RsGsB}[virtual]{\pgfpolar{0}{0cm}}{\RsGsB}{2pt}{2pt}
@@ -293,7 +298,7 @@
 \end{frame}
 
 \subsection{Busca Heurística}
-\begin{frame}{O que é busca heurística?}
+\begin{frame}{Busca Heurística}
 \begin{itemize}
   \item Planejadores tipicamente buscam satisfazer o gol \alert{priorizando} estados no espaço de estados com \alert{menor função heurística}.
   \pause
@@ -303,8 +308,158 @@
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Busca Heurística: Exemplo com GBFS}
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}
+  \node[draw, circle] (A) at (0,0) {$s_0$:2};
+  \node[draw, circle] (B) at (-1.7,-1) {$s_{1}$:3};
+  \node[draw, circle] (C) at (1.7,-1) {$s_{2}$:1};
+  \node[draw, circle] (D) at (-2.7,-2) {$s_{3}$:4};
+  \node[draw, circle] (E) at (-0.7,-2) {$s_{4}$:4};
+  \node[draw, circle] (F) at (0.7,-2) {$s_{5}$:2};
+  \node[draw, circle] (G) at (2.7,-2) {$s^{*}$:0};
+
+  \draw (A) -- (B);
+  \draw (A) -- (C);
+  \draw (B) -- (D);
+  \draw (B) -- (E);
+  \draw (C) -- (F);
+  \draw (C) -- (G);
+\end{tikzpicture}
+\end{figure}
+
+\begin{table}[b]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Iteração} & \textbf{Fila de Prioridades} \\
+\hline
+0 & ($s_{0}$, 2) \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Busca Heurística: Exemplo com GBFS}
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}
+  \node[draw, circle] (A) at (0,0) {$s_0$:2};
+  \node[draw, circle, fill=gray] (B) at (-1.7,-1) {$s_{1}$:3};
+  \node[draw, circle, fill=gray] (C) at (1.7,-1) {$s_{2}$:1};
+  \node[draw, circle] (D) at (-2.7,-2) {$s_{3}$:4};
+  \node[draw, circle] (E) at (-0.7,-2) {$s_{4}$:4};
+  \node[draw, circle] (F) at (0.7,-2) {$s_{5}$:2};
+  \node[draw, circle] (G) at (2.7,-2) {$s^{*}$:0};
+
+  \draw[gray] (A) -- (B);
+  \draw[gray] (A) -- (C);
+  \draw (B) -- (D);
+  \draw (B) -- (E);
+  \draw (C) -- (F);
+  \draw (C) -- (G);
+\end{tikzpicture}
+\end{figure}
+
+\begin{table}[b]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Iteração} & \textbf{Fila de Prioridades} \\
+\hline
+0 & ($s_{0}$, 2) \\
+\hline
+1 & ($s_{2}$, 1) \quad ($s_{1}$, 3) \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Busca Heurística: Exemplo com GBFS}
+\begin{figure}[b]
+\centering
+\begin{tikzpicture}
+  \node[draw, circle] (A) at (0,0) {$s_0$:2};
+  \node[draw, circle, fill=gray] (B) at (-1.7,-1) {$s_{1}$:3};
+  \node[draw, circle, fill=gray] (C) at (1.7,-1) {$s_{2}$:1};
+  \node[draw, circle] (D) at (-2.7,-2) {$s_{3}$:4};
+  \node[draw, circle] (E) at (-0.7,-2) {$s_{4}$:4};
+  \node[draw, circle, fill=gray] (F) at (0.7,-2) {$s_{5}$:2};
+  \node[draw, circle, fill=gray] (G) at (2.7,-2) {$s^{*}$:0};
+
+  \draw[gray] (A) -- (B);
+  \draw[gray] (A) -- (C);
+  \draw (B) -- (D);
+  \draw (B) -- (E);
+  \draw[gray] (C) -- (F);
+  \draw[gray] (C) -- (G);
+\end{tikzpicture}
+\end{figure}
+
+\begin{table}[b]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Iteração} & \textbf{Fila de Prioridades} \\
+\hline
+0 & ($s_{0}$, 2) \\
+\hline
+1 & ($s_{2}$, 1) \quad ($s_{1}$, 3) \\
+\hline
+2 & ($s^{*}$, 0) \quad ($s_{5}$, 2) \quad ($s_{1}$, 3) \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Busca Heurística: Exemplo com GBFS}
+\begin{figure}[b]
+\centering
+\begin{tikzpicture}
+  \node[draw, circle] (A) at (0,0) {$s_0$:2};
+  \node[draw, circle, fill=gray] (B) at (-1.7,-1) {$s_{1}$:3};
+  \node[draw, circle, fill=gray] (C) at (1.7,-1) {$s_{2}$:1};
+  \node[draw, circle] (D) at (-2.7,-2) {$s_{3}$:4};
+  \node[draw, circle] (E) at (-0.7,-2) {$s_{4}$:4};
+  \node[draw, circle, fill=gray] (F) at (0.7,-2) {$s_{5}$:2};
+  \node[draw, circle, color=myred] (G) at (2.7,-2) {$s^{*}$:0};
+
+  \draw[gray] (A) -- (B);
+  \draw[myred] (A) -- (C);
+  \draw (B) -- (D);
+  \draw (B) -- (E);
+  \draw[gray] (C) -- (F);
+  \draw[myred] (C) -- (G);
+\end{tikzpicture}
+\end{figure}
+
+\begin{table}[tb]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Iteração} & \textbf{Fila de Prioridades} \\
+\hline
+0 & ($s_{0}$, 2) \\
+\hline
+1 & ($s_{2}$, 1) \quad ($s_{1}$, 3) \\
+\hline
+2 & ($s^{*}$, 0) \quad ($s_{5}$, 2) \quad ($s_{1}$, 3) \\
+\hline
+3 & ($s_{5}$, 2) \quad ($s_{1}$, 3) \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+
+
 \subsection{Operadores Preferidos}
-\begin{frame}{O que são operadores preferidos?}
+\begin{frame}{Operadores Preferidos}
 \begin{itemize}
 \item \alert{Operadores} considerados \alert{promissores} ``por alguma razão''.
     \pause
@@ -325,27 +480,28 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Operadores preferidos do FF}
+\begin{frame}{Operadores Preferidos do FF}
 \end{frame}
 
 \subsection{Aprendizado de Funções Heurísticas}
-\begin{frame}{Como aprender funções heurísticas?}
+\begin{frame}{Aprendizado de Funções Heurísticas}
 \begin{itemize}
   \item Abordagem que depende \alert{muito} da lógica do domínio.
     \begin{itemize}
       \item Arquitetura da rede reflete a lógica do domínio.
-      \item e.g. (hyper)graph neural networks, action schema networks.
+      \item e.g. (hyper)graph neural networks~(\cite{Shen.etal/2020,Stahlberg.etal/2022}), action schema networks~(\cite{Toyer.etal/2018,Toyer.etal/2020}).
     \end{itemize}
   \pause
   \item Abordagem que depende \alert{pouco} da lógica do domínio.
     \begin{itemize}
       \item Apenas usa lógica do domínio para extrair mutexes e operadores aplicáveis durante a amostragem.
       \item Rede neural genérica, e.g., feedforward NN.
+      \item e.g.~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}
     \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Como aprender funções heurísticas?}
+\begin{frame}{Aprendizado de Funções Heurísticas}
 Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizado de funções heurísticas e operadores preferidos.
 \begin{itemize}
   \item Aprendizado supervisionado.
@@ -354,7 +510,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Gerando amostras para aprender funções heurísticas}
+\begin{frame}{Gerando Amostras com \bfsrw de \cite{Bettker.etal/2022}}
 \begin{itemize}
   \item A partir do gol, faz \alert{regressão} usando \alert{BFS} até conseguir $10\,\%$ do número de amostras $N$.
   \pause
@@ -362,33 +518,45 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Melhorando as estimativas das amostras}
+\begin{frame}{Melhorando as Estimativas das Amostras}
 \begin{itemize}
   \item \emph{Sample Improvement} (SAI):
   \begin{itemize}
     \item Para manter a consistência, \alert{estados repetidos} no conjunto de amostras ficam com o mesmo valor-$h$.
+    \item $h(s) = \min\{h_i \mid s=s_i, i\in[N]\}$
   \end{itemize}
 \end{itemize}
+\pause
 \begin{align*}
 \centering
 &(\text{valor-}h;\text{estado}) \\
 &\ldots \\
 &(\alert{12};0000000101011111\ldots10000010000100000) \\
 &\ldots \\
-\only<1>{&(\alert{14};0000000101011111\ldots10000010000100000) \\}
-\only<2>{&(\textgreen{12};0000000101011111\ldots10000010000100000) \\}
+\only<2>{&(\alert{14};0000000101011111\ldots10000010000100000) \\}
+\only<3>{&(\textgreen{12};0000000101011111\ldots10000010000100000) \\}
 &\ldots
 \end{align*}
 \end{frame}
 
-\begin{frame}{Melhorando as estimativas das amostras}
+\begin{frame}{Melhorando as Estimativas das Amostras}
 \begin{itemize}
   \item \emph{Successor Improvement} (SUI):
   \begin{itemize}
+    \item Múltiplos rollouts podem gerar estados vizinhos.
+    \begin{itemize}
+      \item Podemos usar essa informação para melhorar os valores-$h$.
+    \end{itemize}
+    \pause
     \item Faz um grafo com todas as relações de predecessores-sucessores do conjunto de amostras.
-    \item \ppi{TODO}
+    \pause
+    \item Atualiza os valores-$h$ dos estados a um operador de distância.
   \end{itemize}
 \end{itemize}
+\end{frame}
+
+\begin{frame}{Melhorando as Estimativas das Amostras}
+\ppi{Mostrar um exemplo simples.}
 \end{frame}
 
 
@@ -429,7 +597,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Grafo de caminhos mais curtos}
+\begin{frame}{Grafo de Caminhos mais Curtos}
 \begin{itemize}
   \item Dado um grafo $G$ representando um \alert{conjunto de amostras} e suas relações de sucessores e predecessores, podemos calcular o(s) \alert{caminho(s) mais curto de cada estado} (vértice) $s$ até o gol $s^{*}$.
   \begin{itemize}
@@ -440,7 +608,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Grafo de caminhos mais curtos}
+\begin{frame}{Grafo de Caminhos mais Curtos}
   \ppi{Botar uma figura aqui.}
 \end{frame}
 
@@ -497,6 +665,12 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
     \item Limites de $4$~GB RAM e um núcleo por processo.
   \end{itemize}
 \end{itemize}
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=10cm]{img/resnet.png}
+    %\caption{Uma tarefa de planejamento do domínio Blocks World.}
+\end{figure}
+
 \end{frame}
 
 
@@ -522,13 +696,13 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Treino}
+\begin{frame}{Treinamento}
 \begin{itemize}
   \item Duas redes treinadas separadamente: \alert{regressão} com MSE para funções heurísticas, \alert{classificação} com BCE para POs.
   \pause
   \item $5$ net seeds ($= 5~\text{net seeds} \times 5~\text{sample seeds} = 25~\text{seeds}~\text{por tarefa}$).
   \pause
-  \item Treino até \alert{early-stop} (treino mais longo durou~$2$h).
+  \item Treino até \alert{early-stop} de 100 épocas. %(o treino mais longo durou~$2$h).
 \end{itemize}
 
 \pause
@@ -562,7 +736,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 
 \end{frame}
 
-\begin{frame}{Teste (aka busca)}
+\begin{frame}{Teste (Busca)}
 \begin{itemize}
   \item Para cada tarefa original, \alert{$50$ tarefas de teste} geradas via passeio aleatório a partir do estado inicial.
   \pause
@@ -607,7 +781,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \end{frame}
 
 \subsection{Aprendendo Operadores Preferidos}
-\begin{frame}{Conseguimos aprender algo?}
+\begin{frame}{Conseguimos Aprender Algo?}
 \input{tables/learning_perfect_pos.tex}
 \begin{itemize}
 \item Os POs ideais \postartable e \postar aproximam-se de \hstar.
@@ -620,7 +794,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \end{itemize}
 \end{frame}
 
-\begin{frame}{E treinando com mais amostras?}
+\begin{frame}{E Treinando com Mais Amostras?}
 \input{tables/learning_discovered_pos.tex}
 \begin{itemize}
   \item Melhora, mas os ganhos são menores a partir de $20\,\% - 30\,\%$.
@@ -644,7 +818,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \end{frame}
 
 \subsection{Operadores Preferidos com Funções Heurísticas Lógicas}
-\begin{frame}{POs com heurísticas lógicas}
+\begin{frame}{POs com Heurísticas Lógicas}
 \input{tables/logic_heuristics_1pct.tex}
 \begin{itemize}
   \item \pog \alert{supera} \poff em todos os casos.
