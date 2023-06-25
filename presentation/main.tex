@@ -319,7 +319,7 @@
 \pause
 \item No Fast Downward: usados em esquema ``\alert{dual-queue}''.
   \begin{itemize}
-  \item Uma fila para todos os estados, outra para \alert{estados gerados exclusivamente via POs}.
+  \item Uma fila para todos os estados gerados, outra para \alert{estados gerados exclusivamente via POs}.
   \item Expansão alternada, ou não (\alert{boosting}).
   \end{itemize}
 \end{itemize}
@@ -394,7 +394,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 
 
 \section{Abordagem Proposta}
-\begin{frame}{Como aprender operadores preferidos?}
+\begin{frame}{Como Aprender Operadores Preferidos?}
 \begin{itemize}
   \item Ainda que POs sejam úteis, literatura sobre POs no geral é escassa, e sobre aprendizado de POs, inexistente.
   \pause
@@ -407,16 +407,77 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{frame}
 
 \subsection{Operadores Preferidos Ideais}
-\begin{frame}{Operadores preferidos ideais}
+\begin{frame}{Operadores Preferidos Ideais}
+\begin{itemize}
+  \item Um operador preferido ideal gera um estado com a \alert{menor distância até o gol} entre todos os sucessores.
+  \pause
+  \item Dado um estado $s$ e um operador $o \in \mathcal{O}$ em que $\sucs(s,o) = t$, $o$ é considerado um operador preferido ideal se $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
+  \begin{itemize}
+    \item $\hstarp{t} < \hstarp{s}$
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
 \subsection{Operadores Preferidos Descobertos}
-\begin{frame}{Operadores preferidos descobertos}
+\begin{frame}{Operadores Preferidos Descobertos}
+\begin{itemize}
+  \item A realidade é que \alert{não temos acesso ao espaço de estados completo} com \hstar.
+  \pause
+  \item Para treinar redes neurais, o que temos é um \alert{conjunto de amostras} do espaço de estados com \alert{estimativas imperfeitas}.
+  \pause
+  \item Precisamos ``descobrir'' os operadores preferidos dentro desse conjunto de amostras.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Grafo de caminhos mais curtos}
+\begin{itemize}
+  \item Dado um grafo $G$ representando um \alert{conjunto de amostras} e suas relações de sucessores e predecessores, podemos calcular o(s) \alert{caminho(s) mais curto de cada estado} (vértice) $s$ até o gol $s^{*}$.
+  \begin{itemize}
+    \item $\sucs(s, o) = t$ é representado por $s \xrightarrow{o} t$.
+  \end{itemize}
+  \pause
+  \item Os \alert{arcos saintes} de $s$ que \alert{fazem parte de um caminho mais curto} para o gol são os \alert{operadores preferidos} de $s$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Grafo de caminhos mais curtos}
+  \ppi{Botar uma figura aqui.}
 \end{frame}
 
 \subsection{Gerando Amostras com \bfsrs}
-\begin{frame}{Gerando amostras com \bfsrs}
+\begin{frame}{Gerando Amostras com \bfsrs}
+\begin{itemize}
+  \item Método de \cite{Bettker.etal/2022} (\bfsrw) gera muitas \alert{amostras repetidas}.
+  \begin{itemize}
+    \item Essas amostras repetidas são inúteis para a construção do grafo de caminho mais curto.
+    \item Logo, ``perdemos a chance'' de descobrir mais operadores preferidos.
+  \end{itemize}
+  \pause
+  \item Regressão via ``\alert{Expansions from Random Successors}'' (\alert{\bfsrs}).
+\end{itemize}
 \end{frame}
+
+\begin{frame}{Gerando Amostras com \bfsrs}
+\begin{itemize}
+  \item Gera $k_{1}N$ amostras via \alert{BFS}.
+  \begin{itemize}
+    \item Isso popula a fila \alert{$open$}, que contém estados gerados mas não expandidos, e conjunto \alert{$closed$}, com estados já amostrados.
+  \end{itemize}
+  \pause
+  \item Gera $k_{2}N$ amostas \alert{expandindo sucessores aleatoriamente}:
+  \begin{itemize}
+    \item Pega um estado $s \in open$.
+    \pause
+    \item Expande $s$ e coloca seus sucessores $s' \in \sucs(s)$ em $open$ se $s' \notin closed$.
+    \pause
+    \item Coloca $s$ em $closed$.
+  \end{itemize}
+\pause
+\vspace{1.0cm}
+Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores preferidos, e completamos os estados.
+\end{itemize}
+\end{frame}
+
 
 \section{Experimentos}
 \subsection{Preliminares}
@@ -439,11 +500,11 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{frame}
 
 
-\begin{frame}{Tarefas de benchmark}
+\begin{frame}{Tarefas de Benchmark}
 \input{tables/tasks_info.tex}
 \end{frame}
 
-\begin{frame}{Geração de samples}
+\begin{frame}{Geração de Samples}
 \begin{itemize}
   \item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
   \pause
@@ -490,7 +551,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
     \fi
   }
   % Sampled state
-  \node[draw, minimum width=1cm, minimum height=0.5cm, above=of op2] (s) {$s$};
+  \node[draw, minimum width=1cm, minimum height=0.5cm, above=of op2] (s) {Entrada $\mathcal{F}(s)$};
 
   % Arrows
   \draw[->] (s) -- (op2);
@@ -506,6 +567,8 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
   \item Para cada tarefa original, \alert{$50$ tarefas de teste} geradas via passeio aleatório a partir do estado inicial.
   \pause
   \item Buscas utilizando o GBFS implementado no Fast Downward, com limite de \alert{$5$ minutos} por tarefa.
+  \pause
+  \item Valor de \alert{boosting 1000}.
   \pause
   \item Todas as tarefas têm cobertura total mesmo com busca cega, então o parâmetro de comparação escolhido é o \alert{número de estados expandidos}.
 \end{itemize}
@@ -597,34 +660,22 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \section{Conclusão}
 \begin{frame}{Conclusão}
 \begin{itemize}
-  \item Abordagens ``learning-based'' têm considerável \alert{potencial} para superar abordagens ``logic-based''.
+  %\item Abordagens ``learning-based'' têm considerável potencial para superar abordagens ``logic-based''.
+  \item É possível aprender operadores preferidos \alert{comparáveis ao estado da arte}.
   \pause
   \item POs aprendidos \pog têm \alert{menos expansões} do que \poff nas tarefas de teste.
   \pause
     \begin{itemize}
-      \item Isso é mais evidente quando a heurística usada é menos informada.
+      \item Isso é mais evidente quando a heurística usada é menos informada (\hgc, \hblind).
+      \pause
+      \item Mas treinar sobre $5\,\%$ do espaço de estados para superar \poff ainda exige um número considerável de amostras.
+      \pause
+      \item Aprender POs é uma tarefa \alert{difícil}.
     \end{itemize}
   \pause
   \item Dado um conjunto com número de amostras representando uma porcentagem do espaço de estados, POs aprendidos \alert{generalizam bem} para o espaço de estados completo de uma tarefa.
 \end{itemize}
 \end{frame}
-
-\begin{frame}{Trabalhos futuros}
-\begin{itemize}
-  \item Nossa abordagem é muito boa, mas pode melhorar.
-  \pause
-  \item Treinar sobre $5\,\%$ do espaço de estados para superar \poff ainda exige um número considerável de amostras. Aprender POs é uma tarefa \alert{difícil}.
-  \begin{itemize}
-    \pause
-    \item Além disso, algumas tarefas de planejamento têm \alert{centenas de milhares de operadores}.
-    \pause
-    \item Isso quer dizer que aprender operadores preferidos é uma tarefa \alert{difícil}.
-  \end{itemize}
-  \pause
-  \item Trabalho futuro pode explorar alternativas que permitam o treinamento com um \alert{número menor de amostras}.
-\end{itemize}
-\end{frame}
-
 
 \begin{frame}[allowframebreaks]
 \frametitle{Referências}
