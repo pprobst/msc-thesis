@@ -596,11 +596,190 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
     \item Atualiza os valores-$h$ dos estados a \alert{um operador de distância}.
   \end{itemize}
 \end{itemize}
+ $$h(s) = \min(h(s), h(t)+1)$$
 \end{frame}
 
 \begin{frame}{Melhorando as Estimativas das Amostras}
-\ppi{Exemplo do SUI}
-\end{frame}{Melhorando as Estimativas das Amostras}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\only<1> {
+    \begin{itemize}
+        \item Rollout \#1
+        \begin{itemize}
+            \item Amostra \#1: $\langle s^*, 0 \rangle$
+            \item Amostra \#2: $\langle s_1, 1 \rangle$
+            \item Amostra \#3: $\langle s_2, 2 \rangle$
+            \item Amostra \#4: $\langle s_3, 3 \rangle$
+        \end{itemize}
+    \end{itemize}
+}
+\only<2> {
+    \begin{itemize}
+        \item Rollout \#2
+        \begin{itemize}
+            \item Amostra \#5: $\langle s^*, 0 \rangle$
+            \item Amostra \#6: $\langle s_4, 1 \rangle$
+            \item Amostra \#7: $\langle s_5, 2 \rangle$
+            \item Amostra \#8: $\langle s_3, 3 \rangle$
+        \end{itemize}
+    \end{itemize}
+}
+\only<3> {
+    \begin{itemize}
+        \item Rollout \#1
+        \begin{itemize}
+            \item Amostra \#1: $\langle s^*, 0 \rangle$
+            \item Amostra \#2: $\langle s_1, 1 \rangle$
+            \item Amostra \#3: $\langle s_2, 2 \rangle$
+            \item Amostra \#4: $\langle s_3, 3 \rangle$
+        \end{itemize}
+        \item Rollout \#2
+        \begin{itemize}
+            \item Amostra \#5: $\langle s^*, 0 \rangle$
+            \item Amostra \#6: $\langle s_4, 1 \rangle$
+            \item Amostra \#7: $\langle s_5, 2 \rangle$
+            \item Amostra \#8: $\langle s_3, 3 \rangle$
+        \end{itemize}
+    \end{itemize}
+}
+\only<4> {
+    \begin{itemize}
+        \item (1) Faz um grafo tal que $G=(V,A)$, i.e.,~$V=\{s_i\mid i\in[N]\}$.
+        \item (2) Para todo par $s,t\in V$, adiciona um arco $(s,t)$ em $A$ caso $\text{succ}(s,o)\subseteq t$.
+    \end{itemize}
+}
+\only<5> {
+    \begin{itemize}
+        \item (3) Atualiza as estimativas dos estados de acordo com os sucessores.
+    \end{itemize}
+}
+\end{column}
+\begin{column}{0.5\textwidth}
+\only<1> {
+    \begin{tikzpicture}
+    [
+        node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+        black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+        red_node/.style={circle, draw=red!100, fill=red!0, very thick, minimum height=8mm, minimum width=8mm},
+    ]
+        \node[red_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[red_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+        \node[red_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+        \node[red_node, label=right:{\footnotesize$3$}] (s3) [right = of s2] {\footnotesize$s_{3}$} ;
+        \draw[->, line width=0.3mm, color=red] (s1) -- (goal) ;
+        \draw[->, line width=0.3mm, color=red] (s2) -- (s1) ;
+        \draw[->, line width=0.3mm, color=red] (s3) -- (s2) ;
+    \end{tikzpicture}
+}
+\only<2> {
+    \begin{tikzpicture}
+    [
+        node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+        black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+        blue_node/.style={circle, draw=blue!100, fill=blue!0, very thick, minimum height=8mm, minimum width=8mm},
+        red_node/.style={circle, draw=red!100, fill=red!0, very thick, minimum height=8mm, minimum width=8mm},
+        gray_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    ]
+        \node[red_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[gray_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+        \node[gray_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+        \node[red_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+        \node[red_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+        \node[red_node, label=right:{\footnotesize$3$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+
+        \draw[->, line width=0.3mm, color=lightgray] (s1) -- (goal) ;
+        \draw[->, line width=0.3mm, color=lightgray] (s2) -- (s1) ;
+        \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s2) ;
+
+        \draw[->, line width=0.3mm, color=red] (s4) -- (goal) ;
+        \draw[->, line width=0.3mm, color=red] (s5) -- (s4) ;
+        \draw[->, line width=0.3mm, color=red] (s3) -- (s5) ;
+
+    \end{tikzpicture}
+}
+\only<3> {
+    \begin{tikzpicture}
+    [
+        node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+        black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+        red_node/.style={circle, draw=red!100, fill=red!0, very thick, minimum height=8mm, minimum width=8mm},
+        blue_node/.style={circle, draw=blue!100, fill=blue!0, very thick, minimum height=8mm, minimum width=8mm},
+        magenta_node/.style={circle, draw=magenta!100, fill=magenta!0, very thick, minimum height=8mm, minimum width=8mm},
+    ]
+        \node[black_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+        \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+        \node[black_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+        \node[black_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+        \node[black_node, label=right:{\footnotesize$3$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+        \draw[->, line width=0.3mm, color=lightgray] (s1) -- (goal) ;
+        \draw[->, line width=0.3mm, color=lightgray] (s2) -- (s1) ;
+        \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s2) ;
+
+        \draw[->, line width=0.3mm, color=lightgray] (s4) -- (goal) ;
+        \draw[->, line width=0.3mm, color=lightgray] (s5) -- (s4) ;
+        \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s5) ;
+    \end{tikzpicture}
+}
+\only<4> {
+    \begin{tikzpicture}
+    [
+        node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+        black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+        grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    ]
+        \node[black_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+        \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+        \node[black_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+        \node[black_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+        \node[black_node, label=right:{\footnotesize$3$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+        \draw[->, line width=0.3mm, color=black] (s1) -- (goal) ;
+        \draw[->, line width=0.3mm, color=black] (s2) -- (s1) ;
+        \draw[->, line width=0.3mm, color=black] (s3) -- (s2) ;
+
+        \draw[->, line width=0.3mm, color=black] (s4) -- (goal) ;
+        \draw[->, line width=0.3mm, color=black] (s5) -- (s4) ;
+        \draw[->, line width=0.3mm, color=black] (s3) -- (s5) ;
+
+        \draw[->, line width=0.3mm, color=red] (s3) -- (s1) ;
+    \end{tikzpicture}
+}
+\only<5> {
+    \begin{tikzpicture}
+    [
+        node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+        black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+        grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    ]
+        \node[black_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+        \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+        \node[black_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+        \node[black_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+        \node[black_node, label=right:{\footnotesize$\text{\cancel{3}}\;\alert{2}$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+        \draw[->, line width=0.3mm, color=black] (s1) -- (goal) ;
+        \draw[->, line width=0.3mm, color=black] (s2) -- (s1) ;
+        \draw[->, line width=0.3mm, color=black] (s3) -- (s2) ;
+
+        \draw[->, line width=0.3mm, color=black] (s4) -- (goal) ;
+        \draw[->, line width=0.3mm, color=black] (s5) -- (s4) ;
+        \draw[->, line width=0.3mm, color=black] (s3) -- (s5) ;
+
+        \draw[->, line width=0.3mm, color=black] (s3) -- (s1) ;
+    \end{tikzpicture}
+}
+\end{column}
+\end{columns}
+\end{frame}
 
 \section{Abordagem Proposta}
 \begin{frame}{Como Aprender Operadores Preferidos?}
