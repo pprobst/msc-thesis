@@ -61,6 +61,7 @@
 \usepackage{comment}
 \usepackage{multicol}
 %\usepackage{natbib}
+\usepackage{cancel}
 \usepackage[citestyle=authoryear,maxnames=10,maxcitenames=1,giveninits=true,backend=biber,uniquelist=false]{biblatex}
 \usepackage[utf8]{inputenc}
 \usepackage[textsize=tiny,colorinlistoftodos,prependcaption]{todonotes}
@@ -577,7 +578,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 &(\alert{12};0000000101011111\ldots10000010000100000) \\
 &\ldots \\
 \only<2>{&(\alert{14};0000000101011111\ldots10000010000100000) \\}
-\only<3>{&(\textgreen{12};0000000101011111\ldots10000010000100000) \\}
+\only<3>{&(\cancel{14}~\alert{12};0000000101011111\ldots10000010000100000) \\}
 &\ldots
 \end{align*}
 \end{frame}
@@ -606,10 +607,10 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
     \begin{itemize}
         \item Rollout \#1
         \begin{itemize}
-            \item Amostra \#1: $\langle s^*, 0 \rangle$
-            \item Amostra \#2: $\langle s_1, 1 \rangle$
-            \item Amostra \#3: $\langle s_2, 2 \rangle$
-            \item Amostra \#4: $\langle s_3, 3 \rangle$
+            \item $\langle s^*, 0 \rangle$
+            \item $\langle s_1, 1 \rangle$
+            \item $\langle s_2, 2 \rangle$
+            \item $\langle s_3, 3 \rangle$
         \end{itemize}
     \end{itemize}
 }
@@ -617,10 +618,10 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
     \begin{itemize}
         \item Rollout \#2
         \begin{itemize}
-            \item Amostra \#5: $\langle s^*, 0 \rangle$
-            \item Amostra \#6: $\langle s_4, 1 \rangle$
-            \item Amostra \#7: $\langle s_5, 2 \rangle$
-            \item Amostra \#8: $\langle s_3, 3 \rangle$
+            \item $\langle s^*, 0 \rangle$
+            \item $\langle s_4, 1 \rangle$
+            \item $\langle s_5, 2 \rangle$
+            \item $\langle s_3, 3 \rangle$
         \end{itemize}
     \end{itemize}
 }
@@ -628,17 +629,17 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
     \begin{itemize}
         \item Rollout \#1
         \begin{itemize}
-            \item Amostra \#1: $\langle s^*, 0 \rangle$
-            \item Amostra \#2: $\langle s_1, 1 \rangle$
-            \item Amostra \#3: $\langle s_2, 2 \rangle$
-            \item Amostra \#4: $\langle s_3, 3 \rangle$
+            \item $\langle s^*, 0 \rangle$
+            \item $\langle s_1, 1 \rangle$
+            \item $\langle s_2, 2 \rangle$
+            \item $\langle s_3, 3 \rangle$
         \end{itemize}
         \item Rollout \#2
         \begin{itemize}
-            \item Amostra \#5: $\langle s^*, 0 \rangle$
-            \item Amostra \#6: $\langle s_4, 1 \rangle$
-            \item Amostra \#7: $\langle s_5, 2 \rangle$
-            \item Amostra \#8: $\langle s_3, 3 \rangle$
+            \item $\langle s^*, 0 \rangle$
+            \item $\langle s_4, 1 \rangle$
+            \item $\langle s_5, 2 \rangle$
+            \item $\langle s_3, 3 \rangle$
         \end{itemize}
     \end{itemize}
 }
@@ -662,7 +663,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
         black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
         red_node/.style={circle, draw=red!100, fill=red!0, very thick, minimum height=8mm, minimum width=8mm},
     ]
-        \node[red_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[red_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
         \node[red_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
         \node[red_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
         \node[red_node, label=right:{\footnotesize$3$}] (s3) [right = of s2] {\footnotesize$s_{3}$} ;
@@ -680,7 +681,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
         red_node/.style={circle, draw=red!100, fill=red!0, very thick, minimum height=8mm, minimum width=8mm},
         gray_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
     ]
-        \node[red_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[red_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
         \node[gray_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
         \node[gray_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
 
@@ -708,7 +709,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
         blue_node/.style={circle, draw=blue!100, fill=blue!0, very thick, minimum height=8mm, minimum width=8mm},
         magenta_node/.style={circle, draw=magenta!100, fill=magenta!0, very thick, minimum height=8mm, minimum width=8mm},
     ]
-        \node[black_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[black_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
         \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
         \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
 
@@ -732,7 +733,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
         black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
         grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
     ]
-        \node[black_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[black_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
         \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
         \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
 
@@ -758,7 +759,7 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
         black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
         grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
     ]
-        \node[black_node, accepting, label=above:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+        \node[black_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
         \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
         \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
 
@@ -829,7 +830,94 @@ Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizad
 \end{frame}
 
 \begin{frame}{Grafo de Caminhos mais Curtos}
-  \ppi{Botar uma figura aqui.}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\only<1>{Grafo $G$.}
+\only<2>{Grafo $G'$ de caminhos mais curtos para $s^{*}$.
+  \begin{itemize}
+    \item Mantém só os arcos que levam ao(s) caminho(s) mais curto(s) de qualquer estado para $s^{*}$.
+  \end{itemize}
+}
+\only<3>{Por exemplo, para o estado $s_{3}$, o operador \alert{$o_{7}$} é um \alert{operador preferido}.}
+\end{column}
+\begin{column}{0.5\textwidth}
+\only<1>{
+\begin{tikzpicture}
+[
+    node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+    black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+]
+    \node[black_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+    \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+    \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+    \node[black_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+    \node[black_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+    \node[black_node, label=right:{\footnotesize$2$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+    \draw[->, line width=0.3mm, color=black] (s1) -- (goal) node[midway,left] {\footnotesize$o_{1}$} ;
+    \draw[->, line width=0.3mm, color=black] (s2) -- (s1) node[midway,left] {\footnotesize$o_{2}$} ;
+    \draw[->, line width=0.3mm, color=black] (s3) -- (s2) node[midway,below] {\footnotesize$o_{3}$} ;
+    \draw[->, line width=0.3mm, color=black] (s4) -- (goal) node[midway,above] {\footnotesize$o_{4}$} ;
+    \draw[->, line width=0.3mm, color=black] (s5) -- (s4) node[midway,right] {\footnotesize$o_{5}$} ;
+    \draw[->, line width=0.3mm, color=black] (s3) -- (s5) node[midway,right] {\footnotesize$o_{6}$} ;
+    \draw[->, line width=0.3mm, color=black] (s3) -- (s1) node[midway,above] {\footnotesize$o_{7}$} ;
+\end{tikzpicture}
+}
+\only<2>{
+\begin{tikzpicture}
+[
+    node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+    black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+]
+    \node[black_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+    \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+    \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+    \node[black_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+    \node[black_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+    \node[black_node, label=right:{\footnotesize$2$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+    \draw[->, line width=0.3mm, color=black] (s1) -- (goal) node[midway,left] {\footnotesize$o_{1}$} ;
+    \draw[->, line width=0.3mm, color=black] (s2) -- (s1) node[midway,left] {\footnotesize$o_{2}$} ;
+    \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s2) node[midway,below] {\footnotesize$o_{3}$} ;
+    \draw[->, line width=0.3mm, color=black] (s4) -- (goal) node[midway,above] {\footnotesize$o_{4}$} ;
+    \draw[->, line width=0.3mm, color=black] (s5) -- (s4) node[midway,right] {\footnotesize$o_{5}$} ;
+    \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s5) node[midway,right] {\footnotesize$o_{6}$} ;
+    \draw[->, line width=0.3mm, color=black] (s3) -- (s1) node[midway,above] {\footnotesize$o_{7}$} ;
+\end{tikzpicture}
+}
+\only<3>{
+\begin{tikzpicture}
+[
+    node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+    black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+]
+    \node[black_node, accepting, label=left:{\footnotesize$0$}] (goal) {\footnotesize$s^*$} ;
+    \node[black_node, label=left:{\footnotesize$1$}] (s1) [below = of goal] {\footnotesize$s_{1}$} ;
+    \node[black_node, label=left:{\footnotesize$2$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+    \node[black_node, label=right:{\footnotesize$1$}] (s4) [right = of goal] {\footnotesize$s_{4}$} ;
+    \node[black_node, label=right:{\footnotesize$2$}] (s5) [below = of s4] {\footnotesize$s_{5}$} ;
+    \node[black_node, label=right:{\footnotesize$2$}] (s3) [below = of s5] {\footnotesize$s_{3}$} ;
+
+    \draw[->, line width=0.3mm, color=black] (s1) -- (goal) node[midway,left] {\footnotesize$o_{1}$} ;
+    \draw[->, line width=0.3mm, color=black] (s2) -- (s1) node[midway,left] {\footnotesize$o_{2}$} ;
+    \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s2) node[midway,below] {\footnotesize$o_{3}$} ;
+    \draw[->, line width=0.3mm, color=black] (s4) -- (goal) node[midway,above] {\footnotesize$o_{4}$} ;
+    \draw[->, line width=0.3mm, color=black] (s5) -- (s4) node[midway,right] {\footnotesize$o_{5}$} ;
+    \draw[->, line width=0.3mm, color=lightgray] (s3) -- (s5) node[midway,right] {\footnotesize$o_{6}$} ;
+    \draw[->, line width=0.3mm, color=red] (s3) -- (s1) node[midway,above] {\footnotesize$o_{7}$} ;
+\end{tikzpicture}
+}
+
+
+\end{column}
+\end{columns}
+
 \end{frame}
 
 \subsection{Gerando Amostras com \bfsrs}
@@ -898,20 +986,20 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \input{tables/tasks_info.tex}
 \end{frame}
 
-\begin{frame}{Geração de Samples}
+\begin{frame}{Geração de Amostras}
 \begin{itemize}
   \item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
   \pause
-  \item Geramos $N$ samples, onde $N$ é a porcentagem do tamanho do espaço de estados (FSP) de cada tarefa.
+  \item Geramos $N$ amostras, onde $N$ é a porcentagem do tamanho do espaço de estados (FSP) de cada tarefa.
     \begin{itemize}
       \item e.g. em Blocks, $5\,\%$ é $\lfloor 65990 \times 0.05 \rceil = 3300$ amostras.
     \end{itemize}
   \pause
   \item Para cada tarefa, geramos \alert{$5$} conjuntos de amostras (\emph{seeds}).
   \pause
-  \item Formato de cada amostra: $(h(s), \mathcal{F}(s), O_{pref} \subseteq O)$.
+  \item Formato de cada amostra: $(\textgreen{h(s)}, \textblue{\mathcal{F}(s)}, \textorange{O_{pref} \subseteq O})$.
     \begin{itemize}
-      \item $15;000000011110\ldots000100000001;27,26$
+      \item $\textgreen{15};\textblue{000000011110\ldots000100000001};\textorange{27,26}$
     \end{itemize}
 \end{itemize}
 \end{frame}
@@ -1029,7 +1117,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \begin{itemize}
   \item Em média, \pog \alert{supera} \pofsm.
   \pause
-  \item \alert{\pofsm precisa de $10\times$ mais samples} para ter resultados comparáveis a \pog.
+  \item \alert{\pofsm precisa de $10\times$ mais amostras} para ter resultados comparáveis a \pog.
     \begin{itemize}
       \item \pofsm $50\,\%$: $22.5$.
       \item \pog $5\,\%$: $22.4$.
