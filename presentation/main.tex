@@ -965,7 +965,7 @@ Em particular, este trabalho segue uma abordagem supervisionada para o aprendiza
 \subsection{Operadores Preferidos Ideais}
 \begin{frame}{Operadores Preferidos Ideais}
 \begin{itemize}
-  \item Um operador preferido ideal gera um estado com a \alert{menor distância até o gol} entre todos os sucessores.
+  \item Um operador preferido ideal gera um estado com a \alert{menor distância até o gol} entre todos os \alert{sucessores} de um estado $s$.
   \pause
   \item Dado um estado $s$ e um operador $o \in \mathcal{O}$ em que $\sucs(s,o) = t$, $o$ é considerado um operador preferido ideal se $\hstarp{t} = \min_{s' \in \sucs(s)} \hstarp{s'}$.
   \begin{itemize}
@@ -1102,12 +1102,12 @@ Em particular, este trabalho segue uma abordagem supervisionada para o aprendiza
 
 \begin{frame}{Gerando Amostras com \bfsrs}
 \begin{itemize}
-  \item Gera $k_{1}N$ amostras via \alert{BFS}.
+  \item Gera $10\,\%$ das amostras via \alert{BFS}.
   \begin{itemize}
     \item Isso popula a fila \alert{$open$}, que contém estados gerados mas não expandidos, e conjunto \alert{$closed$}, com estados já amostrados.
   \end{itemize}
   \pause
-  \item Gera $k_{2}N$ amostas \alert{expandindo sucessores aleatoriamente}:
+  \item Gera o restante das amostas \alert{expandindo sucessores aleatoriamente}:
   \begin{itemize}
     \item Pega um estado $s \in open$.
     \pause
