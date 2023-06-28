@@ -189,11 +189,11 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
       \item \alert{agente único} vs.\ \grey{agentes multiplos}
       \end{itemize}
 
-      \pause
-      \hilite{método de resolução}
-      \begin{itemize}
-      \item \grey{específico por problema} vs.\ \alert{geral} vs.\ \orange{aprendizado}
-      \end{itemize}
+      %\pause
+      %\hilite{método de resolução}
+      %\begin{itemize}
+      %\item \grey{específico por problema} vs.\ \alert{geral} vs.\ \orange{aprendizado}
+      %\end{itemize}
     \end{exampleblock}
 % ppi{Then briefly talk about non-deterministic planning.}
 % Classical Planning is an example of a "model".
@@ -209,7 +209,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
         \item $s^{*} \subseteq F$ é o conjunto de fatos que devem ser satisfeitos (``\alert{gol}'').
     \end{itemize}
    \pause
-    As ações $A(s)$ são \alert{aplicáveis} em $s$ se elas satisfizerem $pre(o)$.
+    As ações $O(s)$ são \alert{aplicáveis} em $s$ se elas satisfizerem $pre(o)$.
 
     Avançamos de um estado $s$ com o operador $o$ definindo as proposições em $add(o)$ como \alert{verdadeiras} e em $del(o)$ como \alert{falsas}.
     %\pause
@@ -218,7 +218,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 %Planning tasks are usually formally described in PDDL files, following a Lisp-like structure.
 \end{frame}
 
-\begin{frame}{Example: Blocks World}
+\begin{frame}{Exemplo: Blocks World}
 %\begin{figure}
 %    \centering
 %    \includegraphics[width=7cm]{img/blocksworld1.png}
@@ -261,7 +261,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \end{frame}
 
 \begin{frame}{Exemplo: Blocks World}
-    \begin{exampleblock}{\strut Exemmplo: Blocks World}
+    \begin{exampleblock}{\strut Exemplo: Blocks World}
       \begin{itemize}
       \item \emph{move(x,y,z)}: mover bloco x sobre y para cima de z.
       \begin{itemize}
@@ -319,20 +319,20 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
   \end{center}
 \end{frame}
 
-\begin{frame}{\sas}
-\begin{itemize}
-\item \sas é similar a STRIPS, mas variáveis têm domínios finitos, não sendo necessariamente binárias.
-  \item O estado inicial $s_{0}$ é tipicamente um \alert{estado completo}, i.e., todas as variáveis estão definidas.
-  \item O gol $s^{*}$ é definido \alert{parcialmente}, com certas variáveis indefinidas ($\bot$).
-\end{itemize}
-\end{frame}
+%\begin{frame}{\sas}
+%\begin{itemize}
+%\item \sas é similar a STRIPS, mas variáveis têm domínios finitos, não sendo necessariamente binárias.
+%  \item O estado inicial $s_{0}$ é tipicamente um \alert{estado completo}, i.e., todas as variáveis estão definidas.
+%  \item O gol $s^{*}$ é definido \alert{parcialmente}, com certas variáveis indefinidas ($\bot$).
+%\end{itemize}
+%\end{frame}
 
 \subsection{Busca Heurística}
 \begin{frame}{Busca Heurística}
 \begin{itemize}
-  \item Planejadores tipicamente buscam satisfazer o gol \alert{priorizando} estados no espaço de estados com \alert{menor função heurística}.
+  \item Num problema de planejamento, um estado $s$ tem uma função heurística $h(s)$, dado por uma função heurística $h$, que estima o \alert{custo de atingir o gol $s^{*}$} a partir de $s$.
   \pause
-  \item Um estado $s$ tem uma função heurística $h(s)$, dado por uma função heurística $h$, que estima o \alert{custo de atingir o gol $s^{*}$} a partir de $s$.
+  \item Planejadores tipicamente buscam satisfazer o gol \alert{priorizando} estados no espaço de estados com \alert{menor função heurística}.
   \pause
   \item Algoritmos ``best-first search'', e.g., greedy best-first serach (GBFS), \astar.
 \end{itemize}
@@ -533,9 +533,9 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 
 \begin{frame}{Operadores Preferidos do FF~(\cite{Hoffmann.Nebel/2001})}
 \begin{itemize}
-\item Faz um grafo da tarefa de planejamento \alert{relaxada} (ignorando del-effects) e calcula a solução dessa tarefa.
+\item Para um estado $s$, faz um grafo da tarefa de planejamento \alert{relaxada} (ignorando del-effects) e calcula a solução dessa tarefa.
 \pause
-\item Os operadores preferidos de um estado $s$ é dado por $$O_{\text{pref}}(s) = \{o \mid \textblue{pre(o) \subseteq s}, \textgreen{add(o) \cap S_{1}^{*} \neq \emptyset} \}$$
+\item Os operadores preferidos do estado $s$ é dado por $$O_{\text{pref}}(s) = \{o \mid \textblue{pre(o) \subseteq s}, \textgreen{add(o) \cap S_{1}^{*} \neq \emptyset} \}$$
 i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo menos um fato do gol} no primeiro nível da solução relaxada.
 \end{itemize}
 \end{frame}
@@ -690,29 +690,34 @@ $$O_{\text{pref}}(s_{0}) = \{\text{move(c,a,b)}\}$$
 
 
 \subsection{Aprendizado de Funções Heurísticas}
-\begin{frame}{Aprendizado de Funções Heurísticas}
-\begin{itemize}
-  \item Abordagem que depende \alert{muito} da lógica do domínio.
-    \begin{itemize}
-      \item Arquitetura da rede reflete a lógica do domínio.
-      \item e.g. (hyper)graph neural networks~(\cite{Shen.etal/2020,Stahlberg.etal/2022}), action schema networks~(\cite{Toyer.etal/2018,Toyer.etal/2020}).
-    \end{itemize}
-  \pause
-  \item Abordagem que depende \alert{pouco} da lógica do domínio.
-    \begin{itemize}
-      \item Apenas usa lógica do domínio para extrair mutexes e operadores aplicáveis durante a amostragem.
-      \item Rede neural simples, e.g., feedforward NN.
-      \item e.g.~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}
-    \end{itemize}
-\end{itemize}
-\end{frame}
+%\begin{frame}{Aprendizado de Funções Heurísticas}
+%\begin{itemize}
+%  \item Abordagem que depende \alert{muito} da lógica do domínio.
+%    \begin{itemize}
+%      \item Arquitetura da rede reflete a lógica do domínio.
+%      \item e.g. (hyper)graph neural networks~(\cite{Shen.etal/2020,Stahlberg.etal/2022}), action schema networks~(\cite{Toyer.etal/2018,Toyer.etal/2020}).
+%    \end{itemize}
+%  \pause
+%  \item Abordagem que depende \alert{pouco} da lógica do domínio.
+%    \begin{itemize}
+%      \item Apenas usa lógica do domínio para extrair mutexes e operadores aplicáveis durante a amostragem.
+%      \item Rede neural simples, e.g., feedforward NN.
+%      \item e.g.~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}
+%    \end{itemize}
+%\end{itemize}
+%\end{frame}
 
 \begin{frame}{Aprendizado de Funções Heurísticas}
-Em particular, este trabalho segue a \alert{segunda abordagem} para o aprendizado de funções heurísticas e operadores preferidos.
+Em particular, este trabalho segue uma abordagem supervisionada para o aprendizado de funções heurísticas e operadores preferidos.
 \begin{itemize}
-  \item Aprendizado supervisionado.
+  \pause
   \item Uso de lógica do domínio apenas para a derivação de mutexes e operadores aplicáveis durante o processo de amostragem.
-  \item Estratégia de \alert{\cite{Bettker.etal/2022}}.
+  \pause
+  \item Rede neural simples, e.g., feedforward NN.
+  \pause
+  \item e.g.~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}
+  \pause
+  \item Usamos a estratégia de \alert{\cite{Bettker.etal/2022}}.
 \end{itemize}
 \end{frame}
 
@@ -1148,7 +1153,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \input{tables/tasks_info.tex}
 \end{frame}
 
-\begin{frame}{Geração de Amostras}
+\begin{frame}{Geração de Amostras (Operadores Preferidos)}
 \begin{itemize}
   \item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
   \pause
@@ -1231,7 +1236,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
     \end{itemize}
   \item \postartable
     \begin{itemize}
-      \item POs perfeitos (oráculo)
+      \item POs ideais (oráculo)
     \end{itemize}
   \item \postar
     \begin{itemize}
@@ -1277,9 +1282,9 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \begin{frame}{\bfsrs vs. \bfsrw}
 \input{tables/comparison_sample.tex}
 \begin{itemize}
-  \item Em média, \pog \alert{supera} \pofsm.
+  \item Em média, \pog \alert{tem menos expansões do que} \pofsm.
   \pause
-  \item \alert{\pofsm precisa de $10\times$ mais amostras} para ter resultados comparáveis a \pog.
+  \item \pofsm \alert{precisa de $10\times$ mais amostras} para ter resultados comparáveis a \pog.
     \begin{itemize}
       \item \pofsm $50\,\%$: $22.5$.
       \item \pog $5\,\%$: $22.4$.
@@ -1288,10 +1293,10 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \end{frame}
 
 \subsection{Operadores Preferidos com Funções Heurísticas Lógicas}
-\begin{frame}{POs com Heurísticas Lógicas}
+\begin{frame}{Operadores Preferidos com Heurísticas Lógicas}
 \input{tables/logic_heuristics_1pct.tex}
 \begin{itemize}
-  \item \pog \alert{supera} \poff em todos os casos.
+  \item \pog \alert{tem menos expansões do que} \poff em todos os casos.
   \pause
   \item Usar bons POs pode ser \alert{melhor} do que trocar de função heurística.
     \begin{itemize}
