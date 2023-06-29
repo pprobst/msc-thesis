@@ -330,7 +330,10 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \subsection{Busca Heurística}
 \begin{frame}{Busca Heurística}
 \begin{itemize}
-  \item Num problema de planejamento, um estado $s$ tem uma função heurística $h(s)$, dado por uma função heurística $h$, que estima o \alert{custo de atingir o gol $s^{*}$} a partir de $s$.
+  \item Num problema de planejamento, um estado $s$ tem uma função heurística \alert{$h(s)$}, dado por uma função heurística $h$, que estima o \alert{custo de atingir o gol $s^{*}$} a partir de $s$.
+  \begin{itemize}
+    \item A heurística perfeita \alert{$\hstar(s)$} é a \alert{distância real} de $s$ até $s^{*}$.
+  \end{itemize}
   \pause
   \item Planejadores tipicamente buscam satisfazer o gol \alert{priorizando} estados no espaço de estados com \alert{menor função heurística}.
   \pause
@@ -629,7 +632,7 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
 
   \node[black_node, label={[below, label distance=-35mm]:{$A_{1}$}}] (a1) [right = of p0] {%
     \begin{tabular}{c}
-      \footnotesize move(c,a,b) \\
+      \alert{\footnotesize move(c,a,b)} \\
       \footnotesize to-table(c,a) \\
       \footnotesize from-table(b,c)
     \end{tabular}
@@ -637,7 +640,7 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
 
   \node[black_node, label={[below, label distance=-47mm]:{$P_{1}$}}] (p1) [right = of a1] {%
     \begin{tabular}{c}
-      \footnotesize on(c,b) \\
+      \alert{\footnotesize on(c,b)} \\
       \footnotesize clear(a) \\
       \footnotesize on-table(a) \\
       \footnotesize on-table(b) \\
@@ -972,6 +975,29 @@ Em particular, este trabalho segue uma abordagem supervisionada para o aprendiza
     \item $\hstarp{t} < \hstarp{s}$
   \end{itemize}
 \end{itemize}
+\centering
+\pause
+\vspace{0.6cm}
+\begin{tikzpicture}
+[
+    node distance=21mm and 22mm, on grid, auto, label distance=-0.5mm,
+    black_node/.style={circle, draw=black!100, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+    grey_node/.style={circle, draw=lightgray, fill=black!0, very thick, minimum height=8mm, minimum width=8mm},
+]
+    \node[black_node, label=above:{\footnotesize$5$}] (s) {\footnotesize$s$} ;
+    \node[black_node, label=above:{\footnotesize$6$}] (s1) [right = of s] {\footnotesize$s_{1}$} ;
+    \node[black_node, label=below:{\footnotesize$8$}] (s2) [below = of s1] {\footnotesize$s_{2}$} ;
+
+    \node[black_node, label=below:{\footnotesize$4$}] (t) [below = of s] {\footnotesize$t$} ;
+    \node[black_node, label=below:{\footnotesize$10$}] (s3) [left = of t] {\footnotesize$s_{3}$} ;
+    \node[black_node, label=above:{\footnotesize$22$}] (s4) [left = of s] {\footnotesize$s_{4}$} ;
+
+    \draw[->, line width=0.3mm, color=red] (s) -- (t) node[midway,right] {\alert{\footnotesize$o_{t}$}} ;
+    \draw[->, line width=0.3mm, color=black] (s) -- (s1) node[midway,above] {\footnotesize$o_{1}$} ;
+    \draw[->, line width=0.3mm, color=black] (s) -- (s2) node[midway,right] {\footnotesize$o_{2}$} ;
+    \draw[->, line width=0.3mm, color=black] (s) -- (s3) node[midway,left] {\footnotesize$o_{3}$} ;
+    \draw[->, line width=0.3mm, color=black] (s) -- (s4) node[midway,above] {\footnotesize$o_{4}$} ;
+\end{tikzpicture}
 \end{frame}
 
 \subsection{Operadores Preferidos Descobertos}
@@ -1157,7 +1183,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \begin{itemize}
   \item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
   \pause
-  \item Geramos $N$ amostras, onde $N$ é a porcentagem do tamanho do espaço de estados (FSP) de cada tarefa.
+  \item Geramos $N$ amostras, onde $N$ é a porcentagem do tamanho do espaço de estados de cada tarefa.
     \begin{itemize}
       \item e.g. em Blocks, $5\,\%$ é $\lfloor 65990 \times 0.05 \rceil = 3300$ amostras.
     \end{itemize}
@@ -1224,7 +1250,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \end{frame}
 
 \begin{frame}{Legenda}
-\begin{multicols}{2}
+\begin{multicols}{3}
 \begin{itemize}
   \item \hstar
     \begin{itemize}
@@ -1240,15 +1266,15 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
     \end{itemize}
   \item \postar
     \begin{itemize}
-      \item POs ideais (aprendidos)
+      \item POs ideais (NN)
     \end{itemize}
-  \item \pogstar
-    \begin{itemize}
-      \item POs descobertos (\hstar)
-    \end{itemize}
+  %\item \pogstar
+  %  \begin{itemize}
+  %    \item POs descobertos (\hstar)
+  %  \end{itemize}
   \item \alert{\pog}
     \begin{itemize}
-      \item POs descobertos
+      \item POs descobertos (NN)
     \end{itemize}
 
 \end{itemize}
@@ -1258,10 +1284,11 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \subsection{Aprendendo Operadores Preferidos}
 \begin{frame}{Conseguimos Aprender Algo?}
 \input{tables/learning_perfect_pos.tex}
+\pause
 \begin{itemize}
 \item Os POs ideais \postartable e \postar aproximam-se de \hstar.
 \pause
-\item Os POs descobertos \pogstar e \pog expandem o dobro de \hstar, mas superam uma busca só com a heurística aprendida \hnn.
+\item Os POs descobertos \pog expandem o dobro de \hstar, mas superam uma busca só com a heurística aprendida \hnn.
 \pause
   \begin{itemize}
     \item Então sim: POs não são um delírio, e \alert{conseguimos aprender algo útil} mesmo treinando sobre amostras representando \alert{$1\,\%$ do espaço de estados}.
@@ -1310,7 +1337,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \begin{frame}{Conclusão}
 \begin{itemize}
   %\item Abordagens ``learning-based'' têm considerável potencial para superar abordagens ``logic-based''.
-  \item É possível aprender operadores preferidos \alert{comparáveis ao estado da arte}.
+  \item É possível aprender operadores preferidos \alert{comparáveis ao estado da arte} ($\poff$, ~\cite{Hoffmann.Nebel/2001,Helmert/2006,Richter.Helmert/2009}).
   \pause
   \item POs aprendidos \pog têm \alert{menos expansões} do que \poff nas tarefas de teste.
   \pause
