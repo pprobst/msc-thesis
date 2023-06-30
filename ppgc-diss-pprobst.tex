@@ -1067,7 +1067,7 @@ Our dataset consists of planning tasks with unitary operators and state spaces r
 
 We evaluate the results based on the number of expanded states since all planning tasks are solved. Each forward state space \fsp has $50$ randomly generated initial states, resulting in $50$ planning tasks. %We generate these initial states by conducting a random walk of length $200$ from the original initial state of a task. However, in the Rovers, Scanalyzer, and VisitAll domains, some initial states were duplicated or already satisfied the goal condition. As a result, we generate initial states for these domains using random walks of length $25$, $50$, and $8$, respectively.
 In the tables, each cell represents the mean value across $50$ planning tasks and $25$ seeds, i.e., $5$ sample seeds $\times$ $5$ network seeds. Each sample seed represents a different set of samples, while the network seeds are used to initialize the parameters of the NN.
-Additionally, when referring to a specific number of samples, we use the notation ``$n$ percent of the state space'' to denote a fraction of the \fsp, e.g., $5\,\%$ of Block World's \fsp is $\lfloor 65990 \times 0.05 \rceil = 3300$ samples.
+Additionally, when referring to a specific number of samples, we use the notation ``$n$ percent of the state space'' to denote a fraction of the \fsp, e.g., $5\,\%$ of Block World's \fsp is $\lceil 65990 \times 0.05 \rceil = 3300$ samples.
 
 \input{tables/tasks_info}
 

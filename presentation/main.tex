@@ -14,6 +14,9 @@
 %\usetheme{}
 \usecolortheme{rose}
 
+\usepackage{amsthm}
+\newtheorem{definicao}{Definição}[section] % Redefinindo o ambiente "definition" como "definicao"
+
 %\setbeamertemplate{footline}[frame number]
 \setbeamertemplate{footline}{%
   \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=2ex]{author in head/foot}%
@@ -112,10 +115,10 @@
 % Optional subtitle
 %\subtitle{Defesa de Mestrado}
 
-\date{Julho de 2023}
+\date{3 de julho de 2023}
 
 % Author information
-\author{Pedro Probst Minini}
+\author{Pedro Probst Minini \\ \vspace{0.3cm} Orientador: Marcus Ritt \\ Coorientador: André G. Pereira}
 \institute{Instituto de Informática --- UFRGS}
 
 \begin{document}
@@ -151,19 +154,19 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \begin{itemize}
   \item Propomos um método para gerar amostras de estados, onde \alert{cada estado tem um conjunto de operadores preferidos}.
   \pause
-  \item Usamos esses conjuntos de amostras gerados para \alert{treinar redes neurais} que, durante a resolução de um problema de planejamento, escolhem operadores preferidos para o estado atual.
+  \item Usamos esses conjuntos de amostras gerados para \alert{treinar redes neurais} que, durante a resolução de um problema de planejamento, predizem operadores preferidos para o estado atual.
 \end{itemize}
-\pause
-\begin{align*}
-\centering
-&(\text{valor-}h;\text{estado};POs) \\
-&16;00000001011110110\ldots0000000100000001;71 \\
-&17;00000001010110100\ldots0000000100000001;8,20 \\
-&\ldots \\
-&14;00000001010100110\ldots0000010000100000;93,60 \\
-&13;00000001011100000\ldots0000010010000000;13 \\
-&\ldots
-\end{align*}
+%\pause
+%\begin{align*}
+%\centering
+%&(\text{valor-}h;\text{estado};\text{operadores preferidos}) \\
+%&16;00000001011110110\ldots0000000100000001;71 \\
+%&17;00000001010110100\ldots0000000100000001;8,20 \\
+%&\ldots \\
+%&14;00000001010100110\ldots0000010000100000;93,60 \\
+%&13;00000001011100000\ldots0000010010000000;13 \\
+%&\ldots
+%\end{align*}
 \end{frame}
 
 
@@ -176,16 +179,12 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
       \hilite{ambiente}
       \begin{itemize}
       \item \alert{estático} vs.\ \grey{dinâmico}
-        \pause
       \item \alert{determinístico} vs.\ \grey{não determinístico}
         vs.\ \grey{estocástico}
-        \pause
       \item \alert{observável}
         vs.\ \grey{parcialmente observável}
         vs.\ \grey{não observável}
-        \pause
       \item \alert{discreto} vs.\ \grey{contínuo}
-        \pause
       \item \alert{agente único} vs.\ \grey{agentes multiplos}
       \end{itemize}
 
@@ -200,7 +199,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \end{frame}
 
 \begin{frame}{STRIPS}
-  \begin{definition}[Um problema de planejamento em STRIPS]
+  \begin{definicao}[Um problema de planejamento em STRIPS]
     $\Pi = \langle F, O, s_{0}, s^{*}\rangle$ onde
     \begin{itemize}
         \item $F$ é um conjunto de variáveis booleanas (\alert{fatos} ou \alert{proposições}),
@@ -211,10 +210,10 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
    \pause
     As ações $O(s)$ são \alert{aplicáveis} em $s$ se elas satisfizerem $pre(o)$.
 
-    Avançamos de um estado $s$ com o operador $o$ definindo as proposições em $add(o)$ como \alert{verdadeiras} e em $del(o)$ como \alert{falsas}.
+    Avançamos de um estado $s$ com o operador $o$ definindo os add-effects como \alert{verdadeiros} e os del-effects como \alert{falsos}.
     %\pause
     %Por fim, $\pi = o_{1}, o_{2},\ldots, o_{n}$ é chamado de \alert{plano} para $\Pi$, em que $o_{i}$ é um operador aplicável.
-\end{definition}
+\end{definicao}
 %Planning tasks are usually formally described in PDDL files, following a Lisp-like structure.
 \end{frame}
 
@@ -336,6 +335,9 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
   \end{itemize}
   \pause
   \item Planejadores tipicamente buscam satisfazer o gol \alert{priorizando} estados no espaço de estados com \alert{menor função heurística}.
+  \begin{itemize}
+    \item Idealmente tentando preservar o ranking de expansões de \hstar.
+  \end{itemize}
   \pause
   \item Algoritmos ``best-first search'', e.g., greedy best-first serach (GBFS), \astar.
 \end{itemize}
@@ -518,7 +520,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \item \alert{Operadores} considerados \alert{promissores} ``por alguma razão''.
     \pause
   \begin{itemize}
-  \item A definição não é fechada, mas tipicamente isso quer dizer ``operadores que levam a algum estado mais provável de satisfazer o gol''. % Helmert e eu.
+  \item A definição não é fechada, mas tipicamente isso quer dizer ``operadores que levam a algum estado mais provável de satisfazer o gol''~(\cite{Helmert/2006,Richter.Helmert/2009}).
   \end{itemize}
   \pause
 \item Usados em conjunto com funções heurísticas.
@@ -711,7 +713,7 @@ $$O_{\text{pref}}(s_{0}) = \{\text{move(c,a,b)}\}$$
 %\end{frame}
 
 \begin{frame}{Aprendizado de Funções Heurísticas}
-Em particular, este trabalho segue uma abordagem supervisionada para o aprendizado de funções heurísticas e operadores preferidos.
+Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o aprendizado de funções heurísticas e operadores preferidos.
 \begin{itemize}
   \pause
   \item Uso de lógica do domínio apenas para a derivação de mutexes e operadores aplicáveis durante o processo de amostragem.
@@ -719,6 +721,7 @@ Em particular, este trabalho segue uma abordagem supervisionada para o aprendiza
   \item Rede neural simples, e.g., feedforward NN.
   \pause
   \item e.g.~\cite{Ferber.etal/2020a,Yu.etal/2020,Ferber.etal/2022,OToole/2022,Bettker.etal/2022}
+  %\item e.g.~\firsttwo{Bettker.etal/2022}
   \pause
   \item Usamos a estratégia de \alert{\cite{Bettker.etal/2022}}.
 \end{itemize}
@@ -743,12 +746,12 @@ Em particular, este trabalho segue uma abordagem supervisionada para o aprendiza
 \pause
 \begin{align*}
 \centering
-&(\text{valor-}h;\text{estado}) \\
+&\langle\text{valor-}h;\text{estado}\rangle \\
 &\ldots \\
-&(\alert{12};0000000101011111\ldots10000010000100000) \\
+&\langle\alert{12};0000000101011111\ldots10000010000100000\rangle \\
 &\ldots \\
-\only<2>{&(\alert{14};0000000101011111\ldots10000010000100000) \\}
-\only<3>{&(\cancel{14}~\alert{12};0000000101011111\ldots10000010000100000) \\}
+\only<2>{&\langle\alert{14};0000000101011111\ldots10000010000100000\rangle \\}
+\only<3>{&\langle\cancel{14}~\alert{12};0000000101011111\ldots10000010000100000\rangle \\}
 &\ldots
 \end{align*}
 \end{frame}
@@ -961,7 +964,7 @@ Em particular, este trabalho segue uma abordagem supervisionada para o aprendiza
   \pause
   \item mostramos \alert{como obter operadores preferidos} a partir de um conjunto de amostras, aproximando POs ideais,
   \pause
-  \item e propomos um \alert{novo método de amostragem} mais propício para a descoberta de POs.
+  \item e propomos um \alert{novo método de amostragem}.
 \end{itemize}
 \end{frame}
 
@@ -1150,6 +1153,18 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 
 \section{Experimentos}
 \subsection{Preliminares}
+\begin{frame}{Perguntas}
+\begin{itemize}
+  \only<1>{\item Conseguimos diminuir o número de estados expandidos usando a \alert{nossa abordagem} com uma \alert{heurística aprendida}? E como a nossa abordagem se \alert{compara} com os operadores preferidos \alert{ideais}?}
+  \only<2>{\item O que acontece se \alert{aumentarmos o tamanho do nosso conjunto de amostras} para treinamemento? Melhoramos? Se sim, até quanto?
+    \begin{itemize}
+      \item Aliás: somos melhores que os operadores preferidos do \alert{FF}?
+    \end{itemize}}
+  \only<3>{\item E se usarmos o método de amostragem de \alert{\cite{Bettker.etal/2022}} para descobrir operadores preferidos? É \alert{melhor ou pior} do que a abordagem proposta?}
+  \only<4>{\item Nossos operadores preferidos continuam sendo úteis usando com \alert{heurísticas lógicas}? ``Ganhamos'' dos operadores preferidos do FF?}
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Configuração}
 \begin{itemize}
   \item Geração de amostras
@@ -1181,25 +1196,35 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 
 \begin{frame}{Geração de Amostras (Operadores Preferidos)}
 \begin{itemize}
-  \item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
+  \only<1,2,3>{\item Amostragem usando \alert{\bfsrs} a partir do gol de uma tarefa de cada domínio.
   \pause
   \item Geramos $N$ amostras, onde $N$ é a porcentagem do tamanho do espaço de estados de cada tarefa.
     \begin{itemize}
-      \item e.g. em Blocks, $5\,\%$ é $\lfloor 65990 \times 0.05 \rceil = 3300$ amostras.
+      \item e.g. em Blocks, $5\,\%$ é $\lceil 65990 \times 0.05 \rceil = 3300$ amostras.
     \end{itemize}
   \pause
   \item Para cada tarefa, geramos \alert{$5$} conjuntos de amostras (\emph{seeds}).
   \pause
-  \item Formato de cada amostra: $(\textgreen{h(s)}, \textblue{\mathcal{F}(s)}, \textorange{O_{pref} \subseteq O})$.
+  }
+  \only<4>{
+  \item Formato de cada amostra para a rede de \alert{valores-$h$} (\alert{FSM}):
     \begin{itemize}
-      \item $\textgreen{15};\textblue{000000011110\ldots000100000001};\textorange{27,26}$
+      \item $\langle\textgreen{h(s)}, \textblue{\mathcal{F}(s)}\rangle$
+      \item $\langle\textgreen{15};\textblue{000000011110\ldots000100000001}\rangle$
     \end{itemize}
+  \vspace{0.5cm}
+  \item Formato de cada amostra para a rede de \alert{POs} (\alert{XRS}):
+    \begin{itemize}
+      \item $\langle\textblue{\mathcal{F}(s)}, \textorange{O_{pref} \subseteq O}\rangle$
+      \item $\langle\textblue{000000011110\ldots000100000001};\textorange{27,26}\rangle$
+    \end{itemize}
+  }
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Treinamento}
 \begin{itemize}
-  \item Duas redes treinadas separadamente: \alert{regressão} com MSE para funções heurísticas, \alert{classificação} com BCE para POs.
+  \item Duas redes treinadas separadamente: \alert{regressão} com mean squared error (MSE) para funções heurísticas, \alert{classificação} com binary cross-entropy (BCE) para POs.
   \pause
   \item $5$ net seeds ($= 5~\text{net seeds} \times 5~\text{sample seeds} = 25~\text{seeds}~\text{por tarefa}$).
   \pause
