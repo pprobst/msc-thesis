@@ -735,6 +735,7 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
 \end{itemize}
 \end{frame}
 
+\iffalse
 \begin{frame}{Melhorando as Estimativas das Amostras}
 \begin{itemize}
   \item \textbf{\emph{Sample Improvement} (SAI)}:
@@ -755,8 +756,9 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
 &\ldots
 \end{align*}
 \end{frame}
+\fi
 
-\begin{frame}{Melhorando as Estimativas das Amostras}
+\begin{frame}{Melhorando as Estimativas das Amostras Vizinhas}
 \begin{itemize}
   \item \textbf{\emph{Successor Improvement} (SUI)}:
   \begin{itemize}
@@ -773,7 +775,7 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
  $$h(s) = \min(h(s), h(t)+1)$$
 \end{frame}
 
-\begin{frame}{Melhorando as Estimativas das Amostras}
+\begin{frame}{Melhorando as Estimativas das Amostras Vizinhas}
 \begin{columns}
 \begin{column}{0.5\textwidth}
 \only<1> {
@@ -1348,12 +1350,18 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 \begin{frame}{Operadores Preferidos com Heurísticas Lógicas}
 \input{tables/logic_heuristics_1pct.tex}
 \begin{itemize}
-  \item \pog \alert{tem menos expansões do que} \poff em todos os casos.
+  \only<1,2>{\item \pog \alert{tem menos expansões do que} \poff em todos os casos.
   \pause
   \item Usar bons POs pode ser \alert{melhor} do que trocar de função heurística.
     \begin{itemize}
        \item \hgc + \pog tem expansões próximas de \hff e \hadd.
     \end{itemize}
+  }
+    \only<3>{\item \hblind apenas \alert{identifica o gol}, sendo inútil para guiar a busca.
+    \begin{itemize}
+      \item Neste caso, os operadores preferidos atuam como uma \alert{política}. Os resultados mostram que \poff não serve efetivamente como uma política, enquanto \pog sim.
+    \end{itemize}
+    }
 \end{itemize}
 \end{frame}
 
