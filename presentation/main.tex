@@ -267,7 +267,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
         \item Pre(move(a,b,c)) = \{on(a,b), clear(a), clear(c)\}
         \item Add(move(a,b,c)) = \{on(a,c), clear(b)\}
         \item Del(move(a,b,c)) = \{on(a,b), clear(c)\}
-        \item Com base no estado inicial, essa ação é aplicável? % Não, ela não satisfaz as condições prévias.
+        %\item Com base no estado inicial, essa ação é aplicável? % Não, ela não satisfaz as condições prévias.
       \end{itemize}
       \item \emph{to-table}(x,y): mover bloco x sobre y para a mesa.
       \item \emph{from-table}(x,y): mover bloco x da mesa para cima de y.
@@ -541,7 +541,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \item Para um estado $s$, faz um grafo da tarefa de planejamento \alert{relaxada} (ignorando del-effects) e calcula a solução dessa tarefa.
 \pause
 \item Os operadores preferidos do estado $s$ é dado por $$O_{\text{pref}}(s) = \{o \mid \textblue{pre(o) \subseteq s}, \textgreen{add(o) \cap S_{1}^{*} \neq \emptyset} \}$$
-i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo menos um fato do gol} no primeiro nível da solução relaxada.
+i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo menos um fato do gol}\footnote{Precondições de ações que adicionam um fato do gol \emph{também} são adicionadas em $S^{*}$ como ``sub-gols''.} no primeiro nível da solução relaxada.
 \end{itemize}
 \end{frame}
 
