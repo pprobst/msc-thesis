@@ -143,7 +143,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \begin{itemize}
   \item Abordagens existentes para a derivação de operadores preferidos são baseadas em lógica (e.g. operadores preferidos do FF).
   \pause
-  \item Há vários métodos para o aprendizado de funções heurísticas usando redes neurais.
+  \item Há vários métodos para o \alert{aprendizado de funções heurísticas} usando redes neurais.
   \begin{itemize}
     \item Mas nada sobre aprender operadores preferidos.
   \end{itemize}
@@ -536,12 +536,23 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Operadores Preferidos}
+\begin{itemize}
+  \item Com um valor de \alert{boosting $n$}, quando progredimos a busca (encontramos um estado com valor-$h$ menor do que todos os outros), então a fila de estados gerados por operadores preferidos é usada nas \alert{próximas $n$ expansões}.
+  \item Boosting é \alert{cumulativo}.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Operadores Preferidos do FF~(\cite{Hoffmann.Nebel/2001})}
 \begin{itemize}
 \item Para um estado $s$, faz um grafo da tarefa de planejamento \alert{relaxada} (ignorando del-effects) e calcula a solução dessa tarefa.
 \pause
 \item Os operadores preferidos do estado $s$ é dado por $$O_{\text{pref}}(s) = \{o \mid \textblue{pre(o) \subseteq s}, \textgreen{add(o) \cap S_{1}^{*} \neq \emptyset} \}$$
-i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo menos um fato do gol}\footnote{Precondições de ações que adicionam um fato do gol \emph{também} são adicionadas em $S^{*}$ como ``sub-gols''.} no primeiro nível da solução relaxada.
+i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo menos um fato do gol} no primeiro nível da solução relaxada.
+\pause
+\begin{itemize}
+\item \footnotesize Precondições de ações que adicionam um fato do gol \emph{também} são adicionadas em $S^{*}$ como ``sub-gols''.
+\end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -642,7 +653,7 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
 
   \node[black_node, label={[below, label distance=-47mm]:{$P_{1}$}}] (p1) [right = of a1] {%
     \begin{tabular}{c}
-      \alert{\footnotesize on(c,b)} \\
+      \footnotesize on(c,b) \\
       \footnotesize clear(a) \\
       \footnotesize on-table(a) \\
       \footnotesize on-table(b) \\
@@ -669,7 +680,7 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
 \begin{columns}
 \begin{column}{0.5\textwidth}
 
-$$O_{\text{pref}}(s_{0}) = \{\text{move(c,a,b)}\}$$
+  \alert{$$O_{\text{pref}}(s_{0}) = \{\text{move(c,a,b)}\}$$} % on(c,b)
 \end{column}
 \begin{column}{0.5\textwidth}
 \begin{figure}[ht]
@@ -766,9 +777,7 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
     \begin{itemize}
       \item Podemos usar essa informação para melhorar os valores-$h$.
     \end{itemize}
-    \pause
     \item Faz um \alert{grafo} com todas as relações de predecessores e sucessores do conjunto de amostras.
-    \pause
     \item Atualiza os valores-$h$ dos estados a \alert{um operador de distância}.
   \end{itemize}
 \end{itemize}
@@ -1140,7 +1149,7 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
   \pause
   \item Gera o restante das amostas \alert{expandindo sucessores aleatoriamente}:
   \begin{itemize}
-    \item Pega um estado $s \in open$.
+    \item Pega um estado $s \in open$ aleatoriamente.
     \pause
     \item Expande $s$ e coloca seus sucessores $s' \in \sucs(s)$ em $open$ se $s' \notin closed$.
     \pause
@@ -1163,7 +1172,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
       \item Aliás: somos melhores que os operadores preferidos do \alert{FF}?
     \end{itemize}}
   \only<3>{\item E se usarmos o método de amostragem de \alert{\cite{Bettker.etal/2022}} para descobrir operadores preferidos? É \alert{melhor ou pior} do que a abordagem proposta?}
-  \only<4>{\item Nossos operadores preferidos continuam sendo úteis usando com \alert{heurísticas lógicas}? ``Ganhamos'' dos operadores preferidos do FF?}
+  \only<4>{\item Nossos operadores preferidos continuam sendo úteis usando com diferentes \alert{heurísticas lógicas}? ``Ganhamos'' dos operadores preferidos do FF?}
 \end{itemize}
 \end{frame}
 
@@ -1266,7 +1275,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
 
 \begin{frame}{Teste (Busca)}
 \begin{itemize}
-  \item Para cada tarefa original, \alert{$50$ tarefas de teste} geradas via passeio aleatório a partir do estado inicial.
+  \item Para cada espaço de estados original, \alert{$50$ tarefas de teste} geradas via passeio aleatório a partir do estado inicial.
   \pause
   \item Buscas utilizando o GBFS implementado no Fast Downward, com limite de \alert{$5$ minutos} por tarefa.
   \pause
@@ -1329,6 +1338,14 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
   \item Melhora, mas os ganhos são menores a partir de $20\,\% - 30\,\%$.
   \pause
   \item Com um número de amostras equivalente a \alert{$5\,\%$} do espaço de estados, \alert{superamos \poff} em número de expansões.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{E Treinando com Mais Amostras?}
+\input{tables/learning_discovered_pos_full.tex}
+\begin{itemize}
+ \item Com $5\,\%$ temos menos expansões em média comparado a \poff, mas não em todos os domínios.
+ \item Eventualmente superamos \poff em \alert{todos} os domínios, ainda que seja necessário mais dados para treinamento.
 \end{itemize}
 \end{frame}
 
