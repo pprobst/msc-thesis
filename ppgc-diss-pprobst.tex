@@ -515,8 +515,8 @@ In the original implementation of the FF planner, the preferred operators prune 
   \While{$s^{*} \nsubseteq P_{k}$}
     \State $k \gets k + 1$
     \State \textcolor{gray}{\# \emph{Computes the action layer $O_{k}$ at layer $k$, i.e., all the actions}}
-    \State \textcolor{gray}{\# \emph{with the preconditions satisfied in the layer $P_{k}$}.}
-    \State $O_{k} \gets \{o \in O\ \mid pre(o) \subseteq P_{k}\}$
+    \State \textcolor{gray}{\# \emph{with the preconditions satisfied in the preceding layer}.}
+    \State $O_{k} \gets \{o \in O\ \mid pre(o) \subseteq P_{k-1}\}$
     \State $P_{k} \gets P_{k-1}$
     \ForAll{$o \in O_{k}$}
       \State \textcolor{gray}{\# \emph{Computes the proposition layer $P_{k}$ at layer $k$}.}
