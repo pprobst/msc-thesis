@@ -515,7 +515,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \end{frame}
 
 \subsection{Operadores Preferidos}
-\begin{frame}{Operadores Preferidos}
+\begin{frame}{Operadores Preferidos (POs)}
 \begin{itemize}
 \item \alert{Operadores} considerados \alert{promissores} ``por alguma razão''.
     \pause
@@ -536,7 +536,7 @@ Planejadores que usam operadores preferidos para \alert{priorizar a expansão de
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Operadores Preferidos}
+\begin{frame}{Operadores Preferidos (POs)}
 \begin{itemize}
   \item Com um valor de \alert{boosting $n$}, quando progredimos a busca (encontramos um estado com valor-$h$ menor do que todos os outros), então a fila de estados gerados por operadores preferidos é usada nas \alert{próximas $n$ expansões}.
   \item Boosting é \alert{cumulativo}.
@@ -582,7 +582,7 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
     \end{tabular}
   };
 
-  \node[black_node, label={[below, label distance=-45mm]:{$P_{1}$}}] (p1) [right = of a1] {%
+  \node[black_node, label={[below, label distance=-47mm]:{$P_{1}$}}] (p1) [right = of a1] {%
     \begin{tabular}{c}
       \footnotesize on(c,b) \\
       \footnotesize clear(a) \\
@@ -591,17 +591,18 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
       \footnotesize clear(c) \\
       \footnotesize on-table(c) \\
       \footnotesize on(b,c) \\
-      \footnotesize clear(b)
+      \footnotesize clear(b) \\
+      \footnotesize on(c,a)
     \end{tabular}
   };
 
-  \node[black_node, label={[below, label distance=-28mm]:{$A_{t}$}}] (at) [right = of p1] {%
+  \node[black_node, label={[below, label distance=-28mm]:{$A_{2}$}}] (at) [right = of p1] {%
     \begin{tabular}{c}
       ...
     \end{tabular}
   };
 
-  \node[black_node, label={[below, label distance=-28mm]:{$P_{t}$}}] (pt) [right = of at] {%
+  \node[black_node, label={[below, label distance=-28mm]:{$P_{2}$}}] (pt) [right = of at] {%
     \begin{tabular}{c}
       ...
     \end{tabular}
@@ -651,26 +652,27 @@ i.e., \textblue{operadores aplicáveis} em $s$ que \textgreen{adicionam pelo men
     \end{tabular}
   };
 
-  \node[black_node, label={[below, label distance=-47mm]:{$P_{1}$}}] (p1) [right = of a1] {%
+  \node[black_node, label={[below, label distance=-49mm]:{$P_{1}$}}] (p1) [right = of a1] {%
     \begin{tabular}{c}
-      \footnotesize on(c,b) \\
+      \textgreen{\footnotesize on(c,b)} \\
       \footnotesize clear(a) \\
       \footnotesize on-table(a) \\
       \footnotesize on-table(b) \\
       \footnotesize clear(c) \\
       \footnotesize on-table(c) \\
       \footnotesize on(b,c) \\
-      \footnotesize clear(b)
+      \footnotesize clear(b) \\
+      \footnotesize on(c,a)
     \end{tabular}
   };
 
-  \node[black_node, label={[below, label distance=-30mm]:{$A_{t}$}}] (at) [right = of p1] {%
+  \node[black_node, label={[below, label distance=-30mm]:{$A_{2}$}}] (at) [right = of p1] {%
     \begin{tabular}{c}
       ...
     \end{tabular}
   };
 
-  \node[black_node, label={[below, label distance=-30mm]:{$P_{t}$}}] (pt) [right = of at] {%
+  \node[black_node, label={[below, label distance=-30mm]:{$P_{2}$}}] (pt) [right = of at] {%
     \begin{tabular}{c}
       ...
     \end{tabular}
@@ -740,7 +742,7 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
 
 \begin{frame}{Gerando Amostras com \bfsrw de \cite{Bettker.etal/2022}}
 \begin{itemize}
-  \item A partir do gol, faz \alert{regressão} usando \alert{BFS} até conseguir $10\,\%$ do número de amostras $N$.
+  \item A partir do gol, faz \alert{regressão} usando \alert{BFS} (breadth-first search) até conseguir $10\,\%$ do número de amostras $N$.
   \pause
   \item Obtém o restante das amostras fazendo rollouts de \alert{Random Walk} a partir dos \alert{estados-folha} do BFS.
 \end{itemize}
@@ -1136,7 +1138,7 @@ Em particular, este trabalho segue uma \alert{abordagem supervisionada} para o a
     \item Logo, ``perdemos a chance'' de descobrir mais operadores preferidos.
   \end{itemize}
   \pause
-  \item Regressão via ``\alert{Expansions from Random Successors}'' (\alert{\bfsrs}).
+  \item Regressão via ``\alert{eXpansions from Random Successors}'' (\alert{\bfsrs}).
 \end{itemize}
 \end{frame}
 
@@ -1214,7 +1216,7 @@ Depois, melhoramos as estimativas com SAI e SUI, extraímos os operadores prefer
       \item e.g. em Blocks, $5\,\%$ é $\lceil 65990 \times 0.05 \rceil = 3300$ amostras.
     \end{itemize}
   \pause
-  \item Para cada tarefa, geramos \alert{$5$} conjuntos de amostras (\emph{seeds}).
+  \item Geramos \alert{$5$} conjuntos de amostras (\emph{seeds}) para cada espaço de estados.
   \pause
   }
   \only<4>{
