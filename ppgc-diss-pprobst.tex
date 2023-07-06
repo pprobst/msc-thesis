@@ -1203,7 +1203,7 @@ We implement sample generation in Neural Fast Downward~\cite{Ferber.etal/2020a} 
 \subsection{Evaluation}
 \label{sec:exp-evaluation}
 We measure search performance by the number of expanded states since we have perfect coverage for all the selected domains. We use the Fast Downward planning system~\cite{Helmert/2006} with GBFS guided by a heuristic function to solve all $50$ initial states of each domain using a $5$ minute search time limit for each initial state.
-When preferred operators are used along the heuristic function, we experimented with searches using dual-queues with and without boosting. Due to better experimental results, for the following experiments, we use a boosted dual-queue with a boost value of $1000$, as in~\citet{Richter.Helmert/2009}. Results for searches with boosting disabled are available in~\vref{cha:discovered_pos_boost0}.
+When preferred operators are used along the heuristic function, we use GBFS with dual-queues. Due to better experimental results, for the following experiments, we use a boost value of $1000$, as in~\citet{Richter.Helmert/2009}. Results for searches with boosting disabled are available in~\vref{cha:discovered_pos_boost0}.
 
 \subsection{Sampling}
 \label{sec:exp-sampling}
