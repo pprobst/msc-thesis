@@ -1170,8 +1170,8 @@ We use the same network architecture as \citet{Ferber.etal/2022},~\citet{OToole/
 Each hidden layer has $250$ neurons and is ReLU-activated.
 The training uses the Adam optimizer~\cite{Kingma.Ba/2015} with a learning rate of $10^{-4}$, a batch size of $64$, and a patience of $100$ epochs.
 We use the MSE loss function to learn heuristic values in a regression context, and for learning preferred operators, we opt for the BCE loss since learning preferred operators is a multi-label classification problem.
-The input of the NN consists of samples in the format $\langle h(s), \mathcal{F}(s), O_{pref} \subseteq O\rangle$
-where $\mathcal{F}(s)$ is a Boolean representation of the input state $s$, with $0$ if a proposition is false and $1$ otherwise~(\cref{sec:background-heuristics}), $h(s)$ is the target value in the regression network representing the $h$-value for $s$, and $O_{pref}$ are the target values in the classification network representing the preferred operators for state $s$.
+The input of the NNs consists of samples in the format $\langle\mathcal{F}(s), h(s)\rangle$ for the regression network, or $\langle\mathcal{F}(s), O_{pref} \subseteq O\rangle$ for the classification network,
+where $\mathcal{F}(s)$ is a Boolean representation of the input state $s$, with $0$ if a proposition is false and $1$ otherwise~(\cref{sec:background-heuristics}), $h(s)$ is the target value representing the $h$-value for $s$, and $O_{pref}$ are the target values in the representing the preferred operators for state $s$.
 
 The output for the regression network is a single ReLU-activated neuron representing the learned $h$-value, and the output for classification is a sigmoid-activated tensor with values in the range $[0, 1]$ and a size equal to the number of operators of the input task.
 In the case of classification, each output neuron corresponds to an indexed operator. For example, in a planning task with ten operators, in which a sampled state $s$ has target preferred operators two and five, the indexes two and five of the output tensor must be maximized~(\cref{fig:po-tensor}). Finally, the training set has $90\,\%$ of the data, while the validation set contains the remaining $10\,\%$.
@@ -1213,9 +1213,9 @@ We extract the predicted preferred operators from the NN by selecting the operat
 
 \subsection{Dataset}
 \label{sec:exp-dataset}
-Our dataset consists of planning tasks with unitary operators and state spaces ranging from $40$\,K to $1$\,M states, identical to the dataset used by~\citet{Bettker.etal/2022}. To generate samples, we use one state space of each the following domains: Blocks World (abbreviated as Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll.
+Our dataset consists of planning tasks with unitary operators and state spaces ranging from $40$\,K to $1$\,M states, identical to the dataset used by~\citet{Bettker.etal/2022}. We generate samples using state spaces from the following domains: Blocks World (Blocks), Grid, N-Puzzle, Rovers, Scanalyzer, Transport, and VisitAll, which are common in the IPC.
 We chose these state spaces because they have small descriptions and sizes, allowing us to access the \hstar-values of every state.
-\cref{tab:tasks_info} has relevant information regarding each task, and~\vref{cha:tasks_each_domain} contains a small description of each domain.
+\cref{tab:tasks_info} has relevant information regarding each state space, and~\vref{cha:tasks_each_domain} contains a small description of each domain.
 The output neurons in the classification NN correspond to the number of operators, whereas the regression NN used for learning heuristics produces a single numerical value as its output. The number of facts determines the input neurons.
 
 \input{tables/tasks_info}
