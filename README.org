@@ -5,3 +5,8 @@ In a planning task, an agent must choose the most efficient action from a potent
 
 ** Miscellaneous
 Use latexmk for easy compilation.
+
+** License 
+[[http://creativecommons.org/licenses/by-nc-sa/2.5/][https://i.creativecommons.org/l/by-nc-sa/2.5/88x31.png]]
+
+This work is licensed under a [[http://creativecommons.org/licenses/by-nc-sa/2.5/][Creative Commons Attribution-NonCommercial-ShareAlike 2.5 Generic License]].
